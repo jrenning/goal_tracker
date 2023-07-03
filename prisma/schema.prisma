@@ -1,0 +1,39 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider = "prisma-client-js"
+    previewFeatures = ["jsonProtocol"]
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+
+
+model Goals {
+    id Int @id @default(autoincrement())
+    name String
+    points Int
+    created_at DateTime @default(now())
+    difficulty Int
+    completed Boolean
+    date_completed DateTime?
+
+}
+
+model Levels {
+    number Int @id
+    created_at DateTime @default(now())
+    points Int
+}
+
+model User {
+    id Int @id @default(autoincrement())
+    current_points Int
+    total_points Int
+    last_points_added DateTime @unique
+    level Int
+}
