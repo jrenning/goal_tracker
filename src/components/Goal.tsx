@@ -15,7 +15,13 @@ type IdCheck = {
 };
 
 function Goal({ name, points, difficulty, id, disabled }: Props) {
-  let colors = { 1: "#90EE90", 2: "#FFFFBA", 3: "#FFDFBA", 4: "#FFB3BA" };
+
+
+type Colors = {
+  [key: number]: string
+}
+
+  let colors: Colors = { 1: "#90EE90", 2: "#FFFFBA", 3: "#FFDFBA", 4: "#FFB3BA" };
 
   const [color, setColor] = useState(
     difficulty < 4 ? colors[difficulty] : "red"
