@@ -1,6 +1,7 @@
 import Head from "next/head";
 import Link from "next/link";
 import { useEffect } from "react";
+import CompletedBox from "~/components/CompletedBox";
 import GoalBox from "~/components/GoalBox";
 import Header from "~/components/Header";
 import ProgressBar from "~/components/ProgressBar";
@@ -22,6 +23,7 @@ export default function Home() {
       <ProgressBar />
       <Title name="My Goals" date={true} />
       <GoalBox />
+      <CompletedBox />
     </>
   );
 }

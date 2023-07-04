@@ -8,11 +8,11 @@ type Props = {
 function Title({ name, date }: Props) {
   const today = new Date();
   return (
-    <div className="mt-12 flex flex-col justify-center items-center">
+    <div className="mt-12 flex flex-col items-center justify-center">
       <div className="text-4xl font-semibold">{name}</div>
       {date ? (
         <div className="mt-4 italic">
-          {today.getDate()}/{today.getMonth()}/{today.getFullYear()}
+          {today.getMonth()+1}/{today.getDate()}/{today.getFullYear()}
         </div>
       ) : (
         ""

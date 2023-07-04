@@ -18,7 +18,9 @@ export const goalsRouter = createTRPCRouter({
     .query(({ input, ctx}) => {
       return ctx.prisma.goals.findMany({
         where: {
-            date_completed: input.date
+            date_completed: {
+                gte: input.date
+            }
         }
       })
     }),
@@ -34,6 +36,19 @@ export const goalsRouter = createTRPCRouter({
             data: {
                 completed: true,
                 date_completed: today
+            }
+        })
+        return goal
+    }),
+    addGoal: publicProcedure
+    .input(z.object({name: z.string(), exp: z.number(), difficulty: z.number()}))
+    .mutation(async ({input, ctx})=> {
+        const goal = await ctx.prisma.goals.create({
+            data: {
+                name: input.name,
+                points: input.exp,
+                difficulty: input.difficulty,
+                completed: false
             }
         })
         return goal

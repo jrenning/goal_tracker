@@ -7,16 +7,19 @@ type Props = {
   points: number;
   difficulty: number;
   id: number;
+  disabled: boolean;
 };
 
 type IdCheck = {
   id: number;
 };
 
-function Goal({ name, points, difficulty, id }: Props) {
-  let colors = { 1: "green", 2: "yellow", 3: "orange", 4: "red" };
+function Goal({ name, points, difficulty, id, disabled }: Props) {
+  let colors = { 1: "#90EE90", 2: "#FFFFBA", 3: "#FFDFBA", 4: "#FFB3BA" };
 
-  const [color, setColor] = useState(colors[difficulty]);
+  const [color, setColor] = useState(
+    difficulty < 4 ? colors[difficulty] : "red"
+  );
 
   const utils = api.useContext();
   const user_query = api.user.getCurrentUserInfo.useQuery();
@@ -78,16 +81,19 @@ function Goal({ name, points, difficulty, id }: Props) {
     >
       <div className="flex w-2/3 flex-row items-center space-x-4 p-4">
         <div className="text-xl font-extrabold">{name}</div>
-        <div>!</div>
       </div>
       <div className="flex w-1/3 flex-row items-center justify-evenly">
         <div className="italic">{points} exp</div>
-        <button
-          className="rounded-full text-2xl hover:text-green-300 "
-          onClick={() => completeGoal()}
-        >
-          &#x2713;
-        </button>
+        {!disabled ? (
+          <button
+            className="rounded-full text-2xl hover:drop-shadow-lg hover:text-green-300 "
+            onClick={() => completeGoal()}
+          >
+            &#x2713;
+          </button>
+        ) : (
+          ""
+        )}
       </div>
     </div>
   );
