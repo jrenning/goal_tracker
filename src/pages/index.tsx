@@ -18,6 +18,7 @@ export default function Home() {
       <Head>
         <title>Goals Tracker</title>
         <link rel="icon" href="/favicon.ico" />
+        <link rel="manifest" href="/manifest.json"></link>
       </Head>
       <Header name="Goal Tracker" />
       <ProgressBar />
