@@ -3,7 +3,7 @@ import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 
 export const goalsRouter = createTRPCRouter({
   getCurrentGoals: publicProcedure.query(({ ctx }) => {
-    let today = new Date();
+    const today = new Date();
     return ctx.prisma.goals.findMany({
       where: {
         created_at: {

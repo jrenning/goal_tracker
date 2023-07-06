@@ -19,7 +19,7 @@ function startOfWeek(date: Date) {
 }
 
 const fetchGoals = (value: string) => {
-    let today = new Date()
+    const today = new Date()
     if (value == "Today") {
         today.setHours(0)
         setDateSearch(today)
