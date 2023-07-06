@@ -35,20 +35,20 @@ type Colors = {
   });
 
   const complete_call = api.goals.completeGoal.useMutation({
-    async onSuccess(data) {
+    onSuccess(data) {
       utils.goals.invalidate();
       data && alert(`${data.name} was completed!!`);
     },
   });
 
   const add_points_call = api.user.addPoints.useMutation({
-    async onSuccess(data) {
+    onSuccess(data) {
       console.log("Points added");
     },
   });
 
   const level_call = api.user.gainLevel.useMutation({
-    async onSuccess(data) {
+    onSuccess(data) {
       utils.user.invalidate();
       utils.levels.invalidate();
       console.log(`The current points are ${user?.current_points}`);

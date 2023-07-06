@@ -1,11 +1,19 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { FormEvent, useState } from "react";
 import Goal from "./Goal";
 import Title from "./Title";
 import { api } from "~/utils/api";
 
-type Goal = {};
+interface FormElements extends HTMLFormControlsCollection {
+  name: HTMLInputElement,
+  exp: HTMLInputElement,
+  difficulty: HTMLFormElement
+}
+
+interface FormElement extends HTMLFormElement {
+  readonly elements: FormElements
+}
 
 function GoalBox() {
   const goals = api.goals.getCurrentGoals.useQuery();
@@ -13,18 +21,24 @@ function GoalBox() {
   const utils = api.useContext();
 
   const add_call = api.goals.addGoal.useMutation({
-    async onSuccess(data) {
+    onSuccess(data) {
       utils.goals.invalidate();
       data && alert(`${data.name} was added!!`);
     },
   });
 
-  const createGoal = async (e: any) => {
+  const createGoal = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    const target = e.target as typeof e.target & {
+      name: {value: string},
+      exp: {value: string},
+      difficulty: {value: string}
+    }
+
     await add_call.mutateAsync({
-      name: e.target[0].value,
-      exp: Number(e.target[1].value),
-      difficulty: Number(e.target[2].value)
+      name: target.name.value,
+      exp: Number(target.exp.value),
+      difficulty: Number(target.difficulty.value)
     })
 
     setNewGoal(false)
@@ -72,17 +86,18 @@ function GoalBox() {
           <div className="flex items-center justify-center">
             <form className="items-left flex flex-col space-y-4 "
             onSubmit={(e)=> createGoal(e)}>
-              <label>Name</label>
-              <input required={true} />
-              <label>Exp</label>
-              <input type="number" required={true}></input>
-              <label>Difficulty</label>
+              <label htmlFor="name">Name</label>
+              <input required={true} id="name"/>
+              <label htmlFor="exp">Exp</label>
+              <input type="number" required={true} id="exp"></input>
+              <label htmlFor="difficulty">Difficulty</label>
               <input
                 type="range"
                 list="difficulties"
                 min={1}
                 max={4}
                 required={true}
+                id="difficulty"
               ></input>
               <datalist id="difficulties">
                 <option value={1}></option>
