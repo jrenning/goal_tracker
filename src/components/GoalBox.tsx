@@ -2,18 +2,11 @@
 
 import React, { FormEvent, useState } from "react";
 import Goal from "./Goal";
-import Title from "./Title";
 import { api } from "~/utils/api";
 
-interface FormElements extends HTMLFormControlsCollection {
-  name: HTMLInputElement,
-  exp: HTMLInputElement,
-  difficulty: HTMLFormElement
-}
 
-interface FormElement extends HTMLFormElement {
-  readonly elements: FormElements
-}
+
+
 
 function GoalBox() {
   const goals = api.goals.getCurrentGoals.useQuery();
@@ -21,8 +14,8 @@ function GoalBox() {
   const utils = api.useContext();
 
   const add_call = api.goals.addGoal.useMutation({
-    onSuccess(data) {
-      utils.goals.invalidate();
+    async onSuccess(data) {
+      await utils.goals.invalidate();
       data && alert(`${data.name} was added!!`);
     },
   });
@@ -50,7 +43,7 @@ function GoalBox() {
     <div>
       <div className=" flex h-full flex-col items-center justify-center space-y-4 border p-2">
         {goals.data
-          ? goals.data.map((goal, index) => (
+          ? goals.data.map((goal, _) => (
               <Goal
                 name={goal.name}
                 points={goal.points}
@@ -85,7 +78,7 @@ function GoalBox() {
           </button>
           <div className="flex items-center justify-center">
             <form className="items-left flex flex-col space-y-4 "
-            onSubmit={(e)=> createGoal(e)}>
+            onSubmit={ (e)=>  createGoal(e)}>
               <label htmlFor="name">Name</label>
               <input required={true} id="name"/>
               <label htmlFor="exp">Exp</label>

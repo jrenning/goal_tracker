@@ -21,7 +21,7 @@ type Colors = {
   [key: number]: string
 }
 
-  let colors: Colors = { 1: "#90EE90", 2: "#FFFFBA", 3: "#FFDFBA", 4: "#FFB3BA" };
+  const colors: Colors = { 1: "#90EE90", 2: "#FFFFBA", 3: "#FFDFBA", 4: "#FFB3BA" };
 
   const [color, setColor] = useState(
     difficulty < 4 ? colors[difficulty] : "red"
@@ -35,23 +35,22 @@ type Colors = {
   });
 
   const complete_call = api.goals.completeGoal.useMutation({
-    onSuccess(data) {
-      utils.goals.invalidate();
-      data && alert(`${data.name} was completed!!`);
+    async onSuccess(data) {
+      await utils.goals.invalidate();
+      data && alert(`${data ? data.name : "Goal"} was completed!!`);
     },
   });
 
   const add_points_call = api.user.addPoints.useMutation({
-    onSuccess(data) {
-      console.log("Points added");
+    onSuccess(_) {
+      console.log("Points added")
     },
   });
 
   const level_call = api.user.gainLevel.useMutation({
-    onSuccess(data) {
-      utils.user.invalidate();
-      utils.levels.invalidate();
-      console.log(`The current points are ${user?.current_points}`);
+    async onSuccess(data) {
+      await utils.user.invalidate();
+      await utils.levels.invalidate();
     },
   });
 
@@ -83,7 +82,7 @@ type Colors = {
   return (
     <div
       className="bg-${color}-200 flex h-20 w-full justify-between rounded-md"
-      style={{ backgroundColor: `${color}` }}
+      style={{ backgroundColor: `${color ? color : "white"}` }}
     >
       <div className="flex w-2/3 flex-row items-center space-x-4 p-4">
         <div className="text-xl font-extrabold">{name}</div>
@@ -93,7 +92,7 @@ type Colors = {
         {!disabled ? (
           <button
             className="rounded-full text-2xl hover:drop-shadow-lg hover:text-green-300 "
-            onClick={() => completeGoal()}
+            onClick={() => {completeGoal()}}
           >
             &#x2713;
           </button>
