@@ -5,31 +5,11 @@ import GoalBox from "~/components/GoalBox";
 import Header from "~/components/Header";
 import NotificationButton from "~/components/NotificationButton";
 import ProgressBar from "~/components/ProgressBar";
+import SubscriptionButton from "~/components/SubscriptionButton";
 import Title from "~/components/Title";
 
 export default function Home() {
 
-  useEffect(()=> {
-    askPermission()
-  }, [])
-
-  function askPermission() {
-    return new Promise(function (resolve, reject) {
-      const permissionResult = Notification.requestPermission(function (
-        result
-      ) {
-        resolve(result);
-      });
-
-      if (permissionResult) {
-        permissionResult.then(resolve, reject);
-      }
-    }).then(function (permissionResult) {
-      if (permissionResult !== "granted") {
-        throw new Error("We weren't granted permission.");
-      }
-    });
-  }
 
   return (
     <>
@@ -40,7 +20,11 @@ export default function Home() {
       </Head>
       <Header name="Goal Tracker" />
       <ProgressBar />
-      <NotificationButton text="This is a test" />
+      <div className="flex flex-col">
+        <SubscriptionButton />
+        <NotificationButton text="This is a test" />
+      </div>
+
       <Title name="My Goals" date={true} />
       <GoalBox />
       <CompletedBox />

@@ -11,7 +11,7 @@ const sendNotification = (text: string) => {
 }
 
   return (
-    <button onClick={()=> sendNotification(text)}>Send Notification</button>
+    <button onClick={()=> sendNotification(text)} className='rounded-md bg-red-300 mx-[200px] hover:bg-red-100'>Send Notification</button>
   )
 }
 
