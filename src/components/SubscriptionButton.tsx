@@ -11,23 +11,15 @@ function SubscriptionButton() {
           .subscribe()
           .then((pushSubscription) => {
             console.log(pushSubscription);
+            alert(pushSubscription)
           })
           .catch((err) => {
             console.error(err);
+            alert(err)
           });
       });
     } else {
       console.error("Permission was weird");
-      navigator.serviceWorker.ready.then((reg) => {
-        reg.pushManager
-          .subscribe()
-          .then((pushSubscription) => {
-            console.log(pushSubscription);
-          })
-          .catch((err) => {
-            console.error(err);
-          });
-      });
     }
   };
 
