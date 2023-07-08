@@ -6,9 +6,12 @@ function SubscriptionButton() {
     console.log(`The status is ${status}`);
     if (status == "granted") {
       const notif = new Notification("Hey Jack!");
+      const options = {
+        userVisibleOnly: true
+      }
       navigator.serviceWorker.ready.then((reg) => {
         reg.pushManager
-          .subscribe()
+          .subscribe(options)
           .then((pushSubscription) => {
             console.log(pushSubscription);
             alert(pushSubscription)
