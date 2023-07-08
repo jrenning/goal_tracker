@@ -1,9 +1,0 @@
-{
-    "buildCommand": "next build",
-    "crons": [
-        {
-            "path": "/api/scheduled_notification",
-            "schedule": "0 0 17 1/1 * ? *"
-        }
-    ]
-}

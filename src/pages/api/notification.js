@@ -11,7 +11,7 @@ webPush.setVapidDetails(
 const Notification = (req, res) => {
   if (req.method == "POST") {
     const { subscription } = req.body;
- 
+
 
     webPush
       .sendNotification(
@@ -19,7 +19,8 @@ const Notification = (req, res) => {
         JSON.stringify({
           title: "Hey Jack!",
           message: "How are your goals going today?",
-        })
+        }),
+
       )
       .then((response) => {
         res.writeHead(response.statusCode, response.headers).end(response.body);
