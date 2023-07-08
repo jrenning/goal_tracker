@@ -29,6 +29,16 @@ self.addEventListener("notificationclick", function (event) {
   );
 });
 
+self.addEventListener("periodicsync", function(event) {
+  if (event.tag == "reminder") {
+      event.waitUntil(
+        registration.showNotification("Hey Jack!", {
+          body: "Check your goals!"
+        })
+      )
+  }
+})
+
 // self.addEventListener('pushsubscriptionchange', function(event) {
 //   event.waitUntil(
 //       Promise.all([

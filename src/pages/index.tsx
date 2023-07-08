@@ -12,6 +12,28 @@ export default function Home() {
 
   const [subscription, setSubscription] = useState(null)
 
+  useEffect(()=> {
+    async function periodic() {
+      if ("serviceWorker" in navigator) {
+        const reg = await navigator.serviceWorker.ready
+        if ("periodicSync" in reg) {
+          //@ts-ignore
+          const status = await navigator.permissions.query({name: "periodic-background-sync"})
+          if (status.state == "granted") {
+            try {
+            //@ts-ignore
+            await reg.periodicSync.register("reminder", {
+              minInterval: 60*60*1000 // every hour
+            })
+          } catch(e) {
+            console.error("Can't do background sync")
+          }
+          }
+        }
+      }
+    }
+  }, [])
+
   return (
     <>
       <Head>
