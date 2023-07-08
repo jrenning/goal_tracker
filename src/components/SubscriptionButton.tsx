@@ -4,7 +4,7 @@ function SubscriptionButton() {
 
 const Subscribe = async () => {
     const status = await Notification.requestPermission()
-
+    console.log(`The status is ${status}`)
     if (status == "granted") {
         const notif = new Notification("Hey Jack!")
     }
