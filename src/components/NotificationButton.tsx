@@ -11,13 +11,14 @@ const sendNotification = async () => {
     if (subscription == null) {
       return 
     }
-    await fetch("/api/notification", {
+    const result = await fetch("/api/notification", {
       method: "POST",
       headers: {
         "Content-type": "application/json"
       },
       body: JSON.stringify({subscription})
     })
+    alert(result)
 }
 
   return (

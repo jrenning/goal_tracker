@@ -24,6 +24,7 @@ const Notification = (req, res) => {
         res.writeHead(response.statusCode, response.headers).end(response.body);
       })
       .catch((err) => {
+        alert(err)
         if ("statusCode" in err) {
           res.writeHead(err.statusCode, err.headers).end(err.body);
         } else {
