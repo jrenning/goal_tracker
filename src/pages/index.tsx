@@ -15,13 +15,13 @@ export default function Home() {
   const [subscription, setSubscription] = useState<any>(null);
   const [isSubscribed, setIsSubscribed] = useState(false);
 
-  useEffect(()=> {
-      if (user.data?.subscription != null) {
-        console.log(user.data)
-        setSubscription(user.data.subscription);
-        setIsSubscribed(true);
-      }
-  }, [])
+  useEffect(() => {
+    if (user.data?.subscription != null) {
+      console.log(user.data);
+      setSubscription(user.data.subscription);
+      setIsSubscribed(true);
+    }
+  }, [setSubscription]);
 
 
   useEffect(() => {

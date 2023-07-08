@@ -1,11 +1,11 @@
 import React from "react";
 import { api } from "~/utils/api";
 
- type Props = {
-   setSubscription: any;
- };
+type Props = {
+  setSubscription: any;
+};
 
-function SubscriptionButton({setSubscription}: Props) {
+function SubscriptionButton({ setSubscription }: Props) {
   const base64ToUint8Array = (base64: string) => {
     const padding = "=".repeat((4 - (base64.length % 4)) % 4);
     const b64 = (base64 + padding).replace(/-/g, "+").replace(/_/g, "/");
@@ -19,34 +19,32 @@ function SubscriptionButton({setSubscription}: Props) {
     return outputArray;
   };
 
-    const subscribe_call = api.user.saveSubscription.useMutation({
-      async onSuccess(data) {
-        console.log("Subscription was added")
-      },
-    });
+  const utils = api.useContext();
 
- 
+  const subscribe_call = api.user.saveSubscription.useMutation({
+    async onSuccess(data) {
+      console.log("Subscription was added");
+      await utils.user.invalidate();
+    },
+  });
 
   const Subscribe = async () => {
     const status = await Notification.requestPermission();
-    console.log(`The status is ${status}`);
     if (status == "granted") {
       const notif = new Notification("Hey Jack!");
       const options = {
         userVisibleOnly: true,
         //@ts-ignore
-        applicationServerKey: base64ToUint8Array(process.env.NEXT_PUBLIC_WEB_PUSH_PUBLIC_KEY)
+        applicationServerKey: base64ToUint8Array(process.env.NEXT_PUBLIC_WEB_PUSH_PUBLIC_KEY),
       };
       navigator.serviceWorker.ready.then((reg) => {
         reg.pushManager
           .subscribe(options)
           .then((pushSubscription) => {
-            console.log(pushSubscription);
-            alert(pushSubscription.endpoint);
-            setSubscription(pushSubscription)
             subscribe_call.mutate({
-                json: JSON.stringify({pushSubscription})
-            })
+              json: JSON.stringify({ pushSubscription }),
+            });
+            setSubscription(pushSubscription);
           })
           .catch((err) => {
             console.error(err);

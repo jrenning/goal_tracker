@@ -18,8 +18,6 @@ const sendNotification = async () => {
       },
       body: JSON.stringify({subscription})
     })
-    alert(result.body)
-    alert(result.statusText)
 }
 
   return (
