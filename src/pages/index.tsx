@@ -10,6 +10,7 @@ import Title from "~/components/Title";
 
 export default function Home() {
 
+  const [subscription, setSubscription] = useState(null)
 
   return (
     <>
@@ -21,8 +22,8 @@ export default function Home() {
       <Header name="Goal Tracker" />
       <ProgressBar />
       <div className="flex flex-col">
-        <SubscriptionButton />
-        <NotificationButton text="This is a test" />
+        <SubscriptionButton setSubscription={setSubscription}/>
+        <NotificationButton text="This is a test" subscription={subscription}/>
       </div>
 
       <Title name="My Goals" date={true} />

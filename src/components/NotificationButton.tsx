@@ -2,16 +2,26 @@ import React from 'react'
 
 type Props = {
     text: string
+    subscription: any
 }
 
-function NotificationButton({text}: Props) {
+function NotificationButton({text, subscription}: Props) {
 
-const sendNotification = (text: string) => {
-    const notification = new Notification("New notification", {body: text})
+const sendNotification = async () => {
+    if (subscription == null) {
+      return 
+    }
+    await fetch("/api/notification", {
+      method: "POST",
+      headers: {
+        "Content-type": "application/json"
+      },
+      body: JSON.stringify({subscription})
+    })
 }
 
   return (
-    <button onClick={()=> sendNotification(text)} className='rounded-md bg-red-300 mx-[200px] hover:bg-red-100'>Send Notification</button>
+    <button onClick={()=> sendNotification()} className='rounded-md bg-red-300 mx-[200px] hover:bg-red-100'>Send Notification</button>
   )
 }
 

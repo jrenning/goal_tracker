@@ -1,6 +1,10 @@
 import React from "react";
 
-function SubscriptionButton() {
+ type Props = {
+   setSubscription: any;
+ };
+
+function SubscriptionButton({setSubscription}: Props) {
   const base64ToUint8Array = (base64: string) => {
     const padding = "=".repeat((4 - (base64.length % 4)) % 4);
     const b64 = (base64 + padding).replace(/-/g, "+").replace(/_/g, "/");
@@ -13,6 +17,8 @@ function SubscriptionButton() {
     }
     return outputArray;
   };
+
+ 
 
   const Subscribe = async () => {
     const status = await Notification.requestPermission();
@@ -29,7 +35,8 @@ function SubscriptionButton() {
           .subscribe(options)
           .then((pushSubscription) => {
             console.log(pushSubscription);
-            alert(pushSubscription);
+            alert(pushSubscription.endpoint);
+            setSubscription(pushSubscription)
           })
           .catch((err) => {
             console.error(err);
