@@ -1,4 +1,5 @@
 import React from "react";
+import { api } from "~/utils/api";
 
  type Props = {
    setSubscription: any;
@@ -17,6 +18,12 @@ function SubscriptionButton({setSubscription}: Props) {
     }
     return outputArray;
   };
+
+    const subscribe_call = api.user.saveSubscription.useMutation({
+      async onSuccess(data) {
+        console.log("Subscription was added")
+      },
+    });
 
  
 
@@ -37,6 +44,9 @@ function SubscriptionButton({setSubscription}: Props) {
             console.log(pushSubscription);
             alert(pushSubscription.endpoint);
             setSubscription(pushSubscription)
+            subscribe_call.mutate({
+                json: JSON.stringify({pushSubscription})
+            })
           })
           .catch((err) => {
             console.error(err);

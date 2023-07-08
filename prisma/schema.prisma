@@ -36,4 +36,5 @@ model User {
     total_points Int
     last_points_added DateTime @unique
     level Int
+    subscription Json?
 }

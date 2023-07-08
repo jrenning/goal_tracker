@@ -36,6 +36,16 @@ export const userRouter = createTRPCRouter({
             }
         })
         return new_level
+    }),
+    saveSubscription: publicProcedure
+    .input(z.object({json: z.any()}))
+    .mutation(async ({ctx, input}) => {
+        const new_subscription = ctx.prisma.user.updateMany({
+            data: {
+                subscription: input.json
+            }
+        })
+        return new_subscription
     })
 
 });

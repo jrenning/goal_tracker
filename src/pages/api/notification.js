@@ -11,13 +11,14 @@ webPush.setVapidDetails(
 const Notification = (req, res) => {
   if (req.method == "POST") {
     const { subscription } = req.body;
+ 
 
     webPush
       .sendNotification(
         subscription,
         JSON.stringify({
-          title: "Hello Web Push",
-          message: "Your web push notification is here!",
+          title: "Hey Jack!",
+          message: "How are your goals going today?",
         })
       )
       .then((response) => {
