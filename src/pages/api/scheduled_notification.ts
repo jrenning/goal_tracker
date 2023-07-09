@@ -29,7 +29,7 @@ export default async (req: NextApiRequest,
 
 
         // send notification request 
-        await sendNotification(result?.subscription).then(() => res.send({message: "Success!"})).catch(() => res.send({message: "Failed"}))
+        await sendNotification(result?.subscription).then(() => res.send({message: "Success!"})).catch(() => res.send({message: "Failed", result: result}))
 
 
 
