@@ -7,14 +7,14 @@ export default async (req: NextApiRequest,
 
         const sendNotification = async (subscription: any) => {
           if (subscription == null) {
-            return;
+            throw new Error("The subscription was null");
           }
           const result = await fetch("/api/notification", {
             method: "POST",
             headers: {
               "Content-type": "application/json",
             },
-            body: JSON.stringify({ subscription }),
+            body: subscription,
           });
           alert(result.body);
           alert(result.statusText);
