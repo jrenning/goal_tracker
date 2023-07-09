@@ -16,6 +16,8 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     });
     alert(result.body);
     alert(result.statusText);
+
+    return result
   };
 
   // get the subscription data
@@ -26,10 +28,12 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   const result = await caller.user.getCurrentUserInfo();
 
   // send notification request
-  const send = await sendNotification(result?.subscription)
-    .then(() => res.send({ message: "Success!" }))
-    .catch((err) => {
-      res.send({ message: "Failed", result: result, err: err });
-    });
+//   await sendNotification(result?.subscription)
+//     .then((response) => res.send({ message: "Success!" }))
+//     .catch((err) => {
+//       res.write({ message: "Failed", result: result, err: err });
+//     });
+    const send = await sendNotification(result?.subscription)
+
     res.send(send)
 };
