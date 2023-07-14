@@ -1,5 +1,8 @@
+'use client'
+
+
 import Head from "next/head";
-import { useEffect, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import CompletedBox from "~/components/CompletedBox";
 import GoalBox from "~/components/GoalBox";
 import Header from "~/components/Header";
@@ -8,6 +11,15 @@ import ProgressBar from "~/components/ProgressBar";
 import SubscriptionButton from "~/components/SubscriptionButton";
 import Title from "~/components/Title";
 import { api } from "~/utils/api";
+
+import React from "react";
+import useModal from "~/hooks/useModal";
+import Modal, { ModalProps } from "~/components/Modal";
+
+
+
+
+
 
 export default function Home() {
   const user = api.user.getCurrentUserInfo.useQuery();
@@ -22,33 +34,12 @@ export default function Home() {
       setIsSubscribed(true);
     }
   }, [setSubscription]);
+  const [active, setActive] = useState(false)
 
-
-  useEffect(() => {
-    async function periodic() {
-      if ("serviceWorker" in navigator) {
-        const reg = await navigator.serviceWorker.ready;
-        if ("periodicSync" in reg) {
-          
-          const status = await navigator.permissions.query({
-            //@ts-ignore
-            name: "periodic-background-sync",
-          });
-          if (status.state == "granted") {
-            try {
-              //@ts-ignore
-              await reg.periodicSync.register("reminder", {
-                minInterval: 60 * 60 * 1000, // every hour
-              });
-            } catch (e) {
-              console.error("Can't do background sync");
-            }
-          }
-        }
-      }
-    }
-    periodic();
-  }, []);
+  // work around for stupid hydration error 
+  useEffect(()=>{
+    setActive(true)
+  }, [])
 
   return (
     <>
@@ -58,6 +49,8 @@ export default function Home() {
         <link rel="manifest" href="/manifest.json"></link>
       </Head>
       <Header name="Goal Tracker" />
+      {active ? <Modal title="Test" content={<div></div>} isOpen={true} /> : ""}
+      
       <ProgressBar />
       <div className="flex flex-col">
         {!isSubscribed ? (
@@ -70,6 +63,7 @@ export default function Home() {
       </div>
 
       <Title name="My Goals" date={true} />
+
       <GoalBox />
       <CompletedBox />
     </>
