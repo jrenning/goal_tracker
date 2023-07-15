@@ -38,6 +38,7 @@ export default function Home() {
       setIsSubscribed(true);
     }
     else {
+      // yes this does try every time if the person isn't subscribed, annoying. but only me using it so...
       setModal({
         title: "Subscribe to get Notifications",
         content: <SubscriptionButton setSubscription={setSubscription}/>,
@@ -55,20 +56,6 @@ export default function Home() {
     backgroundColor: colors["Odd_Job"] ? colors["Odd_Job"] : "#ffffff"
   });
 
-  const openModal = async () => {
-    let updated_state = { isOpen: true };
-    flushSync(() => {
-      setModal((modal) => ({
-        ...modal,
-        ...updated_state,
-      }));
-    });
-
-  };
-
-  useEffect(()=> {
-    console.log(modal)
-  }, [modal])
 
   return (
     <>

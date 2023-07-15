@@ -139,8 +139,9 @@ function Goal({ name, points, difficulty, id, disabled, category }: Props) {
       }
 
       const level = (await level_query.refetch()).data?.number;
-      const color = colors[category];
-      const rewards = (await reward_query.refetch()).data?.rewards;
+      const data = (await reward_query.refetch()).data;
+      const rewards = data?.rewards
+      const categories = data?.reward_category
       setModal &&
         setModal({
           title: "Congrats, you leveled up!",

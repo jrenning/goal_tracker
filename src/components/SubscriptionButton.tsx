@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useContext } from "react";
+import { ModalContext } from "~/pages";
 import { api } from "~/utils/api";
 
 type Props = {
@@ -6,6 +7,8 @@ type Props = {
 };
 
 function SubscriptionButton({ setSubscription }: Props) {
+  const setModal = useContext(ModalContext);
+
   const base64ToUint8Array = (base64: string) => {
     const padding = "=".repeat((4 - (base64.length % 4)) % 4);
     const b64 = (base64 + padding).replace(/-/g, "+").replace(/_/g, "/");
@@ -34,8 +37,10 @@ function SubscriptionButton({ setSubscription }: Props) {
       const notif = new Notification("Hey Jack!");
       const options = {
         userVisibleOnly: true,
-        //@ts-ignore
-        applicationServerKey: base64ToUint8Array(process.env.NEXT_PUBLIC_WEB_PUSH_PUBLIC_KEY),
+        applicationServerKey: base64ToUint8Array(
+          //@ts-ignore
+          process.env.NEXT_PUBLIC_WEB_PUSH_PUBLIC_KEY
+        ),
       };
       navigator.serviceWorker.ready.then((reg) => {
         reg.pushManager
@@ -45,6 +50,12 @@ function SubscriptionButton({ setSubscription }: Props) {
               json: JSON.stringify({ pushSubscription }),
             });
             setSubscription(pushSubscription);
+            
+            setModal &&
+              setModal((modal) => ({
+                ...modal,
+                ...updated_state,
+              }));
           })
           .catch((err) => {
             console.error(err);
@@ -54,16 +65,23 @@ function SubscriptionButton({ setSubscription }: Props) {
     } else {
       console.error("Permission was weird");
     }
+    // close modal after subscribe button is hit regardless of answer 
+    let updated_state = { isOpen: false };
+    setModal &&
+      setModal((modal) => ({
+        ...modal,
+        ...updated_state,
+      }));
   };
 
   return (
-    <div className="flex items-center justify-center mt-20">
-    <button
-      onClick={() => Subscribe()}
-      className="w-[50%] h-16 text-4xl font-semibold mb-2 rounded-md bg-blue-300 hover:bg-blue-100"
-    >
-      Subscribe
-    </button>
+    <div className="mt-20 flex items-center justify-center">
+      <button
+        onClick={() => Subscribe()}
+        className="mb-2 h-16 w-[50%] rounded-md bg-blue-300 text-4xl font-semibold hover:bg-blue-100"
+      >
+        Subscribe
+      </button>
     </div>
   );
 }
