@@ -149,6 +149,7 @@ function Goal({ name, points, difficulty, id, disabled, category }: Props) {
             <LevelUp
               level={level ? level : 0}
               rewards={rewards ? rewards : []}
+              categories={categories ? categories : []}
             />
           ),
           isOpen: true,
