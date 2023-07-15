@@ -12,7 +12,6 @@ datasource db {
 }
 
 
-
 model Goals {
     id Int @id @default(autoincrement())
     name String
@@ -20,8 +19,33 @@ model Goals {
     created_at DateTime @default(now())
     difficulty Int
     completed Boolean
+    category Category
     date_completed DateTime?
 
+}
+
+enum Category {
+    Physical
+    Education
+    Social
+    Hobby
+    Odd_Job
+}
+
+enum RewardCategories {
+    Outdoors
+    Food
+    Gift
+    Leisure
+    Experience
+}
+
+model Rewards {
+    level Int
+    category Category
+    rewards String[]
+    reward_category RewardCategories[]
+    @@id([level, category])
 }
 
 model Levels {
@@ -32,9 +56,23 @@ model Levels {
 
 model User {
     id Int @id @default(autoincrement())
-    current_points Int
-    total_points Int
+    current_points_physical Int
+    total_points_physical Int
+    level_physical Int
+    current_points_hobby Int
+    total_points_hobby Int
+    level_hobby Int
+    current_points_education Int
+    total_points_education Int
+    level_education Int
+    current_points_social Int
+    total_points_social Int
+    level_social Int
+    current_points_odd_job Int
+    total_points_odd_job Int
+    level_odd_job Int
+    
     last_points_added DateTime @unique
-    level Int
+    
     subscription Json?
 }

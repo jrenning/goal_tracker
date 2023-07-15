@@ -1,6 +1,9 @@
 "use client";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
+import { GoalCategories, ModalContext } from "~/pages";
 import { api } from "~/utils/api";
+import { colors } from "~/utils/colors";
+import LevelUp from "./LevelUp";
 
 type Props = {
   name: string;
@@ -8,30 +11,64 @@ type Props = {
   difficulty: number;
   id: number;
   disabled: boolean;
+  category: GoalCategories;
 };
 
-type IdCheck = {
-  id: number;
-};
+function Goal({ name, points, difficulty, id, disabled, category }: Props) {
+  const setModal = useContext(ModalContext);
 
-function Goal({ name, points, difficulty, id, disabled }: Props) {
+  type Colors = {
+    [key: number]: string;
+  };
 
+  const difficulty_colors: Colors = {
+    1: "#90EE90",
+    2: "#FFFFBA",
+    3: "#FFDFBA",
+    4: "#FFB3BA",
+  };
 
-type Colors = {
-  [key: number]: string
-}
+  const getColor = () => {
+    if (category == "Odd_Job") {
+      return colors["Odd_Job"];
+    } else {
+      return colors[category];
+    }
+  };
 
-  const colors: Colors = { 1: "#90EE90", 2: "#FFFFBA", 3: "#FFDFBA", 4: "#FFB3BA" };
-
-  const [color, setColor] = useState(
-    difficulty < 4 ? colors[difficulty] : "red"
-  );
+  const color = getColor();
 
   const utils = api.useContext();
   const user_query = api.user.getCurrentUserInfo.useQuery();
   const user = user_query.data;
+
+  let level;
+
+  switch (category) {
+    case "Physical":
+      level = user?.level_physical;
+      break;
+    case "Education":
+      level = user?.level_education;
+      break;
+    case "Social":
+      level = user?.level_social;
+      break;
+    case "Hobby":
+      level = user?.level_hobby;
+      break;
+    case "Odd_Job":
+      level = user?.level_odd_job;
+      break;
+  }
+
   const level_query = api.levels.getLevel.useQuery({
-    level: user ? user.level : 1,
+    level: level ? level : 1,
+  });
+
+  const reward_query = api.rewards.getLevelRewards.useQuery({
+    level: level ? level : 1,
+    category: category,
   });
 
   const complete_call = api.goals.completeGoal.useMutation({
@@ -43,7 +80,7 @@ type Colors = {
 
   const add_points_call = api.user.addPoints.useMutation({
     onSuccess(_) {
-      console.log("Points added")
+      console.log("Points added");
     },
   });
 
@@ -54,29 +91,69 @@ type Colors = {
     },
   });
 
+  const getCurrentPoints = async () => {
+    let current_points;
+    switch (category) {
+      case "Physical":
+        current_points = (await user_query.refetch()).data
+          ?.current_points_physical;
+        break;
+      case "Education":
+        current_points = (await user_query.refetch()).data
+          ?.current_points_education;
+        break;
+      case "Social":
+        current_points = (await user_query.refetch()).data
+          ?.current_points_social;
+        break;
+      case "Hobby":
+        current_points = (await user_query.refetch()).data
+          ?.current_points_hobby;
+        break;
+      case "Odd_Job":
+        current_points = (await user_query.refetch()).data
+          ?.current_points_odd_job;
+        break;
+    }
+    return current_points;
+  };
+
   const completeGoal = async () => {
     await complete_call.mutateAsync({ id: id });
-    await add_points_call.mutateAsync({ points: points });
-
-    // check if overflow occured
+    await add_points_call.mutateAsync({ points: points, category: category });
 
     if (user) {
       // get new point total
-      let current_points = (await user_query.refetch()).data?.current_points;
+      let current_points = await getCurrentPoints();
       let max_points = (await level_query.refetch()).data?.points;
 
       if (max_points && current_points) {
         while (current_points && max_points && current_points >= max_points) {
           await level_call.mutateAsync({
+            category: category,
             overflow: current_points - max_points,
           });
-          current_points = (await user_query.refetch()).data?.current_points;
+          current_points = await getCurrentPoints();
           max_points = (await level_query.refetch()).data?.points;
         }
       }
-    }
 
-    setColor("gray");
+      const level = (await level_query.refetch()).data?.number;
+      const color = colors[category];
+      const rewards = (await reward_query.refetch()).data?.rewards;
+      setModal &&
+        setModal({
+          title: "Congrats, you leveled up!",
+          content: (
+            <LevelUp
+              level={level ? level : 0}
+              rewards={rewards ? rewards : []}
+            />
+          ),
+          isOpen: true,
+          backgroundColor: color ? color : "#fffff",
+        });
+    }
   };
 
   return (
@@ -91,8 +168,10 @@ type Colors = {
         <div className="italic">{points} exp</div>
         {!disabled ? (
           <button
-            className="rounded-full text-2xl hover:drop-shadow-lg hover:text-green-300 "
-            onClick={() => {completeGoal()}}
+            className="rounded-full text-2xl hover:text-green-300 hover:drop-shadow-lg "
+            onClick={() => {
+              completeGoal();
+            }}
           >
             &#x2713;
           </button>

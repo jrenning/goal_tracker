@@ -66,6 +66,7 @@ const fetchGoals = (value: string) => {
               <Goal
                 name={goal.name}
                 points={goal.points}
+                category={goal.category}
                 difficulty={goal.difficulty}
                 id={goal.id}
                 key={goal.id}

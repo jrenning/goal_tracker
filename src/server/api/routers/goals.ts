@@ -1,6 +1,14 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 
+export const categories = z.enum([
+  "Physical",
+  "Education",
+  "Social",
+  "Hobby",
+  "Odd_Job",
+]);
+
 export const goalsRouter = createTRPCRouter({
   getCurrentGoals: publicProcedure.query(({ ctx }) => {
     const today = new Date();
@@ -41,14 +49,15 @@ export const goalsRouter = createTRPCRouter({
         return goal
     }),
     addGoal: publicProcedure
-    .input(z.object({name: z.string(), exp: z.number(), difficulty: z.number()}))
+    .input(z.object({name: z.string(), exp: z.number(), difficulty: z.number(), category: categories}))
     .mutation(async ({input, ctx})=> {
         const goal = await ctx.prisma.goals.create({
             data: {
                 name: input.name,
                 points: input.exp,
                 difficulty: input.difficulty,
-                completed: false
+                completed: false,
+                category: input.category
             }
         })
         return goal

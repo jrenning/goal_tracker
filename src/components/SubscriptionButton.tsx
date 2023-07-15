@@ -57,12 +57,14 @@ function SubscriptionButton({ setSubscription }: Props) {
   };
 
   return (
+    <div className="flex items-center justify-center mt-20">
     <button
       onClick={() => Subscribe()}
-      className="mx-[200px] mb-2 rounded-md bg-blue-300 hover:bg-blue-100"
+      className="w-[50%] h-16 text-4xl font-semibold mb-2 rounded-md bg-blue-300 hover:bg-blue-100"
     >
       Subscribe
     </button>
+    </div>
   );
 }
 

@@ -3,6 +3,7 @@
 import React, { FormEvent, useState } from "react";
 import Goal from "./Goal";
 import { api } from "~/utils/api";
+import { GoalCategories } from "~/pages";
 
 
 
@@ -26,12 +27,16 @@ function GoalBox() {
       name: {value: string},
       exp: {value: string},
       difficulty: {value: string}
+      category: {value: GoalCategories}
     }
+
+    console.log(target)
 
     await add_call.mutateAsync({
       name: target.name.value,
       exp: Number(target.exp.value),
-      difficulty: Number(target.difficulty.value)
+      difficulty: Number(target.difficulty.value),
+      category: target.category.value
     })
 
     setNewGoal(false)
@@ -48,6 +53,7 @@ function GoalBox() {
                 name={goal.name}
                 points={goal.points}
                 difficulty={goal.difficulty}
+                category={goal.category}
                 id={goal.id}
                 key={goal.id}
                 disabled={false}
@@ -80,7 +86,15 @@ function GoalBox() {
             <form className="items-left flex flex-col space-y-4 "
             onSubmit={ (e)=>  createGoal(e)}>
               <label htmlFor="name">Name</label>
-              <input required={true} id="name"/>
+              <input required={true} id="name"/>\
+              <label htmlFor="category">Category</label>
+              <select id="category">
+                  <option>Physical</option>
+                  <option>Education</option>
+                  <option>Social</option>
+                  <option>Hobby</option>
+                  <option>Odd Job</option>
+              </select>
               <label htmlFor="exp">Exp</label>
               <input type="number" required={true} id="exp"></input>
               <label htmlFor="difficulty">Difficulty</label>

@@ -1,5 +1,4 @@
-'use client'
-
+"use client";
 
 import Head from "next/head";
 import { createContext, useEffect, useState } from "react";
@@ -13,13 +12,19 @@ import Title from "~/components/Title";
 import { api } from "~/utils/api";
 
 import React from "react";
-import useModal from "~/hooks/useModal";
 import Modal, { ModalProps } from "~/components/Modal";
+import { flushSync } from "react-dom";
+import LevelUp from "~/components/LevelUp";
+import { colors } from "~/utils/colors";
+import { categories } from "~/server/api/routers/goals";
+import ProgressBox from "~/components/ProgressBox";
+import { z } from "zod";
 
+export const ModalContext = createContext<
+  React.Dispatch<React.SetStateAction<ModalProps>> | undefined
+>(undefined);
 
-
-
-
+export type GoalCategories = z.infer<typeof categories>
 
 export default function Home() {
   const user = api.user.getCurrentUserInfo.useQuery();
@@ -29,43 +34,72 @@ export default function Home() {
 
   useEffect(() => {
     if (user.data?.subscription != null) {
-      console.log(user.data);
       setSubscription(user.data.subscription);
       setIsSubscribed(true);
     }
-  }, [setSubscription]);
-  const [active, setActive] = useState(false)
+    else {
+      setModal({
+        title: "Subscribe to get Notifications",
+        content: <SubscriptionButton setSubscription={setSubscription}/>,
+        isOpen: true,
+        backgroundColor: "#ADD8E6"
+      })
 
-  // work around for stupid hydration error 
-  useEffect(()=>{
-    setActive(true)
-  }, [])
+    }
+  }, [setSubscription]);
+
+  const [modal, setModal] = useState<ModalProps>({
+    title: "",
+    content: <div></div>,
+    isOpen: false,
+    backgroundColor: colors["Odd_Job"] ? colors["Odd_Job"] : "#ffffff"
+  });
+
+  const openModal = async () => {
+    let updated_state = { isOpen: true };
+    flushSync(() => {
+      setModal((modal) => ({
+        ...modal,
+        ...updated_state,
+      }));
+    });
+
+  };
+
+  useEffect(()=> {
+    console.log(modal)
+  }, [modal])
 
   return (
     <>
-      <Head>
-        <title>Goals Tracker</title>
-        <link rel="icon" href="/favicon.ico" />
-        <link rel="manifest" href="/manifest.json"></link>
-      </Head>
-      <Header name="Goal Tracker" />
-      {active ? <Modal title="Test" content={<div></div>} isOpen={true} /> : ""}
-      
-      <ProgressBar />
-      <div className="flex flex-col">
-        {!isSubscribed ? (
-          <SubscriptionButton setSubscription={setSubscription} />
-        ) : (
-          ""
-        )}
+      <ModalContext.Provider value={setModal}>
+        <Head>
+          <title>Goals Tracker</title>
+          <link rel="icon" href="/favicon.ico" />
+          <link rel="manifest" href="/manifest.json"></link>
+        </Head>
+        <Header name="Goal Tracker" />
+        <Modal
+          title={modal?.title}
+          content={modal.content}
+          isOpen={modal.isOpen}
+          backgroundColor={modal.backgroundColor}
+        />
 
-        <NotificationButton text="This is a test" subscription={subscription} />
-      </div>
+        <ProgressBox />
+        <div className="flex flex-col">
 
-      <Title name="My Goals" date={true} />
+          <NotificationButton
+            text="This is a test"
+            subscription={subscription}
+          />
+        </div>
 
-      <GoalBox />
-      <CompletedBox />
+        <Title name="My Goals" date={true} />
+
+        <GoalBox />
+        <CompletedBox />
+      </ModalContext.Provider>
     </>
   );
 }
