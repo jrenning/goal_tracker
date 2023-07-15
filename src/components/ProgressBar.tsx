@@ -23,17 +23,24 @@ const color = colors[category]
 
 
   return (
-    <div className="p-4 w-full justify-center flex  space-x-3 flex-row">
-      <div className='rounded-full  w-10 text-center text-white font-semibold bg-black'>{level}</div>
-      <div className=" flex w-2/3 items-center bg-gray-300 h-6 rounded-md">
-        <div className='absolute mx-2 font-semibold text-slate-50 font-mono'>{category}</div>
+    <div className="flex w-full flex-row justify-center  space-x-3 p-4">
+      <div className="w-10  rounded-full bg-black text-center   font-semibold text-white">
+        {level}
+      </div>
+      <div className=" flex h-6 w-2/3 items-center rounded-md bg-gray-300 text-[0.9rem] md:text-lg">
+        <div className="absolute mx-2 font-mono font-semibold text-slate-50">
+          {category}
+        </div>
         <div
           className="h-6 rounded-md bg-blue-300"
-          style={{ width: `calc(100%*${topProgress / bottomProgress}`, backgroundColor: color ? color : "#bbbbb"}}
+          style={{
+            width: `calc(100%*${topProgress / bottomProgress}`,
+            backgroundColor: color ? color : "#bbbbb"
+          }}
         ></div>
       </div>
 
-      <div className='font-semibold'>
+      <div className="font-semibold">
         {topProgress}/{bottomProgress}
       </div>
     </div>
