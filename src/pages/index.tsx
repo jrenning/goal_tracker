@@ -16,15 +16,17 @@ import Modal, { ModalProps } from "~/components/Modal";
 import { flushSync } from "react-dom";
 import LevelUp from "~/components/LevelUp";
 import { colors } from "~/utils/colors";
-import { categories } from "~/server/api/routers/goals";
+import { goal_categories } from "~/server/api/routers/goals";
 import ProgressBox from "~/components/ProgressBox";
 import { z } from "zod";
+import { reward_categories } from "~/server/api/routers/rewards";
 
 export const ModalContext = createContext<
   React.Dispatch<React.SetStateAction<ModalProps>> | undefined
 >(undefined);
 
-export type GoalCategories = z.infer<typeof categories>
+export type GoalCategories = z.infer<typeof goal_categories>;
+export type RewardCategories = z.infer<typeof reward_categories>
 
 export default function Home() {
   const user = api.user.getCurrentUserInfo.useQuery();
@@ -36,16 +38,14 @@ export default function Home() {
     if (user.data?.subscription != null) {
       setSubscription(user.data.subscription);
       setIsSubscribed(true);
-    }
-    else {
+    } else {
       // yes this does try every time if the person isn't subscribed, annoying. but only me using it so...
       setModal({
         title: "Subscribe to get Notifications",
-        content: <SubscriptionButton setSubscription={setSubscription}/>,
+        content: <SubscriptionButton setSubscription={setSubscription} />,
         isOpen: true,
-        backgroundColor: "#ADD8E6"
-      })
-
+        backgroundColor: "#ADD8E6",
+      });
     }
   }, [setSubscription]);
 
@@ -53,9 +53,8 @@ export default function Home() {
     title: "",
     content: <div></div>,
     isOpen: false,
-    backgroundColor: colors["Odd_Job"] ? colors["Odd_Job"] : "#ffffff"
+    backgroundColor: colors["Odd_Job"] ? colors["Odd_Job"] : "#ffffff",
   });
-
 
   return (
     <>
@@ -75,7 +74,6 @@ export default function Home() {
 
         <ProgressBox />
         <div className="flex flex-col">
-
           <NotificationButton
             text="This is a test"
             subscription={subscription}

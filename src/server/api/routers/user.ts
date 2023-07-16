@@ -1,13 +1,13 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
-import { categories } from "./goals";
+import { goal_categories } from "./goals";
 
 export const userRouter = createTRPCRouter({
   getCurrentUserInfo: publicProcedure.query(({ ctx }) => {
     return ctx.prisma.user.findFirst();
   }),
   addPoints: publicProcedure
-    .input(z.object({ points: z.number(), category: categories }))
+    .input(z.object({ points: z.number(), category: goal_categories }))
     .mutation(async ({ ctx, input }) => {
       const today = new Date();
       let points_added;

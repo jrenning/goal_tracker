@@ -4,10 +4,8 @@ import React, { FormEvent, useState } from "react";
 import Goal from "./Goal";
 import { api } from "~/utils/api";
 import { GoalCategories } from "~/pages";
-
-
-
-
+import GoalForm from "./GoalForm";
+import RewardForm from "./RewardForm";
 
 function GoalBox() {
   const goals = api.goals.getCurrentGoals.useQuery();
@@ -22,27 +20,26 @@ function GoalBox() {
   });
 
   const createGoal = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+    e.preventDefault();
     const target = e.target as typeof e.target & {
-      name: {value: string},
-      exp: {value: string},
-      difficulty: {value: string}
-      category: {value: GoalCategories}
-    }
-
-    console.log(target)
+      name: { value: string };
+      exp: { value: string };
+      difficulty: { value: string };
+      category: { value: GoalCategories };
+    };
 
     await add_call.mutateAsync({
       name: target.name.value,
       exp: Number(target.exp.value),
       difficulty: Number(target.difficulty.value),
-      category: target.category.value
-    })
+      category: target.category.value,
+    });
 
-    setNewGoal(false)
-  }
+    setNewGoal(false);
+  };
 
   const [newGoal, setNewGoal] = useState(false);
+  const [newReward, setNewReward] = useState(false);
 
   return (
     <div>
@@ -61,69 +58,35 @@ function GoalBox() {
             ))
           : ""}
       </div>
-      <div className="flex items-center justify-center">
-        {!newGoal ? (
-          <button
-            className="rounded-md bg-green-300 px-4 py-[5px] shadow-lg hover:bg-slate-100"
-            onClick={() => setNewGoal(true)}
-          >
-            Add Goal
-          </button>
-        ) : (
-          ""
-        )}
+      <div className="flex items-center justify-center space-x-8">
+        <div className="">
+          {!newGoal && !newReward ? (
+            <button
+              className="rounded-md bg-green-300 px-4 py-[5px] shadow-lg hover:bg-slate-100"
+              onClick={() => setNewGoal(true)}
+            >
+              Add Goal
+            </button>
+          ) : (
+            ""
+          )}
+        </div>
+        <div className="flex items-center justify-center">
+          {!newGoal && !newReward ? (
+            <button
+              className="rounded-md bg-green-300 px-4 py-[5px] shadow-lg hover:bg-slate-100"
+              onClick={() => setNewReward(true)}
+            >
+              Add Reward
+            </button>
+          ) : (
+            ""
+          )}
+        </div>
       </div>
 
-      {newGoal ? (
-        <div className="mx-16 my-4  rounded-lg bg-green-100 py-4">
-          <button
-            className="ml-2 rounded-full bg-red-200 px-2 py-0 hover:opacity-80"
-            onClick={() => setNewGoal(false)}
-          >
-            X
-          </button>
-          <div className="flex items-center justify-center">
-            <form className="items-left flex flex-col space-y-4 "
-            onSubmit={ (e)=>  createGoal(e)}>
-              <label htmlFor="name">Name</label>
-              <input required={true} id="name"/>\
-              <label htmlFor="category">Category</label>
-              <select id="category">
-                  <option>Physical</option>
-                  <option>Education</option>
-                  <option>Social</option>
-                  <option>Hobby</option>
-                  <option>Odd Job</option>
-              </select>
-              <label htmlFor="exp">Exp</label>
-              <input type="number" required={true} id="exp"></input>
-              <label htmlFor="difficulty">Difficulty</label>
-              <input
-                type="range"
-                list="difficulties"
-                min={1}
-                max={4}
-                required={true}
-                id="difficulty"
-              ></input>
-              <datalist id="difficulties">
-                <option value={1}></option>
-                <option value={2}></option>
-                <option value={3}></option>
-                <option value={4}></option>
-              </datalist>
-              <button
-                type="submit"
-                className=" rounded-md bg-green-200 px-4 py-[5px] hover:opacity-70"
-              >
-                Add
-              </button>
-            </form>
-          </div>
-        </div>
-      ) : (
-        ""
-      )}
+      {newGoal ? <GoalForm setNewGoal={setNewGoal} /> : ""}
+      {newReward ? <RewardForm setNewReward={setNewReward} /> : ""}
     </div>
   );
 }
