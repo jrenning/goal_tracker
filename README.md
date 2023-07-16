@@ -12,13 +12,13 @@ This app is a way to track goals
 - Level up message shows old level 
 
 ## Goals
-- [] Add repeating option to goals form 
-- [] Add scheduled notifications 
-- [] Better UI for rewards screen 
-- [] Better UI for main screen 
-- [] Better UI for completed section
-- [] Add option to see old rewards 
-- [] Add option to see and edit repeating goals 
-- [] Clean up code in general, particularly the Goal component
-- [] Add better form code?
-- [] (Future) Add auth for users, + support for multiple users
+- [ ] Add repeating option to goals form 
+- [ ] Add scheduled notifications 
+- [ ] Better UI for rewards screen 
+- [ ] Better UI for main screen 
+- [ ] Better UI for completed section
+- [ ] Add option to see old rewards 
+- [ ] Add option to see and edit repeating goals 
+- [ ] Clean up code in general, particularly the Goal component
+- [ ] Add better form code?
+- [ ] (Future) Add auth for users, + support for multiple users
