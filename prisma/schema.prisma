@@ -14,6 +14,8 @@ datasource db {
 
 model Goals {
     id Int @id @default(autoincrement())
+    user_id Int @default(1)
+    user User @relation(fields: [user_id], references: [id])
     name String
     points Int
     created_at DateTime @default(now())
@@ -21,6 +23,33 @@ model Goals {
     completed Boolean
     category Category
     date_completed DateTime?
+    repeat RepeatData?
+
+}
+
+enum RepeatTypes {
+    Daily
+    Weekly
+    Monthly
+    Yearly
+}
+
+enum DayOfWeek {
+    Monday
+    Tuesday
+    Wednesday
+    Thursday
+    Friday
+}
+
+model RepeatData {
+    goal_id Int @unique
+    goal Goals @relation(fields: [goal_id], references: [id])
+    type RepeatTypes
+    days DayOfWeek[]
+    start_date DateTime @default(now())
+    last_repeated DateTime @default(now())
+    stop_date DateTime?
 
 }
 
@@ -41,11 +70,15 @@ enum RewardCategories {
 }
 
 model Rewards {
+    user_id Int @default(1)
+    user User @relation(fields: [user_id], references: [id])
     level Int
     category Category
     rewards String[]
     reward_category RewardCategories[]
-    @@id([level, category])
+    created_at DateTime @default(now())
+    achieved_at DateTime?
+    @@id([user_id, level, category])
 }
 
 model Levels {
@@ -54,25 +87,24 @@ model Levels {
     points Int
 }
 
+
+model Stats {
+    user_id Int @default(1)
+    user User @relation(fields: [user_id], references: [id])
+    category Category
+    current_points Int @default(0)
+    total_points Int @default(0)
+    level Int @default(1)
+
+    @@id([user_id, category])
+}
+
 model User {
     id Int @id @default(autoincrement())
-    current_points_physical Int
-    total_points_physical Int
-    level_physical Int
-    current_points_hobby Int
-    total_points_hobby Int
-    level_hobby Int
-    current_points_education Int
-    total_points_education Int
-    level_education Int
-    current_points_social Int
-    total_points_social Int
-    level_social Int
-    current_points_odd_job Int
-    total_points_odd_job Int
-    level_odd_job Int
-    
-    last_points_added DateTime @unique
+    stats Stats[]
+    rewards Rewards[]
+    goals Goals[]
+    last_points_added DateTime @default(now())
     
     subscription Json?
 }

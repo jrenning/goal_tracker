@@ -5,12 +5,22 @@ import { GoalCategories } from '~/pages';
 
 function ProgressBox() {
 
-const user = api.user.getCurrentUserInfo.useQuery().data;
 
 
-const levels = [user?.level_education, user?.level_hobby, user?.total_points_odd_job, user?.level_physical, user?.level_social]
-const points = [user?.current_points_education, user?.current_points_hobby, user?.current_points_odd_job, user?.current_points_physical, user?.current_points_social]
-const categories: GoalCategories[] = ["Education", "Hobby", "Odd_Job", "Physical", "Social"]
+const user_stats = api.user.getUserStats.useQuery().data
+
+let levels: number[] = [];
+let points: number[] = [];
+let categories: GoalCategories[] = []
+
+if (user_stats) {
+    user_stats.stats.forEach((stat) => {
+      levels.push(stat.level);
+      points.push(stat.current_points);
+      categories.push(stat.category)
+    });
+}
+
 
   return (
     <div className='grid grid-cols-2 items-center justify-center'>

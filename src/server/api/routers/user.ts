@@ -6,124 +6,95 @@ export const userRouter = createTRPCRouter({
   getCurrentUserInfo: publicProcedure.query(({ ctx }) => {
     return ctx.prisma.user.findFirst();
   }),
+  getUserStats: publicProcedure.query(({ctx})=> {
+    return ctx.prisma.user.findUnique({
+        where: {
+            id: 1
+        },
+        select: {
+            stats: true
+        }
+    })
+  }),
+  getCategoryLevel: publicProcedure
+    .input(z.object({ category: goal_categories }))
+    .query(({ ctx, input }) => {
+      return ctx.prisma.stats.findUnique({
+        where: {
+          user_id_category: {
+            user_id: 1,
+            category: input.category,
+          },
+        },
+        select: {
+          level: true,
+        },
+      });
+    }),
+  getCategoryCurrentPoints: publicProcedure
+    .input(z.object({ category: goal_categories }))
+    .query(({ ctx, input }) => {
+      return ctx.prisma.stats.findUnique({
+        where: {
+          user_id_category: {
+            user_id: 1,
+            category: input.category,
+          },
+        },
+        select: {
+          current_points: true,
+        },
+      });
+    }),
   addPoints: publicProcedure
     .input(z.object({ points: z.number(), category: goal_categories }))
     .mutation(async ({ ctx, input }) => {
       const today = new Date();
-      let points_added;
-      if (input.category == "Education") {
-        points_added = ctx.prisma.user.updateMany({
-          data: {
-            current_points_education: {
-              increment: input.points,
-            },
-            total_points_education: {
-              increment: input.points,
-            },
-            last_points_added: today.toISOString(),
+      // FIX: WHEN ADDING MULTIPLE USERS CHANGE ID
+      const points_added = await ctx.prisma.stats.update({
+        where: {
+          user_id_category: {
+            user_id: 1,
+            category: input.category,
           },
-        });
-      } else if (input.category == "Physical") {
-        points_added = ctx.prisma.user.updateMany({
-          data: {
-            current_points_physical: {
-              increment: input.points,
-            },
-            total_points_physical: {
-              increment: input.points,
-            },
-            last_points_added: today.toISOString(),
+        },
+        data: {
+          current_points: {
+            increment: input.points,
           },
-        });
-      } else if (input.category == "Social") {
-        points_added = ctx.prisma.user.updateMany({
-          data: {
-            current_points_social: {
-              increment: input.points,
-            },
-            total_points_social: {
-              increment: input.points,
-            },
-            last_points_added: today.toISOString(),
+          total_points: {
+            increment: input.points,
           },
-        });
-      } else if (input.category == "Hobby") {
-        points_added = ctx.prisma.user.updateMany({
-          data: {
-            current_points_hobby: {
-              increment: input.points,
-            },
-            total_points_hobby: {
-              increment: input.points,
-            },
-            last_points_added: today.toISOString(),
-          },
-        });
-      } else {
-        points_added = ctx.prisma.user.updateMany({
-          data: {
-            current_points_odd_job: {
-              increment: input.points,
-            },
-            total_points_odd_job: {
-              increment: input.points,
-            },
-            last_points_added: today.toISOString(),
-          },
-        });
-      }
+        },
+      });
+
+      await ctx.prisma.user.update({
+        where: {
+          id: 1,
+        },
+        data: {
+          last_points_added: today.toISOString(),
+        },
+      });
+
       return points_added;
     }),
   gainLevel: publicProcedure
-    .input(z.object({ overflow: z.number(), category: z.string() }))
+    .input(z.object({ overflow: z.number(), category: goal_categories }))
     .mutation(async ({ ctx, input }) => {
-      let new_level;
-      if (input.category == "Physical") {
-        new_level = ctx.prisma.user.updateMany({
-          data: {
-            level_physical: {
-              increment: 1,
-            },
-            current_points_physical: input.overflow,
+      const new_level = ctx.prisma.stats.update({
+        where: {
+          user_id_category: {
+            user_id: 1,
+            category: input.category,
           },
-        });
-      } else if (input.category == "Education") {
-        new_level = ctx.prisma.user.updateMany({
-          data: {
-            level_education: {
-              increment: 1,
-            },
-            current_points_education: input.overflow,
+        },
+        data: {
+          level: {
+            increment: 1,
           },
-        });
-      } else if (input.category == "Social") {
-        new_level = ctx.prisma.user.updateMany({
-          data: {
-            level_social: {
-              increment: 1,
-            },
-            current_points_social: input.overflow,
-          },
-        });
-      } else if (input.category == "Hobby") {
-        new_level = ctx.prisma.user.updateMany({
-          data: {
-            level_hobby: {
-              increment: 1,
-            },
-            current_points_hobby: input.overflow,
-          },
-        });
-      } else {
-        new_level = ctx.prisma.user.updateMany({
-          data: {
-            level_odd_job: {
-              increment: 1,
-            },
-            current_points_odd_job: input.overflow,
-          },
-        });
-      }
+        },
+      });
       return new_level;
     }),
   saveSubscription: publicProcedure

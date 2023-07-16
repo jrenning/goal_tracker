@@ -28,44 +28,19 @@ function Goal({ name, points, difficulty, id, disabled, category }: Props) {
     4: "#FFB3BA",
   };
 
-  const getColor = () => {
-    if (category == "Odd_Job") {
-      return colors["Odd_Job"];
-    } else {
-      return colors[category];
-    }
-  };
-
-  const color = getColor();
+  const color = colors[category];
 
   const utils = api.useContext();
   const user_query = api.user.getCurrentUserInfo.useQuery();
   const user = user_query.data;
 
-  const getCurrentLevel = () => {
-      let level;
+  const level = api.user.getCategoryLevel.useQuery({ category: category }).data
+    ?.level;
 
-      switch (category) {
-        case "Physical":
-          level = user?.level_physical;
-          break;
-        case "Education":
-          level = user?.level_education;
-          break;
-        case "Social":
-          level = user?.level_social;
-          break;
-        case "Hobby":
-          level = user?.level_hobby;
-          break;
-        case "Odd_Job":
-          level = user?.level_odd_job;
-          break;
-      }
-      return level
-  }
-
-  const level = getCurrentLevel()
+    
+  const current_points_query = api.user.getCategoryCurrentPoints.useQuery({
+    category: category,
+  });
 
   const level_query = api.levels.getLevel.useQuery({
     level: level ? level : 1,
@@ -97,29 +72,8 @@ function Goal({ name, points, difficulty, id, disabled, category }: Props) {
   });
 
   const getCurrentPoints = async () => {
-    let current_points;
-    switch (category) {
-      case "Physical":
-        current_points = (await user_query.refetch()).data
-          ?.current_points_physical;
-        break;
-      case "Education":
-        current_points = (await user_query.refetch()).data
-          ?.current_points_education;
-        break;
-      case "Social":
-        current_points = (await user_query.refetch()).data
-          ?.current_points_social;
-        break;
-      case "Hobby":
-        current_points = (await user_query.refetch()).data
-          ?.current_points_hobby;
-        break;
-      case "Odd_Job":
-        current_points = (await user_query.refetch()).data
-          ?.current_points_odd_job;
-        break;
-    }
+    const current_points = (await current_points_query.refetch()).data
+      ?.current_points;
     return current_points;
   };
 
@@ -161,8 +115,6 @@ function Goal({ name, points, difficulty, id, disabled, category }: Props) {
             backgroundColor: color ? color : "#fffff",
           });
       }
-
-
     }
   };
 

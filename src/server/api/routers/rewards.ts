@@ -11,7 +11,8 @@ export const rewardsRouter = createTRPCRouter({
     .query(({ ctx, input }) => {
       return ctx.prisma.rewards.findUnique({
         where: {
-          level_category: {
+          user_id_level_category: {
+            user_id: 1,
             level: input.level,
             category: input.category,
           },
@@ -23,7 +24,8 @@ export const rewardsRouter = createTRPCRouter({
     .mutation(({ctx, input})=> {
         return ctx.prisma.rewards.upsert({
             where: {
-                level_category: {
+                user_id_level_category: {
+                    user_id: 1,
                     level: input.level,
                     category: input.goal_category
                 }
