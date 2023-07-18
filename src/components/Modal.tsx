@@ -28,7 +28,7 @@ function Modal({ title, content, isOpen, backgroundColor }: ModalProps) {
 
     const modal = (
       <>
-        <div className="z-99 fixed h-screen w-screen backdrop-blur-sm backdrop-grayscale">
+        <div className="z-50 fixed h-screen w-screen backdrop-blur-sm backdrop-grayscale">
           <div className="fixed left-0 right-0 top-[30%] ">
             <div className="mx-2 flex h-[45vh] rounded-lg bg-gray-200 shadow-md md:mx-[25%]"
             style={{backgroundColor: backgroundColor}}>

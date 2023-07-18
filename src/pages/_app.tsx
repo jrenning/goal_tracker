@@ -1,13 +1,30 @@
 import { type AppType } from "next/app";
 import { api } from "~/utils/api";
 import "~/styles/globals.css";
-import { ModalProps } from "~/components/Modal";
-import { createContext } from "react";
-const ModalContext = createContext<
-  [(modal: ModalProps) => unknown, () => unknown]
->([() => console.log("Open modal"), () => console.log("Close modal")]);
+
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+
+
 
 const MyApp: AppType = ({ Component, pageProps }) => {
+  ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    Title,
+    Tooltip,
+    Legend
+  );
   return <Component {...pageProps} />;
 };
 

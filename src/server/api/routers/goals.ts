@@ -21,6 +21,15 @@ export const goalsRouter = createTRPCRouter({
       },
     });
   }),
+  getGoalsByCategory: publicProcedure
+  .input(z.object({category: goal_categories}))
+  .query(({input, ctx})=> {
+    return ctx.prisma.goals.findMany({
+      where: {
+        category: input.category
+      }
+    })
+  }),
   getCompletedGoals: publicProcedure
     .input(z.object({ date: z.date() }))
     .query(({ input, ctx }) => {

@@ -20,6 +20,9 @@ import { goal_categories } from "~/server/api/routers/goals";
 import ProgressBox from "~/components/ProgressBox";
 import { z } from "zod";
 import { reward_categories } from "~/server/api/routers/rewards";
+import Footer from "~/components/Footer";
+import LineChart, { Dataset } from "~/components/LineChart";
+import PointsChart from "~/components/PointsChart";
 
 export const ModalContext = createContext<
   React.Dispatch<React.SetStateAction<ModalProps>> | undefined
@@ -84,6 +87,7 @@ export default function Home() {
 
         <GoalBox />
         <CompletedBox />
+        <Footer />
       </ModalContext.Provider>
     </>
   );
