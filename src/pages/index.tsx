@@ -16,7 +16,7 @@ import Modal, { ModalProps } from "~/components/Modal";
 import { flushSync } from "react-dom";
 import LevelUp from "~/components/LevelUp";
 import { colors } from "~/utils/colors";
-import { goal_categories } from "~/server/api/routers/goals";
+import { days_of_week, goal_categories, repeat_type } from "~/server/api/routers/goals";
 import ProgressBox from "~/components/ProgressBox";
 import { z } from "zod";
 import { reward_categories } from "~/server/api/routers/rewards";
@@ -30,6 +30,8 @@ export const ModalContext = createContext<
 
 export type GoalCategories = z.infer<typeof goal_categories>;
 export type RewardCategories = z.infer<typeof reward_categories>
+export type DaysOfWeek = z.infer<typeof days_of_week>
+export type RepeatType = z.infer<typeof repeat_type>
 
 export default function Home() {
   const user = api.user.getCurrentUserInfo.useQuery();

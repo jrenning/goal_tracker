@@ -1,5 +1,5 @@
 import React, { FormEvent, useState } from "react";
-import { GoalCategories } from "~/pages";
+import { DaysOfWeek, GoalCategories, RepeatType } from "~/pages";
 import { api } from "~/utils/api";
 
 type GoalFormProps = {
@@ -7,12 +7,8 @@ type GoalFormProps = {
 };
 
 function GoalForm({ setNewGoal }: GoalFormProps) {
-
-
   const utils = api.useContext();
-  const [repeating, setRepeating] = useState(false)
-
-
+  const [repeating, setRepeating] = useState(false);
 
   const add_call = api.goals.addGoal.useMutation({
     async onSuccess(data) {
@@ -23,25 +19,51 @@ function GoalForm({ setNewGoal }: GoalFormProps) {
 
   const createGoal = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    return
+
     const target = e.target as typeof e.target & {
       name: { value: string };
       exp: { value: string };
       difficulty: { value: string };
       category: { value: GoalCategories };
+      repeating: { value: boolean };
+      type: { value: RepeatType | undefined };
+      days: { value: DaysOfWeek[] | undefined };
+      start_date: { value: Date | undefined };
+      end_date: { value: Date | undefined };
     };
+    let selected_days: DaysOfWeek[] = [];
+    //@ts-ignore
+    const opts: HTMLOptionsCollection = e.target.days.options;
 
-    await add_call.mutateAsync({
-      name: target.name.value,
-      exp: Number(target.exp.value),
-      difficulty: Number(target.difficulty.value),
-      category: target.category.value,
-    });
+    for (let i = 0; i < opts.length; i++) {
+      if (opts[i]?.selected) {
+        //@ts-ignore
+        selected_days.push(opts[i].value);
+      }
+    }
+
+    if (repeating) {
+      await add_call.mutateAsync({
+        name: target.name.value,
+        exp: Number(target.exp.value),
+        difficulty: Number(target.difficulty.value),
+        category: target.category.value,
+        repeat_type: target.type.value,
+        days_of_week: selected_days,
+        start_date: target.start_date.value,
+        end_date: target.end_date.value,
+      });
+    } else {
+      await add_call.mutateAsync({
+        name: target.name.value,
+        exp: Number(target.exp.value),
+        difficulty: Number(target.difficulty.value),
+        category: target.category.value,
+      });
+    }
 
     setNewGoal(false);
   };
-
-
 
   return (
     <div className="mx-16 my-4  rounded-lg bg-green-100 py-4">
@@ -85,9 +107,13 @@ function GoalForm({ setNewGoal }: GoalFormProps) {
           </datalist>
           <div className="flex flex-row space-x-4">
             <label htmlFor="repeating">Repeating</label>
-            <input type="checkbox" id="repeating" onChange={()=> setRepeating(!repeating) }/>
+            <input
+              type="checkbox"
+              id="repeating"
+              onChange={() => setRepeating(!repeating)}
+            />
           </div>
-          {repeating ? <RepeatForm /> : ""}
+          {repeating ? <RepeatForm repeating={repeating} /> : ""}
           <button
             type="submit"
             className=" rounded-md bg-green-200 px-4 py-[5px] hover:opacity-70"
@@ -100,66 +126,80 @@ function GoalForm({ setNewGoal }: GoalFormProps) {
   );
 }
 
-function RepeatForm() {
+type RepeatFormProps = {
+  repeating: boolean;
+};
 
-    const [daily, setDaily] = useState(true)
-    const days = ["Su", "M", "Tu", "W", "Th", "F", "Sa"]
+function RepeatForm({ repeating }: RepeatFormProps) {
+  const [daily, setDaily] = useState(true);
+  const days = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
 
-    const getLeadingZeroFormat = (month_or_day: number) => {
-        if (month_or_day <10) {
-            return `0${month_or_day}`
-        }
-        else {
-            return month_or_day
-        }
+  const getLeadingZeroFormat = (month_or_day: number) => {
+    if (month_or_day < 10) {
+      return `0${month_or_day}`;
+    } else {
+      return month_or_day;
     }
+  };
 
-      const today = new Date();
-      // min input on date input needs exactly yyyy-mm-dd format so need to add leading zeros 
-      const today_string = `${today.getFullYear()}-${getLeadingZeroFormat(today.getMonth()+1)}-${getLeadingZeroFormat(today.getDate())}`
+  const today = new Date();
+  // min input on date input needs exactly yyyy-mm-dd format so need to add leading zeros
+  const today_string = `${today.getFullYear()}-${getLeadingZeroFormat(
+    today.getMonth() + 1
+  )}-${getLeadingZeroFormat(today.getDate())}`;
 
-    return (
-      <div className="flex flex-col space-y-2">
-        <label htmlFor="type">Type</label>
-        <select
-          id="type"
-          onChange={(e) => {
-            e.target.value == "Daily" ? setDaily(true) : setDaily(false);
-          }}
-        >
-          <option>Daily</option>
-          <option>Weekly</option>
-          <option>Monthly</option>
-          <option>Yearly</option>
-        </select>
-        {daily ? (
-          <div className="mt-2 flex flex-row justify-evenly space-x-2">
+  return (
+    <div className="flex flex-col space-y-2">
+      <label htmlFor="type">Type</label>
+      <select
+        id="type"
+        required={repeating}
+        onChange={(e) => {
+          e.target.value == "Daily" ? setDaily(true) : setDaily(false);
+        }}
+      >
+        <option>Daily</option>
+        <option>Weekly</option>
+        <option>Monthly</option>
+        <option>Yearly</option>
+      </select>
+      {daily ? (
+        <div className="mt-8 flex w-full">
+          <select
+            id="days"
+            multiple={true}
+            className="mx-10 mt-4 w-full items-center justify-center text-center"
+          >
             {days.map((day, index) => (
               <DaySelect day={day} key={day} />
             ))}
-          </div>
-        ) : (
-          ""
-        )}
-        <label htmlFor="start_date">Start Date</label>
-        <input type="date" min={today_string} />
-        <label htmlFor="end_date">End Date</label>
-        <input type="date" min={today_string} />
-      </div>
-    );
+          </select>
+        </div>
+      ) : (
+        ""
+      )}
+      <label htmlFor="start_date">Start Date</label>
+      <input type="date" required={repeating} min={today_string} />
+      <label htmlFor="end_date">End Date</label>
+      <input type="date" required={repeating} min={today_string} />
+    </div>
+  );
 }
 
 type DayProps = {
-    day: string
-}
- 
-function DaySelect({day}: DayProps) {
-    return (
-      <div className="flex flex-col">
-        <label htmlFor={day}>{day}</label>
-        <input type="checkbox" id={day} />
-      </div>
-    );
+  day: string;
+};
+
+function DaySelect({ day }: DayProps) {
+  return <option>{day}</option>;
 }
 
 export default GoalForm;

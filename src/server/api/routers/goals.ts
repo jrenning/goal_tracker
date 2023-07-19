@@ -9,6 +9,18 @@ export const goal_categories = z.enum([
   "Odd_Job",
 ]);
 
+export const repeat_type = z.enum(["Daily", "Weekly", "Monthly", "Yearly"]);
+
+export const days_of_week = z.enum([
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+]);
+
 export const goalsRouter = createTRPCRouter({
   getCurrentGoals: publicProcedure.query(({ ctx }) => {
     const today = new Date();
@@ -22,14 +34,14 @@ export const goalsRouter = createTRPCRouter({
     });
   }),
   getGoalsByCategory: publicProcedure
-  .input(z.object({category: goal_categories}))
-  .query(({input, ctx})=> {
-    return ctx.prisma.goals.findMany({
-      where: {
-        category: input.category
-      }
-    })
-  }),
+    .input(z.object({ category: goal_categories }))
+    .query(({ input, ctx }) => {
+      return ctx.prisma.goals.findMany({
+        where: {
+          category: input.category,
+        },
+      });
+    }),
   getCompletedGoals: publicProcedure
     .input(z.object({ date: z.date() }))
     .query(({ input, ctx }) => {
@@ -64,18 +76,44 @@ export const goalsRouter = createTRPCRouter({
         exp: z.number(),
         difficulty: z.number(),
         category: goal_categories,
+        repeat_type: repeat_type.optional(),
+        days_of_week: z.array(days_of_week).optional(),
+        start_date: z.date().optional(),
+        end_date: z.date().optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
-      const goal = await ctx.prisma.goals.create({
-        data: {
-          name: input.name,
-          points: input.exp,
-          difficulty: input.difficulty,
-          completed: false,
-          category: input.category,
-        },
-      });
+      let goal;
+      if (input.repeat_type && input.start_date && input.end_date) {
+        goal = await ctx.prisma.goals.create({
+          data: {
+            name: input.name,
+            points: input.exp,
+            difficulty: input.difficulty,
+            completed: false,
+            category: input.category,
+            repeat: {
+              create: {
+                days: input.days_of_week,
+                type: input.repeat_type,
+                start_date: input.start_date,
+                stop_date: input.end_date,
+              },
+            },
+          },
+        });
+      } else {
+        goal = await ctx.prisma.goals.create({
+          data: {
+            name: input.name,
+            points: input.exp,
+            difficulty: input.difficulty,
+            completed: false,
+            category: input.category,
+          },
+        });
+      }
+
       return goal;
     }),
 });

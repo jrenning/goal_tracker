@@ -4,7 +4,7 @@ function Footer() {
     const [current, setCurrent] = useState("Goals");
   return (
     
-    <div className="sticky bottom-0 z-50 flex w-full flex-row justify-evenly bg-slate-50 py-8 shadow-md">
+    <div className="fixed bottom-0 z-50 flex w-full flex-row justify-evenly bg-slate-50 py-2 shadow-md">
         <FooterSection name="Goals" icon="&#x2713;" />
         <FooterSection name="History" icon="&#x263B;" />
         <FooterSection name="Repeats" icon="&#x267B;" />
