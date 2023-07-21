@@ -13,6 +13,7 @@ import {
   Legend,
 } from "chart.js";
 import { AnimatePresence } from "framer-motion";
+import Footer from "~/components/Footer";
 
 
 
@@ -27,8 +28,13 @@ const MyApp: AppType = ({ Component, pageProps }) => {
     Legend
   );
   return (
-    <AnimatePresence mode="wait" initial={false} onExitComplete={() => window.scrollTo(0, 0)}>
+    <AnimatePresence
+      mode="wait"
+      initial={false}
+      onExitComplete={() => window.scrollTo(0, 0)}
+    >
       <Component {...pageProps} />
+      <Footer />
     </AnimatePresence>
   );
 };

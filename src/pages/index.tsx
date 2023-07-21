@@ -96,9 +96,9 @@ export default function Home() {
           <Title name="My Goals" date={true} />
 
           <GoalBox />
-          <CompletedBox />
+          
           <AddContentButton />
-          <Footer />
+          
         </ModalContext.Provider>
       </PageTransitionLayout>
     </>
