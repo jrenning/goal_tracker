@@ -22,6 +22,45 @@ export const days_of_week = z.enum([
 ]);
 
 export const goalsRouter = createTRPCRouter({
+  getGoalById: publicProcedure
+  .input(z.object({id: z.number()}))
+  .query(({ctx, input})=> {
+    return ctx.prisma.goals.findUnique({
+      where: {
+        id: input.id
+      }
+    })
+  }),
+  getRepeatingGoals: publicProcedure.query(({ctx})=> {
+    const today = new Date();
+    return ctx.prisma.repeatData.findMany({
+      where: {
+        stop_date: {
+          lt: today.toISOString()
+        },
+        start_date: {
+          gte: today.toISOString()
+        }
+    },
+    include: {
+      goal: true
+    }
+    })
+  }),
+  setLastRepeat: publicProcedure
+  .input(z.object({id: z.number()}))
+  .mutation(({ctx, input})=> {
+    const today = new Date();
+    return ctx.prisma.repeatData.update({
+      where: {
+        goal_id: input.id
+      },
+      data: {
+        last_repeated: today.toISOString()
+      }
+    })
+
+  }),
   getCurrentGoals: publicProcedure.query(({ ctx }) => {
     const today = new Date();
     return ctx.prisma.goals.findMany({
@@ -30,6 +69,11 @@ export const goalsRouter = createTRPCRouter({
           lte: today.toJSON(),
         },
         completed: false,
+        repeat: {
+          start_date: {
+            gte: today.toJSON()
+          }
+        }
       },
     });
   }),

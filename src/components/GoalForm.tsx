@@ -20,6 +20,7 @@ function GoalForm({ setNewGoal }: GoalFormProps) {
   const createGoal = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+
     const target = e.target as typeof e.target & {
       name: { value: string };
       exp: { value: string };
@@ -28,8 +29,8 @@ function GoalForm({ setNewGoal }: GoalFormProps) {
       repeating: { value: boolean };
       type: { value: RepeatType | undefined };
       days: { value: DaysOfWeek[] | undefined };
-      start_date: { value: Date | undefined };
-      end_date: { value: Date | undefined };
+      start_date: { value: string | undefined };
+      end_date: { value: string | undefined };
     };
     let selected_days: DaysOfWeek[] = [];
     //@ts-ignore
@@ -42,7 +43,7 @@ function GoalForm({ setNewGoal }: GoalFormProps) {
       }
     }
 
-    if (repeating) {
+    if (repeating && target.start_date.value && target.end_date.value) {
       await add_call.mutateAsync({
         name: target.name.value,
         exp: Number(target.exp.value),
@@ -50,8 +51,8 @@ function GoalForm({ setNewGoal }: GoalFormProps) {
         category: target.category.value,
         repeat_type: target.type.value,
         days_of_week: selected_days,
-        start_date: target.start_date.value,
-        end_date: target.end_date.value,
+        start_date: new Date(target.start_date.value),
+        end_date: new Date(target.end_date.value),
       });
     } else {
       await add_call.mutateAsync({
@@ -187,9 +188,9 @@ function RepeatForm({ repeating }: RepeatFormProps) {
         ""
       )}
       <label htmlFor="start_date">Start Date</label>
-      <input type="date" required={repeating} min={today_string} />
+      <input type="date" required={repeating} min={today_string} id="start_date"/>
       <label htmlFor="end_date">End Date</label>
-      <input type="date" required={repeating} min={today_string} />
+      <input type="date" min={today_string} id="end_date"/>
     </div>
   );
 }

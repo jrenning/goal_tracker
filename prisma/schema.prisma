@@ -50,7 +50,7 @@ model RepeatData {
     type RepeatTypes
     days DayOfWeek[]
     start_date DateTime @default(now())
-    last_repeated DateTime @default(now())
+    last_repeated DateTime?
     stop_date DateTime?
 
 }

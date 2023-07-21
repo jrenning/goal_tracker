@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import React, { useState } from 'react'
 
 function Footer() {
@@ -5,9 +6,9 @@ function Footer() {
   return (
     
     <div className="fixed bottom-0 z-50 flex w-full flex-row justify-evenly bg-slate-50 py-2 shadow-md">
-        <FooterSection name="Goals" icon="&#x2713;" />
-        <FooterSection name="History" icon="&#x263B;" />
-        <FooterSection name="Repeats" icon="&#x267B;" />
+        <FooterSection name="Goals" icon="&#x2713;" link="/"/>
+        <FooterSection name="History" icon="&#x263B;" link="/history"/>
+        <FooterSection name="Repeats" icon="&#x267B;" link="/repeats"/>
     </div>
   );
 }
@@ -15,17 +16,20 @@ function Footer() {
 type FooterProps = {
     name: string
     icon: string
+    link: string
 
 }
 
-function FooterSection({name, icon}: FooterProps) {
+function FooterSection({name, icon, link}: FooterProps) {
 
 
     return (
-      <div className="flex flex-col items-center justify-center hover:text-green-300 cursor-pointer">
-        <div className="text-4xl">{icon}</div>
-        <div>{name}</div>
-      </div>
+      <Link href={link}>
+        <div className="flex cursor-pointer flex-col items-center justify-center hover:text-green-300">
+          <div className="text-4xl">{icon}</div>
+          <div>{name}</div>
+        </div>
+      </Link>
     );
 }
 

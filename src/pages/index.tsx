@@ -6,32 +6,34 @@ import CompletedBox from "~/components/CompletedBox";
 import GoalBox from "~/components/GoalBox";
 import Header from "~/components/Header";
 import NotificationButton from "~/components/NotificationButton";
-import ProgressBar from "~/components/ProgressBar";
 import SubscriptionButton from "~/components/SubscriptionButton";
 import Title from "~/components/Title";
 import { api } from "~/utils/api";
 
 import React from "react";
 import Modal, { ModalProps } from "~/components/Modal";
-import { flushSync } from "react-dom";
-import LevelUp from "~/components/LevelUp";
 import { colors } from "~/utils/colors";
-import { days_of_week, goal_categories, repeat_type } from "~/server/api/routers/goals";
+import {
+  days_of_week,
+  goal_categories,
+  repeat_type,
+} from "~/server/api/routers/goals";
 import ProgressBox from "~/components/ProgressBox";
 import { z } from "zod";
 import { reward_categories } from "~/server/api/routers/rewards";
 import Footer from "~/components/Footer";
-import LineChart, { Dataset } from "~/components/LineChart";
-import PointsChart from "~/components/PointsChart";
+import { updateRepeatingGoals } from "~/utils/update";
+import AddContentButton from "~/components/AddContentButton";
+import { isMobile } from "~/utils/device";
 
 export const ModalContext = createContext<
   React.Dispatch<React.SetStateAction<ModalProps>> | undefined
 >(undefined);
 
 export type GoalCategories = z.infer<typeof goal_categories>;
-export type RewardCategories = z.infer<typeof reward_categories>
-export type DaysOfWeek = z.infer<typeof days_of_week>
-export type RepeatType = z.infer<typeof repeat_type>
+export type RewardCategories = z.infer<typeof reward_categories>;
+export type DaysOfWeek = z.infer<typeof days_of_week>;
+export type RepeatType = z.infer<typeof repeat_type>;
 
 export default function Home() {
   const user = api.user.getCurrentUserInfo.useQuery();
@@ -40,17 +42,20 @@ export default function Home() {
   const [isSubscribed, setIsSubscribed] = useState(false);
 
   useEffect(() => {
-    if (user.data?.subscription != null) {
+    if (user.data?.subscription != null && isMobile()) {
       setSubscription(user.data.subscription);
       setIsSubscribed(true);
     } else {
-      // yes this does try every time if the person isn't subscribed, annoying. but only me using it so...
-      setModal({
-        title: "Subscribe to get Notifications",
-        content: <SubscriptionButton setSubscription={setSubscription} />,
-        isOpen: true,
-        backgroundColor: "#ADD8E6",
-      });
+      // only show on mobile for now 
+      if (isMobile()) {
+        // yes this does try every time if the person isn't subscribed, annoying. but only me using it so...
+        setModal({
+          title: "Subscribe to get Notifications",
+          content: <SubscriptionButton setSubscription={setSubscription} />,
+          isOpen: true,
+          backgroundColor: "#ADD8E6",
+        });
+      }
     }
   }, [setSubscription]);
 
@@ -89,6 +94,7 @@ export default function Home() {
 
         <GoalBox />
         <CompletedBox />
+        <AddContentButton />
         <Footer />
       </ModalContext.Provider>
     </>

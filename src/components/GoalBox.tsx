@@ -1,42 +1,14 @@
 "use client";
 
-import React, { FormEvent, useState } from "react";
+import React, {  useState } from "react";
 import Goal from "./Goal";
 import { api } from "~/utils/api";
-import { GoalCategories } from "~/pages";
 import GoalForm from "./GoalForm";
 import RewardForm from "./RewardForm";
 
 function GoalBox() {
   const goals = api.goals.getCurrentGoals.useQuery();
 
-  const utils = api.useContext();
-
-  const add_call = api.goals.addGoal.useMutation({
-    async onSuccess(data) {
-      await utils.goals.invalidate();
-      data && alert(`${data.name} was added!!`);
-    },
-  });
-
-  const createGoal = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const target = e.target as typeof e.target & {
-      name: { value: string };
-      exp: { value: string };
-      difficulty: { value: string };
-      category: { value: GoalCategories };
-    };
-
-    await add_call.mutateAsync({
-      name: target.name.value,
-      exp: Number(target.exp.value),
-      difficulty: Number(target.difficulty.value),
-      category: target.category.value,
-    });
-
-    setNewGoal(false);
-  };
 
   const [newGoal, setNewGoal] = useState(false);
   const [newReward, setNewReward] = useState(false);
