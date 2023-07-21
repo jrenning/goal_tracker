@@ -77,7 +77,6 @@ export default function Home() {
             <link rel="icon" href="/favicon.ico" />
             <link rel="manifest" href="/manifest.json"></link>
           </Head>
-          <Header name="Goal Tracker" />
           <Modal
             title={modal?.title}
             content={modal.content}

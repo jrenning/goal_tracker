@@ -69,11 +69,6 @@ export const goalsRouter = createTRPCRouter({
           lte: today.toJSON(),
         },
         completed: false,
-        repeat: {
-          start_date: {
-            gte: today.toJSON()
-          }
-        }
       },
     });
   }),

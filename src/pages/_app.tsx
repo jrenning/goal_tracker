@@ -14,6 +14,7 @@ import {
 } from "chart.js";
 import { AnimatePresence } from "framer-motion";
 import Footer from "~/components/Footer";
+import Header from "~/components/Header";
 
 
 
@@ -33,6 +34,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
       initial={false}
       onExitComplete={() => window.scrollTo(0, 0)}
     >
+      <Header name="Goal Tracker" />
       <Component {...pageProps} />
       <Footer />
     </AnimatePresence>

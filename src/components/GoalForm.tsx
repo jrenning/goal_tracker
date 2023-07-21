@@ -5,13 +5,13 @@ import { DaysOfWeek, GoalCategories, RepeatType } from "~/pages";
 import { api } from "~/utils/api";
 
 type GoalFormProps = {
-  backlink: string
+  backlink: string;
 };
 
 function GoalForm({ backlink }: GoalFormProps) {
   const utils = api.useContext();
   const [repeating, setRepeating] = useState(false);
-  const router = useRouter()
+  const router = useRouter();
 
   const add_call = api.goals.addGoal.useMutation({
     async onSuccess(data) {
@@ -22,7 +22,6 @@ function GoalForm({ backlink }: GoalFormProps) {
 
   const createGoal = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
 
     const target = e.target as typeof e.target & {
       name: { value: string };
@@ -37,12 +36,16 @@ function GoalForm({ backlink }: GoalFormProps) {
     };
     let selected_days: DaysOfWeek[] = [];
     //@ts-ignore
-    const opts: HTMLOptionsCollection = e.target.days.options;
+    if (e.target.days) {
+      //@ts-ignore
+      const opts: HTMLOptionsCollection = e.target.days
 
-    for (let i = 0; i < opts.length; i++) {
-      if (opts[i]?.selected) {
-        //@ts-ignore
-        selected_days.push(opts[i].value);
+
+      for (let i = 0; i < opts.length; i++) {
+        if (opts[i]?.selected) {
+          //@ts-ignore
+          selected_days.push(opts[i].value);
+        }
       }
     }
 
@@ -66,7 +69,7 @@ function GoalForm({ backlink }: GoalFormProps) {
       });
     }
 
-    router.push(backlink)
+    router.push(backlink);
   };
 
   return (
@@ -190,9 +193,14 @@ function RepeatForm({ repeating }: RepeatFormProps) {
         ""
       )}
       <label htmlFor="start_date">Start Date</label>
-      <input type="date" required={repeating} min={today_string} id="start_date"/>
+      <input
+        type="date"
+        required={repeating}
+        min={today_string}
+        id="start_date"
+      />
       <label htmlFor="end_date">End Date</label>
-      <input type="date" min={today_string} id="end_date"/>
+      <input type="date" min={today_string} id="end_date" />
     </div>
   );
 }
