@@ -5,4 +5,12 @@
 html, body {
     max-width: 100%;
     overflow-x: hidden;
+    min-height: 100%;
+}
+
+body {
+    height: 100vh
+}
+#__next {
+    min-height: 100%;
 }

@@ -1,13 +1,15 @@
-import React, { useState } from 'react'
-import GoalForm from '~/components/GoalForm'
+import React, { useState } from "react";
+import GoalForm from "~/components/GoalForm";
+import PopupTransitionLayout from "~/components/PopupTransitionLayout";
 
 function add_goal() {
-    const [goal, setNewGoal] = useState(true)
   return (
-    <div>
-        <GoalForm setNewGoal={setNewGoal}/>
-    </div>
-  )
+    <PopupTransitionLayout>
+        <div className="w-screen bg-green-50 h-screen">
+      <GoalForm backlink="/" />
+      </div>
+    </PopupTransitionLayout>
+  );
 }
 
-export default add_goal
+export default add_goal;

@@ -12,6 +12,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import { AnimatePresence } from "framer-motion";
 
 
 
@@ -25,7 +26,11 @@ const MyApp: AppType = ({ Component, pageProps }) => {
     Tooltip,
     Legend
   );
-  return <Component {...pageProps} />;
+  return (
+    <AnimatePresence mode="wait" initial={false} onExitComplete={() => window.scrollTo(0, 0)}>
+      <Component {...pageProps} />
+    </AnimatePresence>
+  );
 };
 
 export default api.withTRPC(MyApp);

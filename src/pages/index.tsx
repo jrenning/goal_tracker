@@ -25,6 +25,8 @@ import Footer from "~/components/Footer";
 import { updateRepeatingGoals } from "~/utils/update";
 import AddContentButton from "~/components/AddContentButton";
 import { isMobile } from "~/utils/device";
+import TransitionLayout from "~/components/PageTransitionLayout";
+import PageTransitionLayout from "~/components/PageTransitionLayout";
 
 export const ModalContext = createContext<
   React.Dispatch<React.SetStateAction<ModalProps>> | undefined
@@ -46,7 +48,7 @@ export default function Home() {
       setSubscription(user.data.subscription);
       setIsSubscribed(true);
     } else {
-      // only show on mobile for now 
+      // only show on mobile for now
       if (isMobile()) {
         // yes this does try every time if the person isn't subscribed, annoying. but only me using it so...
         setModal({
@@ -68,35 +70,37 @@ export default function Home() {
 
   return (
     <>
-      <ModalContext.Provider value={setModal}>
-        <Head>
-          <title>Goals Tracker</title>
-          <link rel="icon" href="/favicon.ico" />
-          <link rel="manifest" href="/manifest.json"></link>
-        </Head>
-        <Header name="Goal Tracker" />
-        <Modal
-          title={modal?.title}
-          content={modal.content}
-          isOpen={modal.isOpen}
-          backgroundColor={modal.backgroundColor}
-        />
-
-        <ProgressBox />
-        <div className="flex flex-col">
-          <NotificationButton
-            text="This is a test"
-            subscription={subscription}
+      <PageTransitionLayout>
+        <ModalContext.Provider value={setModal}>
+          <Head>
+            <title>Goals Tracker</title>
+            <link rel="icon" href="/favicon.ico" />
+            <link rel="manifest" href="/manifest.json"></link>
+          </Head>
+          <Header name="Goal Tracker" />
+          <Modal
+            title={modal?.title}
+            content={modal.content}
+            isOpen={modal.isOpen}
+            backgroundColor={modal.backgroundColor}
           />
-        </div>
 
-        <Title name="My Goals" date={true} />
+          <ProgressBox />
+          {/* <div className="flex flex-col">
+            <NotificationButton
+              text="This is a test"
+              subscription={subscription}
+            />
+          </div> */}
 
-        <GoalBox />
-        <CompletedBox />
-        <AddContentButton />
-        <Footer />
-      </ModalContext.Provider>
+          <Title name="My Goals" date={true} />
+
+          <GoalBox />
+          <CompletedBox />
+          <AddContentButton />
+          <Footer />
+        </ModalContext.Provider>
+      </PageTransitionLayout>
     </>
   );
 }

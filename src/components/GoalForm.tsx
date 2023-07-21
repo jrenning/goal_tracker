@@ -1,14 +1,17 @@
+import Link from "next/link";
+import { useRouter } from "next/router";
 import React, { FormEvent, useState } from "react";
 import { DaysOfWeek, GoalCategories, RepeatType } from "~/pages";
 import { api } from "~/utils/api";
 
 type GoalFormProps = {
-  setNewGoal: React.Dispatch<React.SetStateAction<boolean>>;
+  backlink: string
 };
 
-function GoalForm({ setNewGoal }: GoalFormProps) {
+function GoalForm({ backlink }: GoalFormProps) {
   const utils = api.useContext();
   const [repeating, setRepeating] = useState(false);
+  const router = useRouter()
 
   const add_call = api.goals.addGoal.useMutation({
     async onSuccess(data) {
@@ -63,17 +66,16 @@ function GoalForm({ setNewGoal }: GoalFormProps) {
       });
     }
 
-    setNewGoal(false);
+    router.push(backlink)
   };
 
   return (
     <div className="mx-16 my-4  rounded-lg bg-green-100 py-4">
-      <button
-        className="ml-2 rounded-full bg-red-200 px-2 py-0 hover:opacity-80"
-        onClick={() => setNewGoal(false)}
-      >
-        X
-      </button>
+      <Link href={backlink}>
+        <button className="ml-2 rounded-full bg-red-200 px-2 py-0 hover:opacity-80">
+          X
+        </button>
+      </Link>
       <div className="flex items-center justify-center">
         <form
           className="items-left flex flex-col space-y-4 "

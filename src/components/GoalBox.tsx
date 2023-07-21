@@ -30,7 +30,7 @@ function GoalBox() {
             ))
           : ""}
       </div>
-      <div className="flex items-center justify-center space-x-8">
+      {/* <div className="flex items-center justify-center space-x-8">
         <div className="">
           {!newGoal && !newReward ? (
             <button
@@ -55,10 +55,10 @@ function GoalBox() {
             ""
           )}
         </div>
-      </div>
+      </div> */}
 
-      {newGoal ? <GoalForm setNewGoal={setNewGoal} /> : ""}
-      {newReward ? <RewardForm setNewReward={setNewReward} /> : ""}
+      {/* {newGoal ? <GoalForm setNewGoal={setNewGoal} /> : ""}
+      {newReward ? <RewardForm setNewReward={setNewReward} /> : ""} */}
     </div>
   );
 }

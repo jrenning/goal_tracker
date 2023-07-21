@@ -1,13 +1,15 @@
 import { RewardCategories } from "@prisma/client";
+import { useRouter } from "next/router";
 import React, { FormEvent, useState } from "react";
 import { GoalCategories } from "~/pages";
 import { api } from "~/utils/api";
 
 type RewardFormProps = {
-  setNewReward: React.Dispatch<React.SetStateAction<boolean>>;
+  backlink: string
 };
 
-function RewardForm({ setNewReward }: RewardFormProps) {
+function RewardForm({ backlink }: RewardFormProps) {
+    const router = useRouter()
   const reward_creation_call = api.rewards.createReward.useMutation({
     async onSuccess (data) {
         alert(`Reward ${data.rewards[data.rewards.length-1]} was added to ${data.category} for level ${data.level}`)
@@ -30,14 +32,14 @@ function RewardForm({ setNewReward }: RewardFormProps) {
       goal_category: target.goal_category.value,
     });
 
-    setNewReward(false);
+    router.push(backlink)
   };
 
   return (
     <div className="mx-16 my-4  rounded-lg bg-green-100 py-4">
       <button
         className="ml-2 rounded-full bg-red-200 px-2 py-0 hover:opacity-80"
-        onClick={() => setNewReward(false)}
+        onClick={() => router.push(backlink)}
       >
         X
       </button>
@@ -65,7 +67,7 @@ function RewardForm({ setNewReward }: RewardFormProps) {
             <option>Odd Job</option>
           </select>
           <label htmlFor="level">Level</label>
-          <input type="number" required={true} id="level"></input>
+          <input type="number" required={true} id="level" className="text-center font-semibold"></input>
           <button
             type="submit"
             className=" rounded-md bg-green-200 px-4 py-[5px] hover:opacity-70"
