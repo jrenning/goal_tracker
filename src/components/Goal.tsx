@@ -37,7 +37,7 @@ function Goal({ name, points, difficulty, id, disabled, category }: Props) {
   const level = api.user.getCategoryLevel.useQuery({ category: category }).data
     ?.level;
 
-    
+
   const current_points_query = api.user.getCategoryCurrentPoints.useQuery({
     category: category,
   });
@@ -59,8 +59,9 @@ function Goal({ name, points, difficulty, id, disabled, category }: Props) {
   });
 
   const add_points_call = api.user.addPoints.useMutation({
-    onSuccess(_) {
-      console.log("Points added");
+    async onSuccess(data) {
+      await utils.goals.invalidate()
+      await utils.user.invalidate()
     },
   });
 
@@ -88,11 +89,14 @@ function Goal({ name, points, difficulty, id, disabled, category }: Props) {
 
       if (max_points && current_points) {
         while (current_points && max_points && current_points >= max_points) {
-          await level_call.mutateAsync({
+          const level = await level_call.mutateAsync({
             category: category,
             overflow: current_points - max_points,
           });
-          current_points = await getCurrentPoints();
+          console.log(level)
+          console.log(current_points)
+          console.log(max_points)
+          current_points = current_points - max_points
           max_points = (await level_query.refetch()).data?.points;
         }
 

@@ -18,7 +18,7 @@ const handleClick = () => {
   return (
     <div className="fixed left-[63%] top-[70%]">
       <div className="flex flex-col space-y-40 pr-12 justify-evenly">
-        {addActive ? adds.map((add, index) => <AddButton name={add.name} link={add.link} number={index} />) : ""}
+        {addActive ? adds.map((add, index) => <AddButton name={add.name} link={add.link} number={index} key={add.name}/>) : ""}
       </div>
       <button
         className="fixed right-8 bottom-[6rem] flex h-20 w-20 cursor-pointer items-center

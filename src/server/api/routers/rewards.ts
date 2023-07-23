@@ -19,6 +19,18 @@ export const rewardsRouter = createTRPCRouter({
         },
       });
     }),
+    getFinishedRewards: publicProcedure
+    .input(z.object({date: z.date()}))
+    .query(({ctx, input})=> {
+        return ctx.prisma.rewards.findMany({
+            where: {
+                achieved_at: {
+                    gte: input.date
+                }
+            }
+        })
+
+    }),
     createReward: publicProcedure
     .input(z.object({name: z.string(), reward_category: reward_categories, goal_category: goal_categories, level: z.number()}))
     .mutation(({ctx, input})=> {

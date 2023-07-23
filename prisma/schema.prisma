@@ -15,7 +15,7 @@ datasource db {
 model Goals {
     id Int @id @default(autoincrement())
     user_id Int @default(1)
-    user User @relation(fields: [user_id], references: [id])
+    user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
     name String
     points Int
     created_at DateTime @default(now())
@@ -45,8 +45,8 @@ enum DayOfWeek {
 }
 
 model RepeatData {
-    goal_id Int @unique
-    goal Goals @relation(fields: [goal_id], references: [id])
+    goal_id Int @unique @id
+    goal Goals @relation(fields: [goal_id], references: [id], onDelete: Cascade)
     type RepeatTypes
     days DayOfWeek[]
     start_date DateTime @default(now())
@@ -73,7 +73,7 @@ enum RewardCategories {
 
 model Rewards {
     user_id Int @default(1)
-    user User @relation(fields: [user_id], references: [id])
+    user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
     level Int
     category Category
     rewards String[]
@@ -92,7 +92,7 @@ model Levels {
 
 model Stats {
     user_id Int @default(1)
-    user User @relation(fields: [user_id], references: [id])
+    user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
     category Category
     current_points Int @default(0)
     total_points Int @default(0)
@@ -101,11 +101,33 @@ model Stats {
     @@id([user_id, category])
 }
 
+model PointsData {
+    user_id Int @default(1)
+    user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+    category Category
+    points Int @default(0)
+    date DateTime @default(now())
+
+    @@id([user_id, category, points])
+}
+
+model LevelData {
+    user_id Int @default(1)
+    user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+    category Category
+    level Int @default(1)
+    date DateTime @default(now())
+
+    @@id([user_id, category, level])
+}
+
 model User {
     id Int @id @default(autoincrement())
     stats Stats[]
     rewards Rewards[]
     goals Goals[]
+    points_data PointsData[]
+    level_data LevelData[]
     last_points_added DateTime @default(now())
     
     subscription Json?

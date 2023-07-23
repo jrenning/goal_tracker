@@ -1,10 +1,11 @@
 import React from 'react'
+import Calender from '~/components/Calender/Calender'
 import PageTransitionLayout from '~/components/PageTransitionLayout'
 
 function repeats() {
   return (
     <PageTransitionLayout>
-        <div>In construction...</div>
+        <Calender />
     </PageTransitionLayout>
   )
 }

@@ -1,10 +1,8 @@
-"use client";
+
 
 import Head from "next/head";
 import { createContext, useEffect, useState } from "react";
-import CompletedBox from "~/components/CompletedBox";
 import GoalBox from "~/components/GoalBox";
-import Header from "~/components/Header";
 import NotificationButton from "~/components/NotificationButton";
 import SubscriptionButton from "~/components/SubscriptionButton";
 import Title from "~/components/Title";
@@ -21,12 +19,11 @@ import {
 import ProgressBox from "~/components/ProgressBox";
 import { z } from "zod";
 import { reward_categories } from "~/server/api/routers/rewards";
-import Footer from "~/components/Footer";
-import { updateRepeatingGoals } from "~/utils/update";
 import AddContentButton from "~/components/AddContentButton";
 import { isMobile } from "~/utils/device";
-import TransitionLayout from "~/components/PageTransitionLayout";
 import PageTransitionLayout from "~/components/PageTransitionLayout";
+import { GetServerSideProps } from "next";
+import { updateRepeatingGoals } from "~/utils/update";
 
 export const ModalContext = createContext<
   React.Dispatch<React.SetStateAction<ModalProps>> | undefined
@@ -102,4 +99,13 @@ export default function Home() {
       </PageTransitionLayout>
     </>
   );
+}
+
+
+
+export const getStaticProps: GetServerSideProps = async () => {
+  const result = await updateRepeatingGoals()
+  console.log(result)
+  const DAY_IN_SECONDS = 60*60*24
+  return {props: {}, revalidate: DAY_IN_SECONDS}
 }

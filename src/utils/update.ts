@@ -1,18 +1,22 @@
-import { useCallback } from "react";
-import { api } from "./api";
+
+import { prisma } from "~/server/db";
 
 export const updateRepeatingGoals = async () => {
-  const utils = api.useContext();
-  const goals = api.goals.getRepeatingGoals.useQuery().data;
 
-  const add_call = api.goals.addGoal.useMutation({
-    async onSuccess(data) {
-      await utils.goals.invalidate();
-      data && alert(`${data.name} was added!!`);
+    const today = new Date();
+    const goals = await prisma.repeatData.findMany({
+      where: {
+        stop_date: {
+          lt: today.toISOString()
+        },
+        start_date: {
+          gte: today.toISOString()
+        }
     },
-  });
-
-  const update_call = api.goals.setLastRepeat.useMutation();
+    include: {
+      goal: true
+    }
+    })
 
   goals?.forEach(async (goal) => {
     let needs_added;
@@ -74,16 +78,24 @@ export const updateRepeatingGoals = async () => {
     // add new goal if needed, DON'T ADD REPEATING DATA (avoids never ending tasks)
 
     if (needs_added) {
-      await add_call.mutate ({
-        name: goal.goal.name,
-        exp: Number(goal.goal.points),
-        difficulty: Number(goal.goal.difficulty),
-        category: goal.goal.category,
+      await prisma.goals.create({
+        data: {
+          name: goal.goal.name,
+          points: goal.goal.points,
+          difficulty: goal.goal.difficulty,
+          completed: false,
+          category: goal.goal.category,
+        },
       });
       // update repeat date
-      return update_call.mutate({
-        id: goal.goal.id,
-      });
+      return await prisma.repeatData.update({
+        where: {
+            goal_id: goal.goal_id
+        },
+        data: {
+            last_repeated: today.toISOString()
+        }
+      })
     } else {
       return;
     }

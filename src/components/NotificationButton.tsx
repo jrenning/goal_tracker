@@ -1,11 +1,13 @@
 import React from 'react'
+import { api } from '~/utils/api'
 
 type Props = {
     text: string
-    subscription: any
 }
 
-function NotificationButton({text, subscription}: Props) {
+function NotificationButton({text}: Props) {
+
+const subscription = api.user.getCurrentUserInfo.useQuery().data?.subscription
 
 const sendNotification = async () => {
     if (subscription == null) {

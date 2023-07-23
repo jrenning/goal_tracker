@@ -11,6 +11,7 @@ import {
   Title,
   Tooltip,
   Legend,
+  Filler
 } from "chart.js";
 import { AnimatePresence } from "framer-motion";
 import Footer from "~/components/Footer";
@@ -26,6 +27,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
     LineElement,
     Title,
     Tooltip,
+    Filler,
     Legend
   );
   return (

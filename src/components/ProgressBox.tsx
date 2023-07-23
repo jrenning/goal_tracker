@@ -26,7 +26,7 @@ if (user_stats) {
     <div className='grid grid-cols-2 items-center justify-center'>
     {points && points.map((point, index)=> (
         //@ts-ignore
-        <ProgressBar level={levels[index] ? levels[index] : 1} points={point ? point : 0} category={categories[index]}/>
+        <ProgressBar key={index} level={levels[index] ? levels[index] : 1} points={point ? point : 0} category={categories[index]}/>
     ))}
     </div>
   )

@@ -77,12 +77,23 @@ export const userRouter = createTRPCRouter({
         },
       });
 
+
+      await ctx.prisma.pointsData.create({
+        data: {
+            user_id: 1,
+            points: points_added.total_points,
+            date: today.toISOString(),
+            category: input.category
+        }
+      })
+
       return points_added;
     }),
   gainLevel: publicProcedure
     .input(z.object({ overflow: z.number(), category: goal_categories }))
     .mutation(async ({ ctx, input }) => {
-      const new_level = ctx.prisma.stats.update({
+        const today = new Date()
+      const new_level = await ctx.prisma.stats.update({
         where: {
           user_id_category: {
             user_id: 1,
@@ -93,8 +104,32 @@ export const userRouter = createTRPCRouter({
           level: {
             increment: 1,
           },
+          current_points: input.overflow
         },
       });
+      await ctx.prisma.levelData.create({
+        data: {
+            user_id: 1,
+            level: new_level.level,
+            date: today.toISOString(),
+            category: input.category
+        }
+      })
+
+      await ctx.prisma.rewards.update({
+        where: {
+            user_id_level_category: {
+                user_id: 1,
+                level: new_level.level,
+                category: input.category
+            }
+        },
+        data: {
+            achieved_at: today.toISOString()
+        }
+      })
+
+
       return new_level;
     }),
   saveSubscription: publicProcedure
@@ -107,4 +142,37 @@ export const userRouter = createTRPCRouter({
       });
       return new_subscription;
     }),
+    addUser: publicProcedure
+    .mutation(async ({ctx})=> {
+
+        const c = goal_categories.Values
+        const categories = [
+            {category: c.Education},
+            {category: c.Social},
+            {category: c.Hobby},
+            {category: c.Physical},
+            {category: c.Odd_Job}
+        ]
+        const new_user = ctx.prisma.user.create({
+            data: {
+                stats: {
+                    createMany: {
+                        data: categories
+                    }
+                },
+                level_data: {
+                    createMany: {
+                        data: categories
+                    },
+                },
+                points_data: {
+                    createMany: {
+                        data: categories
+                    }
+                },
+            }
+        })
+
+        return new_user
+    })
 });

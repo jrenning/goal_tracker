@@ -61,16 +61,28 @@ export const goalsRouter = createTRPCRouter({
     })
 
   }),
-  getCurrentGoals: publicProcedure.query(({ ctx }) => {
+  getCurrentGoals: publicProcedure.query(async ({ ctx }) => {
     const today = new Date();
-    return ctx.prisma.goals.findMany({
+    console.log(today)
+    
+    const goals = await ctx.prisma.goals.findMany({
       where: {
         created_at: {
           lte: today.toJSON(),
         },
         completed: false,
+        repeat: {
+          start_date: {
+            lte: today,
+          },
+        },
       },
+      include: {
+        repeat: true
+      }
     });
+    console.log(goals[0]?.repeat?.start_date)
+    return goals
   }),
   getGoalsByCategory: publicProcedure
     .input(z.object({ category: goal_categories }))
@@ -81,6 +93,18 @@ export const goalsRouter = createTRPCRouter({
         },
       });
     }),
+  getGoalsByCategoryDate: publicProcedure
+  .input(z.object({category: goal_categories, date: z.date()}))
+  .query(({input, ctx})=> {
+          return ctx.prisma.goals.findMany({
+        where: {
+          category: input.category,
+          date_completed: {
+            gte: input.date
+          }
+        },
+      });
+  }),
   getCompletedGoals: publicProcedure
     .input(z.object({ date: z.date() }))
     .query(({ input, ctx }) => {
@@ -123,7 +147,7 @@ export const goalsRouter = createTRPCRouter({
     )
     .mutation(async ({ input, ctx }) => {
       let goal;
-      if (input.repeat_type && input.start_date && input.end_date) {
+      if (input.repeat_type && input.start_date) {
         goal = await ctx.prisma.goals.create({
           data: {
             name: input.name,

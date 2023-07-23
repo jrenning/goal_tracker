@@ -7,6 +7,7 @@ export type Dataset = {
     data: number[]
     fill: boolean
     borderColor: Color
+    backgroundColor: Color
     tension: number
 }
 
@@ -19,7 +20,6 @@ type LineChartProps = {
 function LineChart({ labels, datasets, title }: LineChartProps) {
   return (
     <div className="chart-container">
-      <h2 style={{ textAlign: "center" }}>Line Chart</h2>
       <Line
         data={{
           labels: labels,

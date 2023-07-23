@@ -14,3 +14,9 @@ body {
 #__next {
     min-height: 100%;
 }
+
+@layer components {
+    .select-primary {
+        @apply m-2 my-4 w-fit rounded-md border border-black bg-slate-200 p-2 shadow-lg
+    }
+}

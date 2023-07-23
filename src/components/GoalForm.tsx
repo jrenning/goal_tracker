@@ -49,7 +49,9 @@ function GoalForm({ backlink }: GoalFormProps) {
       }
     }
 
-    if (repeating && target.start_date.value && target.end_date.value) {
+
+    if (repeating && target.start_date.value) {
+        console.log("here")
       await add_call.mutateAsync({
         name: target.name.value,
         exp: Number(target.exp.value),
@@ -58,9 +60,10 @@ function GoalForm({ backlink }: GoalFormProps) {
         repeat_type: target.type.value,
         days_of_week: selected_days,
         start_date: new Date(target.start_date.value),
-        end_date: new Date(target.end_date.value),
+        end_date: target.end_date.value ? new Date(target.end_date.value) : undefined,
       });
     } else {
+        console.log("there")
       await add_call.mutateAsync({
         name: target.name.value,
         exp: Number(target.exp.value),
@@ -92,7 +95,7 @@ function GoalForm({ backlink }: GoalFormProps) {
             <option>Education</option>
             <option>Social</option>
             <option>Hobby</option>
-            <option>Odd Job</option>
+            <option>Odd_Job</option>
           </select>
           <label htmlFor="exp">Exp</label>
           <input type="number" required={true} id="exp"></input>
