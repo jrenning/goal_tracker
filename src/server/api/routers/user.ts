@@ -16,6 +16,19 @@ export const userRouter = createTRPCRouter({
         }
     })
   }),
+  resetUserStats: publicProcedure
+  .mutation(async ({ctx})=> {
+    return await ctx.prisma.stats.updateMany({
+        where: {
+            user_id: 1
+        },
+        data: {
+            current_points: 0,
+            total_points: 0,
+            level: 1
+        }
+    })
+  }),
   getCategoryLevel: publicProcedure
     .input(z.object({ category: goal_categories }))
     .query(({ ctx, input }) => {
@@ -116,6 +129,7 @@ export const userRouter = createTRPCRouter({
         }
       })
 
+      // update, if doesn't exist just catch and ignore error 
       await ctx.prisma.rewards.update({
         where: {
             user_id_level_category: {
@@ -127,7 +141,7 @@ export const userRouter = createTRPCRouter({
         data: {
             achieved_at: today.toISOString()
         }
-      })
+      }).catch((err)=> console.log(err))
 
 
       return new_level;

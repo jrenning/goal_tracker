@@ -22,6 +22,10 @@ export const days_of_week = z.enum([
 ]);
 
 export const goalsRouter = createTRPCRouter({
+  clear: publicProcedure
+  .mutation(async ({ctx})=> {
+    return await ctx.prisma.goals.deleteMany()
+  }),
   getGoalById: publicProcedure
     .input(z.object({ id: z.number() }))
     .query(({ ctx, input }) => {

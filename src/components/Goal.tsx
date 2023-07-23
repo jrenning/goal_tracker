@@ -34,8 +34,11 @@ function Goal({ name, points, difficulty, id, disabled, category }: Props) {
   const user_query = api.user.getCurrentUserInfo.useQuery();
   const user = user_query.data;
 
-  const level = api.user.getCategoryLevel.useQuery({ category: category }).data
-    ?.level;
+  const user_level_query = api.user.getCategoryLevel.useQuery({
+    category: category,
+  });
+
+  const level = user_level_query.data?.level
 
 
   const current_points_query = api.user.getCategoryCurrentPoints.useQuery({
@@ -93,15 +96,12 @@ function Goal({ name, points, difficulty, id, disabled, category }: Props) {
             category: category,
             overflow: current_points - max_points,
           });
-          console.log(level)
-          console.log(current_points)
-          console.log(max_points)
           current_points = current_points - max_points
           max_points = (await level_query.refetch()).data?.points;
         }
 
         // refetch to get level
-        const level = (await level_query.refetch()).data?.number;
+        const level = (await user_level_query.refetch()).data?.level;
         const data = (await reward_query.refetch()).data;
         const rewards = data?.rewards;
         const categories = data?.reward_category;

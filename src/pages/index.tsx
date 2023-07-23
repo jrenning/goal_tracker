@@ -24,6 +24,7 @@ import { isMobile } from "~/utils/device";
 import PageTransitionLayout from "~/components/PageTransitionLayout";
 import { GetServerSideProps } from "next";
 import { updateRepeatingGoals } from "~/utils/update";
+import ResetStatsButton from "~/components/ResetStatsButton";
 
 export const ModalContext = createContext<
   React.Dispatch<React.SetStateAction<ModalProps>> | undefined
@@ -42,7 +43,6 @@ export default function Home() {
 
   const repeats = api.goals.getCurrentGoals.useQuery().data
 
-  console.log(repeats)
 
   useEffect(() => {
     if (subscription_data != null && isMobile()) {
