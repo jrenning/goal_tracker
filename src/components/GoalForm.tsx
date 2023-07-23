@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import React, { FormEvent, useState } from "react";
 import { DaysOfWeek, GoalCategories, RepeatType } from "~/pages";
 import { api } from "~/utils/api";
+import { convertToUTC } from "~/utils/datetime";
 
 type GoalFormProps = {
   backlink: string;
@@ -51,7 +52,6 @@ function GoalForm({ backlink }: GoalFormProps) {
 
 
     if (repeating && target.start_date.value) {
-        console.log("here")
       await add_call.mutateAsync({
         name: target.name.value,
         exp: Number(target.exp.value),
@@ -59,11 +59,11 @@ function GoalForm({ backlink }: GoalFormProps) {
         category: target.category.value,
         repeat_type: target.type.value,
         days_of_week: selected_days,
-        start_date: new Date(target.start_date.value),
-        end_date: target.end_date.value ? new Date(target.end_date.value) : undefined,
+        start_date: convertToUTC(new Date(target.start_date.value)),
+        end_date: target.end_date.value ? convertToUTC(new Date(target.end_date.value)) : undefined,
+        
       });
     } else {
-        console.log("there")
       await add_call.mutateAsync({
         name: target.name.value,
         exp: Number(target.exp.value),

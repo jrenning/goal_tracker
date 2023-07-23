@@ -35,18 +35,21 @@ export type DaysOfWeek = z.infer<typeof days_of_week>;
 export type RepeatType = z.infer<typeof repeat_type>;
 
 export default function Home() {
-  const user = api.user.getCurrentUserInfo.useQuery();
+  const {data, isLoading} = api.user.getCurrentUserInfo.useQuery();
+  const subscription_data = data?.subscription
 
   const [subscription, setSubscription] = useState<any>(null);
-  const [isSubscribed, setIsSubscribed] = useState(false);
+
+  const repeats = api.goals.getCurrentGoals.useQuery().data
+
+  console.log(repeats)
 
   useEffect(() => {
-    if (user.data?.subscription != null && isMobile()) {
-      setSubscription(user.data.subscription);
-      setIsSubscribed(true);
+    if (subscription_data != null && isMobile()) {
+      setSubscription(subscription_data);
     } else {
       // only show on mobile for now
-      if (isMobile()) {
+      if (isMobile() && !isLoading) {
         // yes this does try every time if the person isn't subscribed, annoying. but only me using it so...
         setModal({
           title: "Subscribe to get Notifications",
@@ -56,7 +59,7 @@ export default function Home() {
         });
       }
     }
-  }, [setSubscription]);
+  }, [subscription_data]);
 
   const [modal, setModal] = useState<ModalProps>({
     title: "",
@@ -91,7 +94,7 @@ export default function Home() {
 
           <Title name="My Goals" date={true} />
 
-          <GoalBox />
+          <GoalBox disabled={false}/>
           
           <AddContentButton />
           

@@ -6,17 +6,23 @@ export const updateRepeatingGoals = async () => {
     const today = new Date();
     const goals = await prisma.repeatData.findMany({
       where: {
-        stop_date: {
-          lt: today.toISOString()
-        },
+        OR: [{
+            stop_date: {
+                lte: today
+            },
+            
+        }, {
+            stop_date: null
+        }],
+
         start_date: {
-          gte: today.toISOString()
-        }
-    },
-    include: {
-      goal: true
-    }
-    })
+          gte: today,
+        },
+      },
+      include: {
+        goal: true,
+      },
+    });
 
   goals?.forEach(async (goal) => {
     let needs_added;
