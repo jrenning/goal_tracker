@@ -1,31 +1,57 @@
 import { NextApiRequest, NextApiResponse } from "next";
+import ResetStatsButton from "~/components/ResetStatsButton";
 import { appRouter } from "~/server/api/root";
+import { UserSubscription } from "~/server/api/routers/user";
 import { prisma } from "~/server/db";
 
+
+type UserSubscriptionParsed = {
+  endpoint: string | null,
+  keys: {
+    p256dh: string | null,
+    auth: string | null
+  }
+}
+
 export default async (req: NextApiRequest, res: NextApiResponse) => {
-  const sendNotification = async (subscription: any) => {
+  const sendNotification = async (subscription: UserSubscriptionParsed) => {
     if (subscription == null) {
       throw new Error("The subscription was null");
     }
-    const result = await fetch("/api/notification", {
+
+
+
+    const result = await fetch("http://localhost:3000/api/notification", {
       method: "POST",
       headers: {
-        "Content-type": "application/json",
+        "Content-Type": "application/json",
       },
-      body: subscription,
+      body: JSON.stringify(subscription),
     });
-    alert(result.body);
-    alert(result.statusText);
+
+    res.send(result)
+
+
+
 
     return result
   };
 
+
+
   // get the subscription data
 
-  const caller = appRouter.createCaller({
+  const caller = await appRouter.createCaller({
     prisma: prisma,
   });
-  const result = await caller.user.getCurrentUserInfo();
+
+
+
+
+  const result = await caller.user.getUserSubscription()
+
+
+
 
   // send notification request
 //   await sendNotification(result?.subscription)
@@ -33,7 +59,5 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 //     .catch((err) => {
 //       res.write({ message: "Failed", result: result, err: err });
 //     });
-    const send = await sendNotification(result?.subscription)
-
-    res.send(send)
+    const send = await sendNotification(result)
 };

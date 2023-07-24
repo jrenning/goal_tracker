@@ -32,7 +32,7 @@ function FooterSection({name, icon, link, setCurrent, current}: FooterProps) {
 
     return (
       <Link href={link} onClick={() => setCurrent(name)}>
-        <div className="my-2 flex cursor-pointer flex-col items-center justify-center hover:text-green-300">
+        <div className="my-10 flex cursor-pointer flex-col items-center justify-center hover:text-green-300">
           <div
             className="h-6 w-6 object-contain  text-4xl"
             style={{ fill: current == name ? "#95fab9" : "black" }}

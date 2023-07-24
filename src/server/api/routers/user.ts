@@ -2,9 +2,38 @@ import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { goal_categories } from "./goals";
 
+
+export type UserSubscription = {
+  pushSubscription: {
+    endpoint: string | null,
+    keys: {
+      p256dh: string | null,
+      auth: string | null
+    }
+  }
+}
+
 export const userRouter = createTRPCRouter({
   getCurrentUserInfo: publicProcedure.query(({ ctx }) => {
     return ctx.prisma.user.findFirst();
+  }),
+  getUserSubscription: publicProcedure
+  .query(async ({ctx})=> {
+    const data =  await ctx.prisma.user.findFirst({
+      where: {
+        id: 1
+      },
+      select: {
+        subscription: true
+      }
+    })
+
+    const subscription = JSON.parse(data?.subscription as string) as UserSubscription
+
+    return subscription.pushSubscription
+
+
+
   }),
   getUserStats: publicProcedure.query(({ctx})=> {
     return ctx.prisma.user.findUnique({
