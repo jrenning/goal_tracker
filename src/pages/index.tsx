@@ -1,7 +1,7 @@
 
 
 import Head from "next/head";
-import { createContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import GoalBox from "~/components/GoalBox";
 import NotificationButton from "~/components/NotificationButton";
 import SubscriptionButton from "~/components/SubscriptionButton";
@@ -25,6 +25,7 @@ import PageTransitionLayout from "~/components/PageTransitionLayout";
 import { GetServerSideProps } from "next";
 import { updateRepeatingGoals } from "~/utils/update";
 import ResetStatsButton from "~/components/ResetStatsButton";
+import { ThemeContext } from "~/utils/theme";
 
 export const ModalContext = createContext<
   React.Dispatch<React.SetStateAction<ModalProps>> | undefined
@@ -38,6 +39,7 @@ export type RepeatType = z.infer<typeof repeat_type>;
 export default function Home() {
   const {data, isLoading} = api.user.getCurrentUserInfo.useQuery();
   const subscription_data = data?.subscription
+  const {theme, setTheme} = useContext(ThemeContext)
 
   const [subscription, setSubscription] = useState<any>(null);
 
@@ -69,7 +71,7 @@ export default function Home() {
   });
 
   return (
-    <>
+    <div className="darK:bg-[#121212]">
       <PageTransitionLayout>
         <ModalContext.Provider value={setModal}>
           <Head>
@@ -100,7 +102,7 @@ export default function Home() {
           
         </ModalContext.Provider>
       </PageTransitionLayout>
-    </>
+    </div>
   );
 }
 

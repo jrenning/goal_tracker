@@ -86,38 +86,58 @@ function Calender() {
 
     const days = constructDayArray(firstDay ? firstDay : 0, totalDays ? totalDays : 0)
   return (
-    <div className="mt-12">
-      <div className='p-4 bg-slate-200'>
-        <h1 className='text-2xl font-semibold'>{months[date.getMonth()]} {date.getFullYear()}</h1>
+    <div className="">
+      <div className="bg-slate-200 p-4 dark:bg-slate-300">
+        <h1 className="text-2xl font-semibold ">
+          {months[date.getMonth()]} {date.getFullYear()}
+        </h1>
       </div>
-      <div className="grid grid-cols-7 grid-rows-6">
-        {weeks.map((week)=> (
-            <WeekDay letter={week} key={week}/>
+      <div className="grid grid-cols-7 grid-rows-6 ">
+        {weeks.map((week) => (
+          <WeekDay letter={week} key={week} />
         ))}
         {days.map((day, index) => (
-          <Day day={day} key={day+index} month={date.getMonth()} year={date.getFullYear()} goal_data={goals_in_month ? goals_in_month : filler_goal} />
+          <Day
+            day={day}
+            key={day + index}
+            month={date.getMonth()}
+            year={date.getFullYear()}
+            goal_data={goals_in_month ? goals_in_month : filler_goal}
+          />
         ))}
       </div>
-      <div className='flex flex-row space-x-8  justify-evenly items-center'>
-            <button className='select-primary bg-green-300 hover:bg-gray-50' onClick={()=> setCalender(true)}>Previous</button>
-            <button className='select-primary bg-green-300 hover:bg-gray-50'onClick={()=> setCalender(false)}>Next</button>
+      <div className="flex flex-row items-center  justify-evenly space-x-8">
+        <button
+          className="select-primary bg-green-300 hover:bg-gray-50"
+          onClick={() => setCalender(true)}
+        >
+          Previous
+        </button>
+        <button
+          className="select-primary bg-green-300 hover:bg-gray-50"
+          onClick={() => setCalender(false)}
+        >
+          Next
+        </button>
       </div>
-      <div className=' flex flex-row  mt-8 justify-evenly items-center'>
-            <div className='font-semibold text-xl'>Jump To</div>
-            <select className='select-primary' onChange={(e)=> {
-                const target = e.target as typeof e.target & {
-                    value: number
-                }
-                setDate(new Date(date.getFullYear(), month_map[target.value]))
-                }}>
-                {months.map((month)=> (
-                    <option>{month}</option>
-                ))}
-                
-            </select>
-            <select className='select-primary'>
-                <option>2023</option>
-            </select>
+      <div className=" mt-8 flex  flex-row items-center justify-evenly">
+        <div className="text-xl font-semibold dark:text-white">Jump To</div>
+        <select
+          className="select-primary"
+          onChange={(e) => {
+            const target = e.target as typeof e.target & {
+              value: number;
+            };
+            setDate(new Date(date.getFullYear(), month_map[target.value]));
+          }}
+        >
+          {months.map((month) => (
+            <option>{month}</option>
+          ))}
+        </select>
+        <select className="select-primary">
+          <option>2023</option>
+        </select>
       </div>
     </div>
   );
@@ -131,7 +151,7 @@ type WeekProps = {
 
 function WeekDay ({letter}: WeekProps) {
     return (
-    <div className='w-full h-full bg-slate-100 flex justify-center items-center font-semibold'>{letter}</div>
+    <div className='w-full h-full bg-slate-100 flex justify-center items-center font-semibold dark:bg-slate-200'>{letter}</div>
     )
 }
 

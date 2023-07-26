@@ -1,4 +1,5 @@
 import React from 'react'
+import ThemeButton from './ThemeButton'
 
 type Props = {
     name: string
@@ -7,8 +8,12 @@ type Props = {
 
 function Header({name}: Props) {
   return (
-    <div className='items-center p-2 font-bold text-center h-12 text-white bg-green-400 shadow-md text-bold w-100vw'>{name}</div>
-  )
+    <div className="relative text-bold w-100vw flex h-12 flex-row items-center justify-center bg-green-400 p-2 text-center font-bold text-white shadow-md">
+      <div></div>
+      <div className="dark:text-white text-black">{name}</div>
+      <ThemeButton />
+    </div>
+  );
 }
 
 export default Header

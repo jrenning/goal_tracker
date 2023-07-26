@@ -1,7 +1,9 @@
 import { Goals, RepeatData } from "@prisma/client";
 import { useRouter } from "next/router";
-import React from "react";
+import React, { useContext } from "react";
 import { api } from "~/utils/api";
+import { ThemeContext, ThemeProvider } from "~/utils/theme";
+import { useLoaded } from "../hooks/useLoaded";
 
 type DayProps = {
   day: number;
@@ -74,19 +76,44 @@ function Day({ day, month, year, goal_data }: DayProps) {
 
   const openDay = () => {
     router.push(`/repeats/${year}-${month+1}-${day}`);
+
   };
+
+  const {theme, setTheme} = useContext(ThemeContext)
+  const loaded = useLoaded()
+
+  const getBackgroundColor = () => {
+    if (loaded) {
+    if (today.toDateString() == date.toDateString()) {
+      if (theme == "light") {
+        return "yellow"
+      }
+      else {
+        return "orange"
+      }
+    }
+    else {
+      if (theme == "light") {
+        return "white"
+      }
+      else {
+        return "#121212"
+      }
+    }
+  }
+  }
 
   return (
     <div
-      className="relative h-full w-full border border-gray-100 p-4 text-xl"
+      className="relative h-full w-full border dark:bg-black dark:text-white dark:border-gray-300 border-gray-100 p-4 text-xl"
       onClick={() => openDay()}
       style={{
         backgroundColor:
-          today.toDateString() == date.toDateString() ? "yellow" : "white",
+          getBackgroundColor(),
       }}
     >
       {day && goal_number ? (
-        <div className="absolute  right-0  top-0 rounded-full bg-red-300 px-1 text-sm">
+        <div className="absolute  right-0  top-0 rounded-full bg-red-300 dark:text-black px-1 text-sm">
           {goal_number}
         </div>
       ) : (

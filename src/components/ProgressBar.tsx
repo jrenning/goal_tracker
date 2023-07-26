@@ -24,13 +24,13 @@ const color = colors[category]
 
 
   return (
-    <div className="flex w-full flex-row justify-center  space-x-3 p-4">
+    <div className="flex w-full flex-row justify-center relative  space-x-3 p-4">
       <div className="w-10  rounded-full bg-black text-center   font-semibold text-black"
       style={{backgroundColor: color ? color : ""}}>
         {level}
       </div>
       <div className=" flex h-6 w-2/3 items-center rounded-md bg-gray-300 text-[0.7rem] md:text-lg">
-        <div className="absolute mx-2 font-mono font-semibold text-slate-50">
+        <div className="absolute mx-2 font-mono font-semibold text-slate-50 dark:text-black">
           {category}
         </div>
         <div

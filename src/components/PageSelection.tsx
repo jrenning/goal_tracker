@@ -13,7 +13,7 @@ function PageSelection({names, setActive, active}: PageSelectionProps) {
 
 
   return (
-    <div className="flex flex-row mt-8 justify-evenly items-center">
+    <div className="flex flex-row justify-evenly items-center dark:text-white">
     {names.map((name)=> (
         <div className='font-semibold' style={{borderBottom: name==active ? "solid" : "none"}} onClick={()=> setActive(name)} key={name}>{name}</div>
     ))}
