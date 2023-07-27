@@ -24,7 +24,18 @@ model Goals {
     category Category
     date_completed DateTime?
     repeat RepeatData?
+    checklist CheckListItem[]
 
+}
+
+model CheckListItem {
+    id Int @id @default(autoincrement())
+    goal_id Int 
+    goal Goals @relation(fields: [goal_id], references: [id], onDelete: Cascade)
+    name String
+    completed Boolean
+    date_completed DateTime?
+    
 }
 
 enum RepeatTypes {

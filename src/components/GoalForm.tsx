@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
-import React, { FormEvent, useState } from "react";
+import React, { FormEvent, ReactElement, useState } from "react";
 import { DaysOfWeek, GoalCategories, RepeatType } from "~/pages";
 import { api } from "~/utils/api";
 import { convertToUTC } from "~/utils/datetime";
@@ -12,6 +12,22 @@ type GoalFormProps = {
 function GoalForm({ backlink }: GoalFormProps) {
   const utils = api.useContext();
   const [repeating, setRepeating] = useState(false);
+
+  // TODO move this stuff into a hook
+  const [checklistItems, setChecklistItems] = useState<ReactElement[]>([]);
+
+  const [checkListSize, setCheckListSize] = useState(0);
+
+  const getSize = () => {
+    return checkListSize;
+  };
+
+  const getInputValues = () => {
+    checklistItems.forEach((item)=> {
+      console.log(item)
+    })
+  }
+
   const router = useRouter();
 
   const add_call = api.goals.addGoal.useMutation({
@@ -24,6 +40,7 @@ function GoalForm({ backlink }: GoalFormProps) {
   const createGoal = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    // TODO fix this terrible form parsing
     const target = e.target as typeof e.target & {
       name: { value: string };
       exp: { value: string };
@@ -34,13 +51,25 @@ function GoalForm({ backlink }: GoalFormProps) {
       days: { value: DaysOfWeek[] | undefined };
       start_date: { value: string | undefined };
       end_date: { value: string | undefined };
+      checklist_item: {value: string[] | undefined}
     };
+
+    let checklist_items: string[] = []
+    //@ts-ignore
+    if (e.target.checklist_item) {
+      //@ts-ignore
+      const items: RadioNodeList = e.target.checklist_item;
+      items.forEach((input)=> {
+        //@ts-ignore
+        checklist_items.push(input.value)
+      })
+    }
+    
     let selected_days: DaysOfWeek[] = [];
     //@ts-ignore
     if (e.target.days) {
       //@ts-ignore
-      const opts: HTMLOptionsCollection = e.target.days
-
+      const opts: HTMLOptionsCollection = e.target.days;
 
       for (let i = 0; i < opts.length; i++) {
         if (opts[i]?.selected) {
@@ -51,26 +80,20 @@ function GoalForm({ backlink }: GoalFormProps) {
     }
 
 
-    if (repeating && target.start_date.value) {
-      await add_call.mutateAsync({
-        name: target.name.value,
-        exp: Number(target.exp.value),
-        difficulty: Number(target.difficulty.value),
-        category: target.category.value,
-        repeat_type: target.type.value,
-        days_of_week: selected_days,
-        start_date: convertToUTC(new Date(target.start_date.value)),
-        end_date: target.end_date.value ? convertToUTC(new Date(target.end_date.value)) : undefined,
-        
-      });
-    } else {
-      await add_call.mutateAsync({
-        name: target.name.value,
-        exp: Number(target.exp.value),
-        difficulty: Number(target.difficulty.value),
-        category: target.category.value,
-      });
-    }
+    await add_call.mutateAsync({
+      name: target.name.value,
+      exp: Number(target.exp.value),
+      difficulty: Number(target.difficulty.value),
+      category: target.category.value,
+      repeat_type: target.type.value,
+      days_of_week: selected_days,
+      start_date: target.start_date.value
+        ? convertToUTC(new Date(target.start_date.value))
+        : undefined,
+      end_date: target.end_date.value
+        ? convertToUTC(new Date(target.end_date.value))
+        : undefined,
+    });
 
     router.push(backlink);
   };
@@ -89,6 +112,29 @@ function GoalForm({ backlink }: GoalFormProps) {
         >
           <label htmlFor="name">Name</label>
           <input required={true} id="name" />
+          <label>Checklist Items</label>
+          {checklistItems.map((item) => (
+            <>{item}</>
+          ))}
+          <button
+            className="rounded-md bg-green-300"
+            type="button"
+            onClick={() => {
+              setCheckListSize((size) => size + 1);
+              setChecklistItems((items) => [
+                ...items,
+                <CheckListItem
+                  key={getSize()}
+                  size={getSize()}
+                  checkListItems={checklistItems}
+                  setCheckListItems={setChecklistItems}
+                />,
+              ]);
+              console.log(checklistItems);
+            }}
+          >
+            Add checklist item
+          </button>
           <label htmlFor="category">Category</label>
           <select id="category">
             <option>Physical</option>
@@ -131,6 +177,40 @@ function GoalForm({ backlink }: GoalFormProps) {
           </button>
         </form>
       </div>
+    </div>
+  );
+}
+
+type ChecklistItemProps = {
+  checkListItems: ReactElement[];
+  setCheckListItems: React.Dispatch<
+    React.SetStateAction<
+      React.ReactElement<any, string | React.JSXElementConstructor<any>>[]
+    >
+  >;
+  size: number;
+};
+
+function CheckListItem({
+  checkListItems,
+  setCheckListItems,
+  size,
+}: ChecklistItemProps) {
+  const removeChecklistItem = (key: number) => {
+    const newChecklist = checkListItems.filter((item) => item.key != key);
+
+    setCheckListItems(newChecklist);
+  };
+  return (
+    <div className="relative flex flex-row space-x-2">
+      <input type="text" id={`checklist_item`} name="checklist_item" placeholder="Add item here..." />
+      <button
+        type="button"
+        className="flex h-6 w-6 items-center justify-center rounded-full bg-red-300 text-lg"
+        onClick={() => removeChecklistItem(size)}
+      >
+        -
+      </button>
     </div>
   );
 }

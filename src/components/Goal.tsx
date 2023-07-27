@@ -38,8 +38,7 @@ function Goal({ name, points, difficulty, id, disabled, category }: Props) {
     category: category,
   });
 
-  const level = user_level_query.data?.level
-
+  const level = user_level_query.data?.level;
 
   const current_points_query = api.user.getCategoryCurrentPoints.useQuery({
     category: category,
@@ -63,8 +62,8 @@ function Goal({ name, points, difficulty, id, disabled, category }: Props) {
 
   const add_points_call = api.user.addPoints.useMutation({
     async onSuccess(data) {
-      await utils.goals.invalidate()
-      await utils.user.invalidate()
+      await utils.goals.invalidate();
+      await utils.user.invalidate();
     },
   });
 
@@ -89,35 +88,37 @@ function Goal({ name, points, difficulty, id, disabled, category }: Props) {
       // get new point total
       let current_points = await getCurrentPoints();
       let max_points = (await level_query.refetch()).data?.points;
-
+      let level_up = false;
       if (max_points && current_points) {
         while (current_points && max_points && current_points >= max_points) {
+          level_up = true;
           const level = await level_call.mutateAsync({
             category: category,
             overflow: current_points - max_points,
           });
-          current_points = current_points - max_points
+          current_points = current_points - max_points;
           max_points = (await level_query.refetch()).data?.points;
         }
-
-        // refetch to get level
-        const level = (await user_level_query.refetch()).data?.level;
-        const data = (await reward_query.refetch()).data;
-        const rewards = data?.rewards;
-        const categories = data?.reward_category;
-        setModal &&
-          setModal({
-            title: "Congrats, you leveled up!",
-            content: (
-              <LevelUp
-                level={level ? level : 0}
-                rewards={rewards ? rewards : []}
-                categories={categories ? categories : []}
-              />
-            ),
-            isOpen: true,
-            backgroundColor: color ? color : "#fffff",
-          });
+        if (level_up) {
+          // refetch to get level
+          const level = (await user_level_query.refetch()).data?.level;
+          const data = (await reward_query.refetch()).data;
+          const rewards = data?.rewards;
+          const categories = data?.reward_category;
+          setModal &&
+            setModal({
+              title: "Congrats, you leveled up!",
+              content: (
+                <LevelUp
+                  level={level ? level : 0}
+                  rewards={rewards ? rewards : []}
+                  categories={categories ? categories : []}
+                />
+              ),
+              isOpen: true,
+              backgroundColor: color ? color : "#fffff",
+            });
+        }
       }
     }
   };

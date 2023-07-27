@@ -24,7 +24,7 @@ function getDateNumbers (date_string: string) {
 function DatePopup() {
   const router = useRouter()
   //@ts-ignore
-  const router_date: string = router.query.date as string ? router.query.date : "1/1/1900"
+  const router_date: string = router.query.date as string ? router.query.date : "1-1-1900"
 
   // convert string to number to help support browsers that can't do the string constructor of Date
   const {year, month, day} = getDateNumbers(router_date ? router_date : "1900-1-1")

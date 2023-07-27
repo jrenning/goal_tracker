@@ -1,3 +1,4 @@
+import { backInOut } from "framer-motion";
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 
@@ -22,9 +23,8 @@ export const days_of_week = z.enum([
 ]);
 
 export const goalsRouter = createTRPCRouter({
-  clear: publicProcedure
-  .mutation(async ({ctx})=> {
-    return await ctx.prisma.goals.deleteMany()
+  clear: publicProcedure.mutation(async ({ ctx }) => {
+    return await ctx.prisma.goals.deleteMany();
   }),
   getGoalById: publicProcedure
     .input(z.object({ id: z.number() }))
@@ -63,7 +63,7 @@ export const goalsRouter = createTRPCRouter({
         Friday: 5,
         Saturday: 6,
       };
-      console.log(input.date)
+      console.log(input.date);
       const goals_in_range = await ctx.prisma.goals.findMany({
         where: {
           repeat: {
@@ -96,9 +96,7 @@ export const goalsRouter = createTRPCRouter({
         const day_num = input.date.getDay();
         if (goal.repeat?.type == "Daily") {
           const day_nums = goal.repeat.days.map((day) => day_map[day]);
-          if (
-            day_nums.includes(day_num)
-          ) {
+          if (day_nums.includes(day_num)) {
             goals.push(goal);
           }
         } else if (goal.repeat?.type == "Weekly") {
@@ -107,11 +105,14 @@ export const goalsRouter = createTRPCRouter({
           }
         } else if (goal.repeat?.type == "Monthly") {
           if (input.date.getDate() == goal.repeat.start_date.getDate()) {
-            goals.push(goal)
+            goals.push(goal);
           }
         } else {
-          if (input.date.getDate() == goal.repeat?.start_date.getDate() && input.date.getMonth() == goal.repeat?.start_date.getMonth()) {
-            goals.push(goal)
+          if (
+            input.date.getDate() == goal.repeat?.start_date.getDate() &&
+            input.date.getMonth() == goal.repeat?.start_date.getMonth()
+          ) {
+            goals.push(goal);
           }
         }
       });
@@ -119,8 +120,8 @@ export const goalsRouter = createTRPCRouter({
       return goals;
     }),
   getRepeatGoalsInMonth: publicProcedure
-  .input(z.object({date: z.date()}))
-  .query(async ({ ctx, input }) => {
+    .input(z.object({ date: z.date() }))
+    .query(async ({ ctx, input }) => {
       const goals_in_range = await ctx.prisma.goals.findMany({
         where: {
           repeat: {
@@ -147,7 +148,7 @@ export const goalsRouter = createTRPCRouter({
           repeat: true,
         },
       });
-      return goals_in_range
+      return goals_in_range;
     }),
 
   setLastRepeat: publicProcedure
@@ -239,38 +240,35 @@ export const goalsRouter = createTRPCRouter({
         days_of_week: z.array(days_of_week).optional(),
         start_date: z.date().optional(),
         end_date: z.date().optional(),
+        checklist_items: z.array(z.string()).optional()
       })
     )
     .mutation(async ({ input, ctx }) => {
-      let goal;
+      const goal = await ctx.prisma.goals.create({
+        data: {
+          name: input.name,
+          points: input.exp,
+          difficulty: input.difficulty,
+          completed: false,
+          category: input.category,
+        },
+      });
+
       if (input.repeat_type && input.start_date) {
-        goal = await ctx.prisma.goals.create({
+        await ctx.prisma.repeatData.create({
           data: {
-            name: input.name,
-            points: input.exp,
-            difficulty: input.difficulty,
-            completed: false,
-            category: input.category,
-            repeat: {
-              create: {
-                days: input.days_of_week,
-                type: input.repeat_type,
-                start_date: input.start_date,
-                stop_date: input.end_date,
-              },
-            },
+            type: input.repeat_type,
+            start_date: input.start_date,
+            goal_id: goal.id,
           },
         });
-      } else {
-        goal = await ctx.prisma.goals.create({
-          data: {
-            name: input.name,
-            points: input.exp,
-            difficulty: input.difficulty,
-            completed: false,
-            category: input.category,
-          },
-        });
+      }
+      
+      if (input.checklist_items) {
+        const checklist_items = input.checklist_items.map((item)=> {return {name: item, goal_id: goal.id, completed: false}})
+        await ctx.prisma.checkListItem.createMany({
+          data: checklist_items
+        })
       }
 
       return goal;
