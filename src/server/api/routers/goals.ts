@@ -268,6 +268,7 @@ export const goalsRouter = createTRPCRouter({
         },
       });
 
+
       if (input.repeat_type && input.start_date) {
         await ctx.prisma.repeatData.create({
           data: {

@@ -1,10 +1,10 @@
 "use client";
 import React, { useContext, useState } from "react";
-import { GoalCategories, ModalContext } from "~/pages";
+import { GoalCategories } from "~/pages";
 import { api } from "~/utils/api";
 import { colors } from "~/utils/colors";
 import LevelUp from "../Modals/LevelUp";
-import { isRouteMatch } from "next/dist/server/future/route-matches/route-match";
+import { ModalContext } from "~/pages/_app";
 
 type Checklist = {
   id: number;

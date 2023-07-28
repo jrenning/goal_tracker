@@ -16,5 +16,8 @@ export const colors: Colors = {
   Education: "#84b6f4",
   Social: "#f9a59a",
   Odd_Job: "#fdcae1",
+  Error: "#f9a59a",
+  Success: "#95fab9",
+  Info: "white"
 
 };

@@ -1,12 +1,9 @@
 import React, { useContext } from "react";
-import { ModalContext } from "~/pages";
+import { ModalContext } from "~/pages/_app";
 import { api } from "~/utils/api";
 
-type Props = {
-  setSubscription: any;
-};
 
-function SubscriptionButton({ setSubscription }: Props) {
+function SubscriptionButton() {
   const setModal = useContext(ModalContext);
 
   const base64ToUint8Array = (base64: string) => {
@@ -49,7 +46,6 @@ function SubscriptionButton({ setSubscription }: Props) {
             subscribe_call.mutate({
               json: JSON.stringify({ pushSubscription }),
             });
-            setSubscription(pushSubscription);
             
             setModal &&
               setModal((modal) => ({

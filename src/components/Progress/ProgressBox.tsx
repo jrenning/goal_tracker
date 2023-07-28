@@ -22,11 +22,12 @@ function ProgressBox() {
     <div className="grid grid-cols-2 items-center justify-center">
       {points &&
         points.map((point, index) => (
-          //@ts-ignore
           <ProgressBar
             key={index}
+            //@ts-ignore
             level={levels[index] ? levels[index] : 1}
             points={point ? point : 0}
+            //@ts-ignore
             category={categories[index]}
           />
         ))}

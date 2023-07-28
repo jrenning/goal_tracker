@@ -11,6 +11,7 @@ export default function Document() {
       <Head />
 
       <body>
+        <div id="popup"></div>
         <div id="modal"></div>
         <Main />
       </body>

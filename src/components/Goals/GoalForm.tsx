@@ -1,9 +1,12 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
-import React, { FormEvent, ReactElement, useState } from "react";
+import React, { FormEvent, ReactElement, useContext, useState } from "react";
 import { DaysOfWeek, GoalCategories, RepeatType } from "~/pages";
+import { PopupContext } from "~/pages/_app";
 import { api } from "~/utils/api";
 import { convertToUTC } from "~/utils/datetime";
+import { PopupMessageTypes } from "../Modals/PopupMessage";
+import usePopup from "~/hooks/usePopup";
 
 type GoalFormProps = {
   backlink: string;
@@ -11,6 +14,7 @@ type GoalFormProps = {
 
 function GoalForm({ backlink }: GoalFormProps) {
   const utils = api.useContext();
+  const {setErrorPopup} = usePopup()
   const [repeating, setRepeating] = useState(false);
 
   // TODO move this stuff into a hook
@@ -75,7 +79,7 @@ function GoalForm({ backlink }: GoalFormProps) {
     }
 
 
-    await add_call.mutateAsync({
+    const call = await add_call.mutateAsync({
       name: target.name.value,
       exp: Number(target.exp.value),
       difficulty: Number(target.difficulty.value),
@@ -90,6 +94,11 @@ function GoalForm({ backlink }: GoalFormProps) {
         : undefined,
         checklist_items: checklist_items
     });
+
+    if (!call) {
+      setErrorPopup("Goal could not be added")
+    }
+
 
     router.push(backlink);
   };

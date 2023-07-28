@@ -3,7 +3,7 @@
 
 import React, { useContext, useState } from "react";
 import ReactDOM from "react-dom";
-import { ModalContext } from "~/pages";
+import { ModalContext } from "~/pages/_app";
 
 export type ModalProps = {
   title: string;
