@@ -115,7 +115,7 @@ export const userRouter = createTRPCRouter({
           id: 1,
         },
         data: {
-          last_points_added: today.toISOString(),
+          last_points_added: today,
         },
       });
 
@@ -124,7 +124,7 @@ export const userRouter = createTRPCRouter({
         data: {
             user_id: 1,
             points: points_added.total_points,
-            date: today.toISOString(),
+            date: today,
             category: input.category
         }
       })
@@ -153,7 +153,7 @@ export const userRouter = createTRPCRouter({
         data: {
             user_id: 1,
             level: new_level.level,
-            date: today.toISOString(),
+            date: today,
             category: input.category
         }
       })
@@ -168,7 +168,7 @@ export const userRouter = createTRPCRouter({
             }
         },
         data: {
-            achieved_at: today.toISOString()
+            achieved_at: today
         }
       }).catch((err)=> console.log(err))
 

@@ -14,8 +14,8 @@ import {
   Filler,
 } from "chart.js";
 import { AnimatePresence } from "framer-motion";
-import Footer from "~/components/Footer";
-import Header from "~/components/Header";
+import Footer from "~/components/UI/Footer";
+import Header from "~/components/UI/Header";
 import { ThemeContext, ThemeProvider, getInitialTheme } from "~/utils/theme";
 import { useContext, useEffect } from "react";
 
@@ -32,16 +32,15 @@ const MyApp: AppType = ({ Component, pageProps }) => {
   );
   const Initialtheme = getInitialTheme();
 
-  // work around for dark mode, need to set it on initial render, can't do it with just css 
-  useEffect(()=> {
+  // work around for dark mode, need to set it on initial render, can't do it with just css
+  useEffect(() => {
     const root_list = document.documentElement.classList;
     if (Initialtheme == "dark") {
       root_list.add("bg-[#121212]");
-    }
-    else {
+    } else {
       root_list.add("bg-white");
     }
-  }, [Initialtheme])
+  }, [Initialtheme]);
 
   return (
     <ThemeProvider initialTheme={Initialtheme}>

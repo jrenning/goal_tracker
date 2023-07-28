@@ -3,7 +3,16 @@ import React, { useContext, useState } from "react";
 import { GoalCategories, ModalContext } from "~/pages";
 import { api } from "~/utils/api";
 import { colors } from "~/utils/colors";
-import LevelUp from "./LevelUp";
+import LevelUp from "../Modals/LevelUp";
+import { isRouteMatch } from "next/dist/server/future/route-matches/route-match";
+
+type Checklist = {
+  id: number;
+  goal_id: number;
+  name: string;
+  completed: boolean;
+  date_completed: Date | null;
+};
 
 type Props = {
   name: string;
@@ -12,9 +21,18 @@ type Props = {
   id: number;
   disabled: boolean;
   category: GoalCategories;
+  checklist?: Checklist[];
 };
 
-function Goal({ name, points, difficulty, id, disabled, category }: Props) {
+function Goal({
+  name,
+  points,
+  difficulty,
+  id,
+  disabled,
+  category,
+  checklist,
+}: Props) {
   const setModal = useContext(ModalContext);
 
   type Colors = {
@@ -27,6 +45,8 @@ function Goal({ name, points, difficulty, id, disabled, category }: Props) {
     3: "#FFDFBA",
     4: "#FFB3BA",
   };
+
+  const [checklistOpen, setChecklistOpen] = useState(false);
 
   const color = colors[category];
 
@@ -59,6 +79,13 @@ function Goal({ name, points, difficulty, id, disabled, category }: Props) {
       data && alert(`${data ? data.name : "Goal"} was completed!!`);
     },
   });
+
+  const complete_checklist_call =
+    api.goals.completeGoalChecklistItem.useMutation({
+      async onSuccess(_) {
+        await utils.goals.invalidate();
+      },
+    });
 
   const add_points_call = api.user.addPoints.useMutation({
     async onSuccess(data) {
@@ -123,29 +150,96 @@ function Goal({ name, points, difficulty, id, disabled, category }: Props) {
     }
   };
 
+  const completeChecklistItem = async (id: number) => {
+    await complete_checklist_call.mutateAsync({
+      id: id,
+    });
+  };
   return (
     <div
-      className="bg-${color}-200 flex h-20 w-full justify-between rounded-md"
+      className="bg-${color}-200 flex w-full flex-col justify-between rounded-md"
       style={{ backgroundColor: `${color ? color : "white"}` }}
     >
-      <div className="flex w-2/3 flex-row items-center space-x-4 p-4">
-        <div className="text-xl font-extrabold">{name}</div>
-      </div>
-      <div className="flex w-1/3 flex-row items-center justify-evenly">
-        <div className="italic">{points} exp</div>
+      <div className="flex w-full flex-row items-center space-x-2 px-4">
+        <div className="w-[65%] text-xl font-extrabold">{name}</div>
+
+        <div className="w-[25%] italic ">{points} exp</div>
         {!disabled ? (
           <button
-            className="rounded-full text-2xl hover:text-green-300 hover:drop-shadow-lg "
+            className="w-[10%] rounded-full text-2xl hover:text-green-300 hover:drop-shadow-lg "
             onClick={() => {
               completeGoal();
             }}
           >
-            &#x2713;
+            &#x2714;
           </button>
         ) : (
           ""
         )}
       </div>
+      <div className="flex w-full">
+        <div className="w-[90%]"></div>
+        {checklist && checklist.length > 0 ? (
+          <>
+            <div className="px-1">
+              {checklist?.filter((item) => item.completed == true).length}/
+              {checklist?.length}
+            </div>
+            <button
+              className="ml-auto rotate-90 px-2 font-semibold"
+              onClick={() => setChecklistOpen(!checklistOpen)}
+            >
+              &#x276F;
+            </button>
+          </>
+        ) : (
+          ""
+        )}
+      </div>
+      {checklistOpen ? (
+        <>
+          <div className="mb-auto h-[1px] w-full bg-black"></div>
+          <div className="flex flex-col space-y-4">
+            {checklist
+              ? checklist
+                  .map((item) => {
+                    return {
+                      name: item.name,
+                      completed: item.completed,
+                      id: item.id,
+                    };
+                  })
+                  .map((item) => (
+                    <div className="flex flex-row items-center justify-between">
+                      <div
+                        className="px-4 text-xl font-bold"
+                        style={{
+                          textDecoration: item.completed
+                            ? "line-through"
+                            : "none",
+                        }}
+                      >
+                        {item.name}
+                      </div>
+                      {!item.completed ? (
+                        <button
+                          className="bg-transparent px-6"
+                          onClick={() => completeChecklistItem(item.id)}
+                          disabled={item.completed}
+                        >
+                          &#x2714;
+                        </button>
+                      ) : (
+                        ""
+                      )}
+                    </div>
+                  ))
+              : ""}
+          </div>
+        </>
+      ) : (
+        ""
+      )}
     </div>
   );
 }

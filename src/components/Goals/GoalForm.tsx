@@ -22,11 +22,6 @@ function GoalForm({ backlink }: GoalFormProps) {
     return checkListSize;
   };
 
-  const getInputValues = () => {
-    checklistItems.forEach((item)=> {
-      console.log(item)
-    })
-  }
 
   const router = useRouter();
 
@@ -85,14 +80,15 @@ function GoalForm({ backlink }: GoalFormProps) {
       exp: Number(target.exp.value),
       difficulty: Number(target.difficulty.value),
       category: target.category.value,
-      repeat_type: target.type.value,
+      repeat_type: target.type ? target.type.value : undefined,
       days_of_week: selected_days,
-      start_date: target.start_date.value
+      start_date: target.start_date && target.start_date.value
         ? convertToUTC(new Date(target.start_date.value))
         : undefined,
-      end_date: target.end_date.value
+      end_date: target.end_date && target.end_date.value
         ? convertToUTC(new Date(target.end_date.value))
         : undefined,
+        checklist_items: checklist_items
     });
 
     router.push(backlink);

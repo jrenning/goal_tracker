@@ -1,13 +1,13 @@
-import React from 'react'
-import Calender from '~/components/Calender/Calender'
-import PageTransitionLayout from '~/components/PageTransitionLayout'
+import React from "react";
+import Calender from "~/components/Calender/Calender";
+import PageTransitionLayout from "~/components/Transitions/PageTransitionLayout";
 
 function repeats() {
   return (
     <PageTransitionLayout>
-        <Calender />
+      <Calender />
     </PageTransitionLayout>
-  )
+  );
 }
 
-export default repeats
+export default repeats;

@@ -30,7 +30,7 @@ const color = colors[category]
         {level}
       </div>
       <div className=" flex h-6 w-2/3 items-center rounded-md bg-gray-300 text-[0.7rem] md:text-lg">
-        <div className="absolute mx-2 font-mono font-semibold text-slate-50 dark:text-black">
+        <div className="absolute mx-2 font-mono font-semibold text-black">
           {category}
         </div>
         <div

@@ -1,6 +1,6 @@
-import React from 'react'
-import PopupTransitionLayout from '~/components/PopupTransitionLayout';
-import RewardForm from '~/components/RewardForm';
+import React from "react";
+import PopupTransitionLayout from "~/components/Transitions/PopupTransitionLayout";
+import RewardForm from "~/components/Rewards/RewardForm";
 
 function add_reward() {
   return (
@@ -12,4 +12,4 @@ function add_reward() {
   );
 }
 
-export default add_reward
+export default add_reward;

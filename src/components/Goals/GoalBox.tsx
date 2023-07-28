@@ -1,16 +1,15 @@
 "use client";
 
-import React, {  useState } from "react";
+import React, { useState } from "react";
 import Goal from "./Goal";
 import { api } from "~/utils/api";
 
 type GoalBoxProps = {
-  disabled: boolean
-}
+  disabled: boolean;
+};
 
-function GoalBox({disabled}: GoalBoxProps) {
+function GoalBox({ disabled }: GoalBoxProps) {
   const goals = api.goals.getCurrentGoals.useQuery();
-
 
   return (
     <div>
@@ -25,11 +24,11 @@ function GoalBox({disabled}: GoalBoxProps) {
                 id={goal.id}
                 key={goal.id}
                 disabled={disabled}
+                checklist={goal.checklist}
               />
             ))
           : ""}
       </div>
-
     </div>
   );
 }

@@ -40,10 +40,10 @@ export const goalsRouter = createTRPCRouter({
     return ctx.prisma.repeatData.findMany({
       where: {
         stop_date: {
-          lt: today.toISOString(),
+          lt: today,
         },
         start_date: {
-          gte: today.toISOString(),
+          gte: today,
         },
       },
       include: {
@@ -160,7 +160,7 @@ export const goalsRouter = createTRPCRouter({
           goal_id: input.id,
         },
         data: {
-          last_repeated: today.toISOString(),
+          last_repeated: today,
         },
       });
     }),
@@ -170,15 +170,15 @@ export const goalsRouter = createTRPCRouter({
     const goals = await ctx.prisma.goals.findMany({
       where: {
         created_at: {
-          lte: today.toJSON(),
+          lte: today,
         },
         completed: false,
       },
       include: {
         repeat: true,
+        checklist: true
       },
     });
-    console.log(goals[0]?.repeat?.start_date);
     return goals;
   }),
   getGoalsByCategory: publicProcedure
@@ -217,7 +217,7 @@ export const goalsRouter = createTRPCRouter({
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input, ctx }) => {
       // just yyyy/mm/dd
-      const today = new Date().toISOString();
+      const today = new Date();
       const goal = await ctx.prisma.goals.update({
         where: {
           id: input.id,
@@ -228,6 +228,20 @@ export const goalsRouter = createTRPCRouter({
         },
       });
       return goal;
+    }),
+    completeGoalChecklistItem: publicProcedure
+    .input(z.object({id: z.number()}))
+    .mutation(async ({ctx, input})=> {
+      const today = new Date()
+      const completed_item = await ctx.prisma.checkListItem.update({
+        where: {
+          id: input.id
+        },
+        data: {
+          completed: true,
+          date_completed: today
+        }
+      })
     }),
   addGoal: publicProcedure
     .input(

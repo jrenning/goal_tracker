@@ -2,7 +2,7 @@ import React, { ReactNode, useState } from "react";
 import { GoalCategories } from "~/pages";
 import { goal_categories } from "~/server/api/routers/goals";
 import HistoryChart, { ChartTypes } from "./HistoryChart";
-import PageTransitionLayout from "./PageTransitionLayout";
+import PageTransitionLayout from "../Transitions/PageTransitionLayout";
 
 function ProgressPage() {
   return (
@@ -17,7 +17,7 @@ function ProgressPage() {
 
 type ChartBoxType = {
   type: ChartTypes;
-  title: string
+  title: string;
 };
 
 function ChartBox({ type, title }: ChartBoxType) {
@@ -31,11 +31,13 @@ function ChartBox({ type, title }: ChartBoxType) {
       <HistoryChart category={category} start_date={startDate} type={type} />
       <div className="mx-8 mt-8 flex flex-row items-center justify-center space-x-4  rounded-md bg-green-100 pb-4">
         <div className="flex flex-col space-y-2 text-center">
-          <label htmlFor="category" className="font-semibold">Category</label>
+          <label htmlFor="category" className="font-semibold">
+            Category
+          </label>
           <select
             onChange={(e) => {
               const target = e.target as typeof e.target & {
-                value: GoalCategories
+                value: GoalCategories;
               };
               setCategory(target.value);
             }}
@@ -50,9 +52,11 @@ function ChartBox({ type, title }: ChartBoxType) {
           </select>
         </div>
         <div className="flex flex-col space-y-2 text-center">
-          <label htmlFor="date" className="font-semibold">Start Date</label>
+          <label htmlFor="date" className="font-semibold">
+            Start Date
+          </label>
           <input
-          className="select-primary"
+            className="select-primary"
             type="date"
             id="date"
             onChange={(e) => setStartDate(new Date(e.target.value))}
