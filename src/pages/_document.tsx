@@ -8,7 +8,11 @@ export default function Document() {
 
   return (
     <Html className="">
-      <Head />
+      <Head>
+        <link rel="manifest" href="/manifest.json"></link>
+        <title>Goals Tracker</title>
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
 
       <body>
         <div id="popup"></div>

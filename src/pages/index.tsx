@@ -61,9 +61,7 @@ export default function Home() {
     <div className="darK:bg-[#121212]">
       <PageTransitionLayout keyName="home">
         <Head>
-          <title>Goals Tracker</title>
-          <link rel="icon" href="/favicon.ico" />
-          <link rel="manifest" href="/manifest.json"></link>
+
         </Head>
         <ProgressBox />
         <Title name="My Goals" date={true} />
