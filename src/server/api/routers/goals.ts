@@ -1,6 +1,6 @@
 import { backInOut } from "framer-motion";
 import { z } from "zod";
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 export const goal_categories = z.enum([
   "Physical",
@@ -23,10 +23,10 @@ export const days_of_week = z.enum([
 ]);
 
 export const goalsRouter = createTRPCRouter({
-  clear: publicProcedure.mutation(async ({ ctx }) => {
+  clear: protectedProcedure.mutation(async ({ ctx }) => {
     return await ctx.prisma.goals.deleteMany();
   }),
-  getGoalById: publicProcedure
+  getGoalById: protectedProcedure
     .input(z.object({ id: z.number() }))
     .query(({ ctx, input }) => {
       return ctx.prisma.goals.findUnique({
@@ -35,24 +35,30 @@ export const goalsRouter = createTRPCRouter({
         },
       });
     }),
-  getRepeatingGoals: publicProcedure.query(({ ctx }) => {
-    const today = new Date();
-    return ctx.prisma.repeatData.findMany({
-      where: {
-        stop_date: {
-          lt: today,
+  getRepeatingGoals: protectedProcedure
+    .query(({ ctx, input }) => {
+      const today = new Date();
+
+      return ctx.prisma.goals.findMany({
+        where: {
+          user_id: ctx.session.user.id,
+          repeat: {
+            stop_date: {
+              lt: today,
+            },
+            start_date: {
+              gte: today,
+            },
+          },
         },
-        start_date: {
-          gte: today,
+        include: {
+          repeat: true,
         },
-      },
-      include: {
-        goal: true,
-      },
-    });
-  }),
-  getRepeatingGoalsByDate: publicProcedure
-    .input(z.object({ date: z.date() }))
+      });
+
+    }),
+  getRepeatingGoalsByDate: protectedProcedure
+    .input(z.object({ date: z.date(),  }))
     .query(async ({ ctx, input }) => {
       const day_map = {
         Sunday: 0,
@@ -71,6 +77,7 @@ export const goalsRouter = createTRPCRouter({
               lte: input.date,
             },
           },
+          user_id: ctx.session.user.id,
           OR: [
             {
               repeat: {
@@ -119,8 +126,8 @@ export const goalsRouter = createTRPCRouter({
 
       return goals;
     }),
-  getRepeatGoalsInMonth: publicProcedure
-    .input(z.object({ date: z.date() }))
+  getRepeatGoalsInMonth: protectedProcedure
+    .input(z.object({ date: z.date(),  }))
     .query(async ({ ctx, input }) => {
       const goals_in_range = await ctx.prisma.goals.findMany({
         where: {
@@ -129,6 +136,7 @@ export const goalsRouter = createTRPCRouter({
               lte: input.date,
             },
           },
+          user_id: ctx.session.user.id,
           OR: [
             {
               repeat: {
@@ -151,7 +159,7 @@ export const goalsRouter = createTRPCRouter({
       return goals_in_range;
     }),
 
-  setLastRepeat: publicProcedure
+  setLastRepeat: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(({ ctx, input }) => {
       const today = new Date();
@@ -164,34 +172,42 @@ export const goalsRouter = createTRPCRouter({
         },
       });
     }),
-  getCurrentGoals: publicProcedure.query(async ({ ctx }) => {
-    const today = new Date();
+  getCurrentGoals: protectedProcedure
+    .query(async ({ ctx }) => {
+      const today = new Date();
 
-    const goals = await ctx.prisma.goals.findMany({
-      where: {
-        created_at: {
-          lte: today,
+      const goals = await ctx.prisma.goals.findMany({
+        where: {
+          created_at: {
+            lte: today,
+          },
+          completed: false,
+          user_id: ctx.session.user.id,
         },
-        completed: false,
-      },
-      include: {
-        repeat: true,
-        checklist: true
-      },
-    });
-    return goals;
-  }),
-  getGoalsByCategory: publicProcedure
-    .input(z.object({ category: goal_categories }))
+        include: {
+          repeat: true,
+          checklist: true,
+        },
+      });
+      return goals;
+    }),
+  getGoalsByCategory: protectedProcedure
+    .input(z.object({ category: goal_categories,  }))
     .query(({ input, ctx }) => {
       return ctx.prisma.goals.findMany({
         where: {
           category: input.category,
+          user_id: ctx.session.user.id,
         },
       });
     }),
-  getGoalsByCategoryDate: publicProcedure
-    .input(z.object({ category: goal_categories, date: z.date() }))
+  getGoalsByCategoryDate: protectedProcedure
+    .input(
+      z.object({
+        category: goal_categories,
+        date: z.date(),
+      })
+    )
     .query(({ input, ctx }) => {
       return ctx.prisma.goals.findMany({
         where: {
@@ -199,21 +215,23 @@ export const goalsRouter = createTRPCRouter({
           date_completed: {
             gte: input.date,
           },
+          user_id: ctx.session.user.id,
         },
       });
     }),
-  getCompletedGoals: publicProcedure
-    .input(z.object({ date: z.date() }))
+  getCompletedGoals: protectedProcedure
+    .input(z.object({ date: z.date(),  }))
     .query(({ input, ctx }) => {
       return ctx.prisma.goals.findMany({
         where: {
           date_completed: {
             gte: input.date,
           },
+          user_id: ctx.session.user.id,
         },
       });
     }),
-  completeGoal: publicProcedure
+  completeGoal: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input, ctx }) => {
       // just yyyy/mm/dd
@@ -229,21 +247,22 @@ export const goalsRouter = createTRPCRouter({
       });
       return goal;
     }),
-    completeGoalChecklistItem: publicProcedure
-    .input(z.object({id: z.number()}))
-    .mutation(async ({ctx, input})=> {
-      const today = new Date()
+  completeGoalChecklistItem: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const today = new Date();
       const completed_item = await ctx.prisma.checkListItem.update({
         where: {
-          id: input.id
+          id: input.id,
         },
         data: {
           completed: true,
-          date_completed: today
-        }
-      })
+          date_completed: today,
+        },
+      });
+      return completed_item
     }),
-  addGoal: publicProcedure
+  addGoal: protectedProcedure
     .input(
       z.object({
         name: z.string(),
@@ -254,12 +273,13 @@ export const goalsRouter = createTRPCRouter({
         days_of_week: z.array(days_of_week).optional(),
         start_date: z.date().optional(),
         end_date: z.date().optional(),
-        checklist_items: z.array(z.string()).optional()
+        checklist_items: z.array(z.string()).optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
       const goal = await ctx.prisma.goals.create({
         data: {
+          user_id: ctx.session.user.id,
           name: input.name,
           points: input.exp,
           difficulty: input.difficulty,
@@ -267,7 +287,6 @@ export const goalsRouter = createTRPCRouter({
           category: input.category,
         },
       });
-
 
       if (input.repeat_type && input.start_date) {
         await ctx.prisma.repeatData.create({
@@ -278,12 +297,14 @@ export const goalsRouter = createTRPCRouter({
           },
         });
       }
-      
+
       if (input.checklist_items) {
-        const checklist_items = input.checklist_items.map((item)=> {return {name: item, goal_id: goal.id, completed: false}})
+        const checklist_items = input.checklist_items.map((item) => {
+          return { name: item, goal_id: goal.id, completed: false };
+        });
         await ctx.prisma.checkListItem.createMany({
-          data: checklist_items
-        })
+          data: checklist_items,
+        });
       }
 
       return goal;

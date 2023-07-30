@@ -1,4 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
+import { useSession } from "next-auth/react";
 import ResetStatsButton from "~/components/UI/ResetStatsButton";
 import { appRouter } from "~/server/api/root";
 import { UserSubscription } from "~/server/api/routers/user";
@@ -33,8 +34,10 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
   // get the subscription data
 
+
   const caller = await appRouter.createCaller({
     prisma: prisma,
+    session: null
   });
 
   const result = await caller.user.getUserSubscription();

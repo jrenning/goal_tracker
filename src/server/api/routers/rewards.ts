@@ -1,43 +1,44 @@
 import { z } from "zod";
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { goal_categories } from "./goals";
 
 export const reward_categories = z.enum(["Outdoors", "Gift", "Leisure", "Experience", "Food"])
 
 
 export const rewardsRouter = createTRPCRouter({
-  getLevelRewards: publicProcedure
-    .input(z.object({ level: z.number(), category: goal_categories }))
+  getLevelRewards: protectedProcedure
+    .input(z.object({ level: z.number(), category: goal_categories,  }))
     .query(({ ctx, input }) => {
       return ctx.prisma.rewards.findUnique({
         where: {
           user_id_level_category: {
-            user_id: 1,
+            user_id: ctx.session.user.id,
             level: input.level,
             category: input.category,
           },
         },
       });
     }),
-    getFinishedRewards: publicProcedure
-    .input(z.object({date: z.date()}))
+    getFinishedRewards: protectedProcedure
+    .input(z.object({date: z.date(), }))
     .query(({ctx, input})=> {
         return ctx.prisma.rewards.findMany({
             where: {
                 achieved_at: {
                     gte: input.date
-                }
+                },
+                user_id: ctx.session.user.id
             }
         })
 
     }),
-    createReward: publicProcedure
-    .input(z.object({name: z.string(), reward_category: reward_categories, goal_category: goal_categories, level: z.number()}))
+    createReward: protectedProcedure
+    .input(z.object({name: z.string(), reward_category: reward_categories, goal_category: goal_categories, level: z.number(), }))
     .mutation(({ctx, input})=> {
         return ctx.prisma.rewards.upsert({
             where: {
                 user_id_level_category: {
-                    user_id: 1,
+                    user_id: ctx.session.user.id,
                     level: input.level,
                     category: input.goal_category
                 }
@@ -51,6 +52,7 @@ export const rewardsRouter = createTRPCRouter({
                 }
             },
             create: {
+                user_id: ctx.session.user.id,
                 level: input.level,
                 category: input.goal_category,
                 rewards: [input.name],

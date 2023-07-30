@@ -39,7 +39,7 @@ function DatePopup() {
   });
 
   return (
-    <PopupTransitionLayout>
+    <PopupTransitionLayout keyName="date-popup">
       <div>
         <Link href={"/repeats"}>
           <button className="m-2 rounded-full bg-slate-200 px-2 py-1 text-xl shadow-md">

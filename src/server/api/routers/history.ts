@@ -1,9 +1,9 @@
 import { z } from "zod";
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { goal_categories } from "./goals";
 
 export const historyRouter = createTRPCRouter({
-  getPointDataByCategoryDate: publicProcedure
+  getPointDataByCategoryDate: protectedProcedure
   .input(z.object({category: goal_categories, date: z.date()}))
   .query(async ({ctx, input})=> {
     const point_data = await ctx.prisma.pointsData.findMany({
@@ -20,15 +20,16 @@ export const historyRouter = createTRPCRouter({
     })
     return point_data
   }),
-  getLevelDataByCategoryDate: publicProcedure
-  .input(z.object({category: goal_categories, date: z.date()}))
+  getLevelDataByCategoryDate: protectedProcedure
+  .input(z.object({category: goal_categories, date: z.date(), }))
   .query(async ({ctx, input})=> {
     const point_data = await ctx.prisma.levelData.findMany({
         where: {
             category: input.category,
             date: {
                 gte: input.date
-            }
+            },
+            user_id: ctx.session.user.id
         },
         select: {
             level: true,

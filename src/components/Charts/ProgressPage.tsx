@@ -6,7 +6,7 @@ import PageTransitionLayout from "../Transitions/PageTransitionLayout";
 
 function ProgressPage() {
   return (
-    <PageTransitionLayout>
+    <PageTransitionLayout keyName="progress_page">
       <div className="mt-8">
         <ChartBox type="Points" title="Points" />
         <ChartBox type="Level" title="Levels" />

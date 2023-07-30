@@ -40,7 +40,7 @@ function PopupMessage({
         console.log("close")
       }, timeout);
     }
-  }, []);
+  }, [isOpen]);
 
   const color = colors[type];
 

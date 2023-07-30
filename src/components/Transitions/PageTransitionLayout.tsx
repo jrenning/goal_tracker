@@ -1,11 +1,12 @@
-import React, { ReactNode } from 'react'
+import React, { Key, ReactNode } from 'react'
 import {motion} from "framer-motion"
 
 type Props = {
   children: ReactNode
+  keyName: Key
 }
 
-function PageTransitionLayout({children}: Props) {
+function PageTransitionLayout({children, keyName}: Props) {
   return (
     <motion.div
       initial={{ x: 300, opacity: 0 }}
@@ -17,6 +18,7 @@ function PageTransitionLayout({children}: Props) {
         damping: 20,
         duration: 5
       }}
+      key={keyName}
     >
       {children}
     </motion.div>

@@ -1,6 +1,7 @@
 import { type AppType } from "next/app";
 import { api } from "~/utils/api";
 import "~/styles/globals.css";
+import {SessionProvider, useSession} from "next-auth/react"
 
 import {
   Chart as ChartJS,
@@ -21,6 +22,7 @@ import { useContext, useEffect, useState, createContext } from "react";
 import { colors } from "~/utils/colors";
 import Modal, { ModalProps } from "~/components/Modals/Modal";
 import PopupMessage, { PopupProps } from "~/components/Modals/PopupMessage";
+import { Session } from "next-auth";
 
 export const ModalContext = createContext<
   React.Dispatch<React.SetStateAction<ModalProps>> | undefined
@@ -29,7 +31,7 @@ export const PopupContext = createContext<
   React.Dispatch<React.SetStateAction<PopupProps>> | undefined
 >(undefined);
 
-const MyApp: AppType = ({ Component, pageProps }) => {
+const MyApp: AppType<{session: Session}> = ({ Component, pageProps: {session, ...pageProps} }) => {
   ChartJS.register(
     CategoryScale,
     LinearScale,
@@ -70,14 +72,10 @@ const MyApp: AppType = ({ Component, pageProps }) => {
   // set up modal
 
   return (
-    <PopupContext.Provider value={setPopup}>
-      <ModalContext.Provider value={setModal}>
-        <ThemeProvider initialTheme={Initialtheme}>
-          <AnimatePresence
-            mode="wait"
-            initial={false}
-            onExitComplete={() => window.scrollTo(0, 0)}
-          >
+    <SessionProvider session={session}>
+      <PopupContext.Provider value={setPopup}>
+        <ModalContext.Provider value={setModal}>
+          <ThemeProvider initialTheme={Initialtheme}>
             <Modal
               title={modal?.title}
               content={modal.content}
@@ -92,14 +90,20 @@ const MyApp: AppType = ({ Component, pageProps }) => {
               isOpen={popup.isOpen}
             />
             <Header name="Goal Tracker" />
-            <div className="h-full w-full dark:bg-[#121212]">
-              <Component {...pageProps} />
-            </div>
-            <Footer />
-          </AnimatePresence>
-        </ThemeProvider>
-      </ModalContext.Provider>
-    </PopupContext.Provider>
+            <AnimatePresence
+              mode="sync"
+              initial={false}
+              onExitComplete={() => window.scrollTo(0, 0)}
+            >
+              <div className="h-full w-full dark:bg-[#121212]">
+                <Component {...pageProps} />
+              </div>
+            </AnimatePresence>
+             <Footer />
+          </ThemeProvider>
+        </ModalContext.Provider>
+      </PopupContext.Provider>
+    </SessionProvider>
   );
 };
 
