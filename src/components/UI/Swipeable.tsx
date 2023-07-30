@@ -55,7 +55,7 @@ function Swipeable({
 
   return (
     <div
-      className="w-full"
+      className="w-full relative"
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}

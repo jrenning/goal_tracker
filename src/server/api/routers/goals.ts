@@ -33,6 +33,10 @@ export const goalsRouter = createTRPCRouter({
         where: {
           id: input.id,
         },
+        include: {
+          repeat: true,
+          checklist: true
+        }
       });
     }),
   getRepeatingGoals: protectedProcedure.query(({ ctx, input }) => {

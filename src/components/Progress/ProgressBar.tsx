@@ -42,7 +42,7 @@ const color = colors[category]
         ></div>
       </div>
 
-      <div className="font-semibold">
+      <div className="font-semibold dark:text-white">
         {topProgress}/{bottomProgress}
       </div>
     </div>

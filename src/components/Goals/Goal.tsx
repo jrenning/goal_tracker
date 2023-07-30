@@ -1,4 +1,4 @@
-"use client";
+
 import React, { useContext, useState } from "react";
 import { GoalCategories } from "~/pages";
 import { api } from "~/utils/api";
@@ -9,6 +9,8 @@ import ChecklistView from "./ChecklistView";
 import useDataActions from "~/hooks/useDataActions";
 import usePopup from "~/hooks/usePopup";
 import Swipeable from "../UI/Swipeable";
+import useModal from "~/hooks/useModal";
+import { useRouter } from "next/router";
 
 export type Checklist = {
   id: number;
@@ -38,6 +40,7 @@ function Goal({
   checklist,
 }: Props) {
   const setModal = useContext(ModalContext);
+  const router = useRouter()
 
   const [checklistOpen, setChecklistOpen] = useState(false);
   const [deleteSection, setDeleteSection] = useState(false)
@@ -46,6 +49,9 @@ function Goal({
 
     const { completeGoal, addPoints, gainLevel, createLevel, deleteGoal } =
       useDataActions();
+
+
+      const {levelUpModal, goalModal} =  useModal()
 
   const user_level_query = api.user.getCategoryLevel.useQuery({
     category: category,
@@ -102,29 +108,28 @@ function Goal({
         const data = (await reward_query.refetch()).data;
         const rewards = data?.rewards;
         const categories = data?.reward_category;
-        setModal &&
-          setModal({
-            title: "Congrats, you leveled up!",
-            content: (
-              <LevelUp
-                level={level ? level : 0}
-                rewards={rewards ? rewards : []}
-                categories={categories ? categories : []}
-              />
-            ),
-            isOpen: true,
-            backgroundColor: color ? color : "#fffff",
-          });
+        levelUpModal({
+          level: level ? level : 1,
+          rewards: rewards,
+          categories: categories,
+          goal_category: category
+        })
       }
     }
   };
 
 
+
   return (
-    <Swipeable onSwipe={()=> setDeleteSection(true)} onSwipeBack={()=> setDeleteSection(false)} direction="Left">
-      <div className="flex flex-row">
+    <Swipeable
+      onSwipe={() => setDeleteSection(true)}
+      onSwipeBack={() => setDeleteSection(false)}
+      direction="Left"
+    >
+      <div className="relative flex w-full flex-row h-full">
         <div
-          className="bg-${color}-200 flex w-full flex-col justify-between rounded-md"
+          className="bg-${color}-200 flex w-full h-full flex-col justify-between rounded-md"
+          onDoubleClick={() => router.push(`/goal/${id}`)}
           style={{ backgroundColor: `${color ? color : "white"}` }}
         >
           <div className="flex w-full flex-row items-center space-x-2 px-4">
@@ -165,9 +170,17 @@ function Goal({
           </div>
           {checklistOpen ? <ChecklistView checklist={checklist} /> : ""}
         </div>
-        <div className="h-inherit w-8 bg-red-300 justify-center items-center" onClick={async()=> await deleteGoal.mutateAsync({
-          goal_id: id
-        })} style={{display: deleteSection ? "flex" : "none"}}>&#x2613;</div>
+        <div
+          className="ease-in-out absolute right-0 w-12 delay-100 font-semibold dark:text-white h-full items-center justify-center bg-red-300 transition"
+          onClick={async () =>
+            await deleteGoal.mutateAsync({
+              goal_id: id,
+            })
+          }
+          style={{ display: deleteSection ? "flex" : "none" }}
+        >
+          &#x2613;
+        </div>
       </div>
     </Swipeable>
   );

@@ -1,7 +1,11 @@
 import React, { useContext } from "react";
+import GoalModal, { GoalModalProps } from "~/components/Modals/GoalModal";
+import LevelUp, { LevelUpProps } from "~/components/Modals/LevelUp";
 import LoginModal from "~/components/Modals/LoginModal";
 import SubscriptionButton from "~/components/UI/SubscriptionButton";
+import { GoalCategories } from "~/pages";
 import { ModalContext } from "~/pages/_app";
+import { colors } from "~/utils/colors";
 
 function useModal() {
   const setModal = useContext(ModalContext);
@@ -39,10 +43,56 @@ function useModal() {
       });
   };
 
+  const goalModal = ({name, exp, date_created, date_due, checklist, repeatType, category}: GoalModalProps) => {
+    const color = colors[category]
+    setModal &&
+      setModal({
+        title: name,
+        content: (
+          <GoalModal
+            name={name}
+            exp={exp}
+            date_created={date_created}
+            date_due={date_due}
+            checklist={checklist}
+            repeatType={repeatType}
+            category={category}
+          />
+        ),
+        isOpen: true,
+        backgroundColor: color ? color : "#ADD8E6",
+      });
+    }
+
+
+      interface LevelUpModalProps extends LevelUpProps {
+        goal_category: GoalCategories
+      }
+
+    const levelUpModal = ({level, rewards, categories, goal_category}: LevelUpModalProps) => {
+        const color = colors[goal_category];
+        setModal &&
+          setModal({
+            title: "Congrats, you leveled up!",
+            content: (
+              <LevelUp
+                level={level}
+                rewards={rewards}
+                categories={categories}
+              />
+            ),
+            isOpen: true,
+            backgroundColor: color ? color : "#ADD8E6",
+            backlink: "/"
+          });
+    }
+
   return {
     closeModal: closeModal,
     loginModal: loginModal,
-    subscriptionModal: subscriptionModal
+    subscriptionModal: subscriptionModal,
+    goalModal: goalModal,
+    levelUpModal: levelUpModal
   };
 }
 

@@ -1,6 +1,7 @@
 
 'use client'
 
+import { useRouter } from "next/router";
 import React, { useContext, useState } from "react";
 import ReactDOM from "react-dom";
 import { ModalContext } from "~/pages/_app";
@@ -10,18 +11,27 @@ export type ModalProps = {
   content: JSX.Element
   isOpen: boolean
   backgroundColor: string
+  backlink?: string
 };
 
-function Modal({ title, content, isOpen, backgroundColor }: ModalProps) {
+function Modal({ title, content, isOpen, backgroundColor, backlink }: ModalProps) {
 
     const setModal = useContext(ModalContext)
+    const router = useRouter()
 
     const closeModal = () => {
+
+        if (backlink) {
+          router.push(backlink)
+        }
+
         let updated_state = {isOpen: false}
         setModal && setModal(modal => ({
             ...modal,
             ...updated_state
         }))
+
+
     }
 
 

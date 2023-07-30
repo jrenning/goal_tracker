@@ -1,13 +1,13 @@
 import React from "react";
 import Reward from "./RewardModal";
 
-type LevelProps = {
+export type LevelUpProps = {
   level: number;
   rewards?: string[];
   categories?: string[];
 };
 
-function LevelUp({ level, rewards, categories }: LevelProps) {
+function LevelUp({ level, rewards, categories }: LevelUpProps) {
   return (
     <div className="mt-8 flex flex-col items-center justify-center">
       <div className="flex h-20 w-20 items-center justify-center rounded-full border border-black bg-blue-400 px-2 py-[0.2rem] text-6xl font-semibold text-white">
