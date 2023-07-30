@@ -1,7 +1,10 @@
 
+import { useSession } from "next-auth/react";
 import { prisma } from "~/server/db";
 
 export const updateRepeatingGoals = async () => {
+
+  const {data, status} = useSession()
 
     const today = new Date();
     const goals = await prisma.repeatData.findMany({
@@ -83,9 +86,10 @@ export const updateRepeatingGoals = async () => {
 
     // add new goal if needed, DON'T ADD REPEATING DATA (avoids never ending tasks)
 
-    if (needs_added) {
+    if (needs_added && data && data.user) {
       await prisma.goals.create({
         data: {
+          user_id: data?.user?.id,
           name: goal.goal.name,
           points: goal.goal.points,
           difficulty: goal.goal.difficulty,
