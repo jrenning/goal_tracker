@@ -49,6 +49,8 @@ export default function Home() {
   const { data, isLoading } = api.user.getCurrentUserInfo.useQuery();
   const subscription_data = data?.subscription;
 
+
+
   useEffect(() => {
     // only show on mobile for now
     if (isMobile() && subscription_data == null && !isLoading) {
@@ -98,6 +100,9 @@ export async function getServerSideProps(context) {
       }
     }
   }
+
+  // add repeating goals 
+  await updateRepeatingGoals(session)
 
   return {
     props: {

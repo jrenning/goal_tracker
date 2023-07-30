@@ -35,30 +35,28 @@ export const goalsRouter = createTRPCRouter({
         },
       });
     }),
-  getRepeatingGoals: protectedProcedure
-    .query(({ ctx, input }) => {
-      const today = new Date();
+  getRepeatingGoals: protectedProcedure.query(({ ctx, input }) => {
+    const today = new Date();
 
-      return ctx.prisma.goals.findMany({
-        where: {
-          user_id: ctx.session.user.id,
-          repeat: {
-            stop_date: {
-              lt: today,
-            },
-            start_date: {
-              gte: today,
-            },
+    return ctx.prisma.goals.findMany({
+      where: {
+        user_id: ctx.session.user.id,
+        repeat: {
+          stop_date: {
+            lt: today,
+          },
+          start_date: {
+            gte: today,
           },
         },
-        include: {
-          repeat: true,
-        },
-      });
-
-    }),
+      },
+      include: {
+        repeat: true,
+      },
+    });
+  }),
   getRepeatingGoalsByDate: protectedProcedure
-    .input(z.object({ date: z.date(),  }))
+    .input(z.object({ date: z.date() }))
     .query(async ({ ctx, input }) => {
       const day_map = {
         Sunday: 0,
@@ -127,7 +125,7 @@ export const goalsRouter = createTRPCRouter({
       return goals;
     }),
   getRepeatGoalsInMonth: protectedProcedure
-    .input(z.object({ date: z.date(),  }))
+    .input(z.object({ date: z.date() }))
     .query(async ({ ctx, input }) => {
       const goals_in_range = await ctx.prisma.goals.findMany({
         where: {
@@ -172,27 +170,40 @@ export const goalsRouter = createTRPCRouter({
         },
       });
     }),
-  getCurrentGoals: protectedProcedure
-    .query(async ({ ctx }) => {
-      const today = new Date();
+  getCurrentGoals: protectedProcedure.query(async ({ ctx }) => {
+    const today = new Date();
 
-      const goals = await ctx.prisma.goals.findMany({
-        where: {
-          created_at: {
-            lte: today,
+    const goals = await ctx.prisma.goals.findMany({
+      where: {
+        created_at: {
+          lte: today,
+        },
+        completed: false,
+        user_id: ctx.session.user.id,
+        OR: [
+          {
+            repeat: {
+              start_date: {
+                lte: today,
+              },
+            },
           },
-          completed: false,
-          user_id: ctx.session.user.id,
-        },
-        include: {
-          repeat: true,
-          checklist: true,
-        },
-      });
-      return goals;
-    }),
+          {
+            repeat: {
+              is: null
+            },
+          },
+        ],
+      },
+      include: {
+        repeat: true,
+        checklist: true,
+      },
+    });
+    return goals;
+  }),
   getGoalsByCategory: protectedProcedure
-    .input(z.object({ category: goal_categories,  }))
+    .input(z.object({ category: goal_categories }))
     .query(({ input, ctx }) => {
       return ctx.prisma.goals.findMany({
         where: {
@@ -220,7 +231,7 @@ export const goalsRouter = createTRPCRouter({
       });
     }),
   getCompletedGoals: protectedProcedure
-    .input(z.object({ date: z.date(),  }))
+    .input(z.object({ date: z.date() }))
     .query(({ input, ctx }) => {
       return ctx.prisma.goals.findMany({
         where: {
@@ -260,7 +271,7 @@ export const goalsRouter = createTRPCRouter({
           date_completed: today,
         },
       });
-      return completed_item
+      return completed_item;
     }),
   addGoal: protectedProcedure
     .input(
@@ -294,6 +305,7 @@ export const goalsRouter = createTRPCRouter({
             type: input.repeat_type,
             start_date: input.start_date,
             goal_id: goal.id,
+            days: input.days_of_week
           },
         });
       }
@@ -309,4 +321,13 @@ export const goalsRouter = createTRPCRouter({
 
       return goal;
     }),
+    deleteGoal: protectedProcedure
+    .input(z.object({goal_id: z.number()}))
+    .mutation(({ctx, input})=> {
+      return ctx.prisma.goals.delete({
+        where: {
+          id: input.goal_id
+        }
+      })
+    })
 });

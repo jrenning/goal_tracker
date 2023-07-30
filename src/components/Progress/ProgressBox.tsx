@@ -4,14 +4,14 @@ import ProgressBar from "./ProgressBar";
 import { GoalCategories } from "~/pages";
 
 function ProgressBox() {
-  const user_stats = api.user.getUserStats.useQuery().data;
+  const {data, isLoading} = api.user.getUserStats.useQuery()
 
   let levels: number[] = [];
   let points: number[] = [];
   let categories: GoalCategories[] = [];
 
-  if (user_stats) {
-    user_stats.stats.forEach((stat) => {
+  if (data) {
+    data.stats.forEach((stat) => {
       levels.push(stat.level);
       points.push(stat.current_points);
       categories.push(stat.category);

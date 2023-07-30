@@ -5,7 +5,7 @@ function LoginModal() {
 
 const loginUser = async () => {
     // TODO add stuff here
-    signIn()
+    signIn(undefined, {callbackUrl: "/"})
 
 
 }

@@ -32,7 +32,7 @@ function GoalBox({ disabled }: GoalBoxProps) {
             />
           ))
         ) : (
-          <div className="h-20 animate-pulse rounded-md bg-slate-200"></div>
+          <div className="h-20 animate-pulse rounded-md bg-slate-200 w-full mx-4"></div>
         )}
       </div>
     </div>
