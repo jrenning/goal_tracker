@@ -23,6 +23,7 @@ model Goals {
     completed Boolean
     category Category
     date_completed DateTime?
+    due_date DateTime?
     repeat RepeatData?
     checklist CheckListItem[]
 

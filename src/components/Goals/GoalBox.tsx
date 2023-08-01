@@ -24,6 +24,7 @@ function GoalBox({ disabled }: GoalBoxProps) {
               name={goal.name}
               points={goal.points}
               difficulty={goal.difficulty}
+              due_date={goal.due_date}
               category={goal.category}
               id={goal.id}
               key={goal.id}

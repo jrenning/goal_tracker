@@ -11,6 +11,7 @@ import usePopup from "~/hooks/usePopup";
 import Swipeable from "../UI/Swipeable";
 import useModal from "~/hooks/useModal";
 import { useRouter } from "next/router";
+import Pill from "./Pill";
 
 export type Checklist = {
   id: number;
@@ -24,6 +25,7 @@ type Props = {
   name: string;
   points: number;
   difficulty: number;
+  due_date: Date | null
   id: number;
   disabled: boolean;
   category: GoalCategories;
@@ -34,6 +36,7 @@ function Goal({
   name,
   points,
   difficulty,
+  due_date,
   id,
   disabled,
   category,
@@ -126,16 +129,15 @@ function Goal({
       onSwipeBack={() => setDeleteSection(false)}
       direction="Left"
     >
-      <div className="relative flex w-full flex-row h-full">
+      <div className="relative flex h-full w-full flex-row">
         <div
-          className="bg-${color}-200 flex w-full h-full flex-col justify-between rounded-md"
+          className=" flex h-full w-full flex-col justify-between rounded-md py-4 shadow-md border border-black"
           onDoubleClick={() => router.push(`/goal/${id}`)}
-          style={{ backgroundColor: `${color ? color : "white"}` }}
+          style={{ background: `radial-gradient(#ffffff, ${color})` }}
         >
           <div className="flex w-full flex-row items-center space-x-2 px-4">
-            <div className="w-[65%] text-xl font-extrabold">{name}</div>
+            <div className="w-[90%] text-xl font-extrabold">{name}</div>
 
-            <div className="w-[25%] italic ">{points} exp</div>
             {!disabled ? (
               <button
                 className="w-[10%] rounded-full text-2xl hover:text-green-300 hover:drop-shadow-lg "
@@ -148,6 +150,10 @@ function Goal({
             ) : (
               ""
             )}
+          </div>
+          <div className="mx-4 my-2">
+            <Pill name={`${points} exp`} backgroundColor="orange" />
+            {due_date && <Pill name={`${due_date.toDateString()}`} backgroundColor="purple"/>}
           </div>
           <div className="flex w-full">
             <div className="w-[90%]"></div>
@@ -171,7 +177,7 @@ function Goal({
           {checklistOpen ? <ChecklistView checklist={checklist} /> : ""}
         </div>
         <div
-          className="ease-in-out absolute right-0 w-12 delay-100 font-semibold dark:text-white h-full items-center justify-center bg-red-300 transition"
+          className="absolute right-0 h-full w-12 items-center justify-center bg-red-300 font-semibold transition delay-100 ease-in-out dark:text-white"
           onClick={async () =>
             await deleteGoal.mutateAsync({
               goal_id: id,

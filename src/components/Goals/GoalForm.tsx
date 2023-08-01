@@ -12,9 +12,17 @@ type GoalFormProps = {
   backlink: string;
 };
 
+const getLeadingZeroFormat = (month_or_day: number) => {
+  if (month_or_day < 10) {
+    return `0${month_or_day}`;
+  } else {
+    return month_or_day;
+  }
+};
+
 function GoalForm({ backlink }: GoalFormProps) {
   const utils = api.useContext();
-  const {setErrorPopup} = usePopup()
+  const { setErrorPopup } = usePopup();
   const [repeating, setRepeating] = useState(false);
 
   // TODO move this stuff into a hook
@@ -26,6 +34,10 @@ function GoalForm({ backlink }: GoalFormProps) {
     return checkListSize;
   };
 
+  const today = new Date();
+  const today_string = `${today.getFullYear()}-${getLeadingZeroFormat(
+    today.getMonth() + 1
+  )}-${getLeadingZeroFormat(today.getDate())}`;
 
   const router = useRouter();
 
@@ -45,25 +57,26 @@ function GoalForm({ backlink }: GoalFormProps) {
       exp: { value: string };
       difficulty: { value: string };
       category: { value: GoalCategories };
+      due_date: {value: string | undefined}
       repeating: { value: boolean };
       type: { value: RepeatType | undefined };
       days: { value: DaysOfWeek[] | undefined };
       start_date: { value: string | undefined };
       end_date: { value: string | undefined };
-      checklist_item: {value: string[] | undefined}
+      checklist_item: { value: string[] | undefined };
     };
 
-    let checklist_items: string[] = []
+    let checklist_items: string[] = [];
     //@ts-ignore
     if (e.target.checklist_item) {
       //@ts-ignore
       const items: RadioNodeList = e.target.checklist_item;
-      items.forEach((input)=> {
+      items.forEach((input) => {
         //@ts-ignore
-        checklist_items.push(input.value)
-      })
+        checklist_items.push(input.value);
+      });
     }
-    
+
     let selected_days: DaysOfWeek[] = [];
     //@ts-ignore
     if (e.target.days) {
@@ -78,26 +91,27 @@ function GoalForm({ backlink }: GoalFormProps) {
       }
     }
 
-
     const call = await add_call.mutateAsync({
       name: target.name.value,
       exp: Number(target.exp.value),
       difficulty: Number(target.difficulty.value),
       category: target.category.value,
+      due_date:
+        target.due_date && target.due_date.value
+          ? convertToUTC(new Date(target.due_date.value))
+          : undefined,
       repeat_type: target.type ? target.type.value : undefined,
       days_of_week: selected_days,
-      start_date: target.start_date && target.start_date.value
-        ? convertToUTC(new Date(target.start_date.value))
-        : undefined,
-      end_date: target.end_date && target.end_date.value
-        ? convertToUTC(new Date(target.end_date.value))
-        : undefined,
-        checklist_items: checklist_items
+      start_date:
+        target.start_date && target.start_date.value
+          ? convertToUTC(new Date(target.start_date.value))
+          : undefined,
+      end_date:
+        target.end_date && target.end_date.value
+          ? convertToUTC(new Date(target.end_date.value))
+          : undefined,
+      checklist_items: checklist_items,
     });
-
-    if (!call) {
-      setErrorPopup("Goal could not be added")
-    }
 
 
     router.push(backlink);
@@ -165,6 +179,8 @@ function GoalForm({ backlink }: GoalFormProps) {
             <option value={3}></option>
             <option value={4}></option>
           </datalist>
+          <label htmlFor="due_date">Due Date</label>
+          <input type="date" id="due_date" min={today_string} />
           <div className="flex flex-row space-x-4">
             <label htmlFor="repeating">Repeating</label>
             <input
@@ -208,7 +224,12 @@ function CheckListItem({
   };
   return (
     <div className="relative flex flex-row space-x-2">
-      <input type="text" id={`checklist_item`} name="checklist_item" placeholder="Add item here..." />
+      <input
+        type="text"
+        id={`checklist_item`}
+        name="checklist_item"
+        placeholder="Add item here..."
+      />
       <button
         type="button"
         className="flex h-6 w-6 items-center justify-center rounded-full bg-red-300 text-lg"
@@ -235,14 +256,6 @@ function RepeatForm({ repeating }: RepeatFormProps) {
     "Friday",
     "Saturday",
   ];
-
-  const getLeadingZeroFormat = (month_or_day: number) => {
-    if (month_or_day < 10) {
-      return `0${month_or_day}`;
-    } else {
-      return month_or_day;
-    }
-  };
 
   const today = new Date();
   // min input on date input needs exactly yyyy-mm-dd format so need to add leading zeros

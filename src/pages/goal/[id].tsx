@@ -6,7 +6,7 @@ import { api } from "~/utils/api";
 function GoalPage() {
   const router = useRouter();
 
-  const id: string = router.query.id;
+  const id: string = router.query.id as string;
 
   console.log(router.query)
 
