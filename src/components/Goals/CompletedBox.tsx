@@ -33,6 +33,7 @@ function CompletedBox() {
                 id={goal.id}
                 key={goal.id}
                 disabled={true}
+                due_date={goal.due_date}
               />
             ))
           : ""}

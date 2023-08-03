@@ -55,6 +55,7 @@ function DatePopup() {
           {goals.data
             ? goals.data.map((goal, _) => (
                 <Goal
+                  due_date={goal.due_date}
                   name={goal.name}
                   points={goal.points}
                   difficulty={goal.difficulty}

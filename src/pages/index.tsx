@@ -66,7 +66,7 @@ export default function Home() {
 
         </Head>
         <ProgressBox />
-        <Title name="My Goals" date={true} />
+        {/* <Title name="My Goals" date={true} /> */}
         <GoalBox disabled={false} />
         <AddContentButton />
       </PageTransitionLayout>
