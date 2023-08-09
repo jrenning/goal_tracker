@@ -8,6 +8,12 @@
 **/public/worker-*.js
 **/public/worker-*.js.map
 
+#docker 
+docker-compose.yml
+
+#testing 
+.env.test
+
 # dependencies
 /node_modules
 /.pnp

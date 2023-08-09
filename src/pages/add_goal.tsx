@@ -7,7 +7,7 @@ import { getServerSession } from "next-auth";
 function add_goal() {
   return (
     <PopupTransitionLayout keyName="add_goal">
-      <div className="h-screen w-screen bg-green-50">
+      <div className="h-full w-screen bg-green-50">
         <GoalForm backlink="/" />
       </div>
     </PopupTransitionLayout>

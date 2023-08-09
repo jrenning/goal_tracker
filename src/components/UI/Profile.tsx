@@ -1,12 +1,15 @@
 import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/router';
 import React from 'react'
 
 function Profile() {
     const {data} = useSession()
+    const router = useRouter()
   return (
-    <div className="absolute left-4 flex h-8 w-8 items-center justify-center rounded-full bg-gray-300 text-white">
+    <button className="absolute left-4 flex h-8 w-8 items-center justify-center rounded-full bg-gray-300 text-white"
+    onClick={()=> router.push("/profile")}>
       {data?.user?.email?.charAt(0).toUpperCase()}
-    </div>
+    </button>
   );
 }
 

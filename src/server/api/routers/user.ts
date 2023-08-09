@@ -97,7 +97,7 @@ export const userRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const today = new Date();
 
-      // only do one mutation if all of them succeed 
+      // only do one mutation if all of them succeed
       return await ctx.prisma.$transaction(async (tx) => {
         const points_added = await tx.stats.update({
           where: {
@@ -136,53 +136,54 @@ export const userRouter = createTRPCRouter({
 
         return points_added;
       });
-
-      
     }),
   gainLevel: protectedProcedure
     .input(z.object({ overflow: z.number(), category: goal_categories }))
     .mutation(async ({ ctx, input }) => {
       const today = new Date();
-      const new_level = await ctx.prisma.stats.update({
-        where: {
-          user_id_category: {
-            user_id: ctx.session.user.id,
-            category: input.category,
-          },
-        },
-        data: {
-          level: {
-            increment: 1,
-          },
-          current_points: input.overflow,
-        },
-      });
-      await ctx.prisma.levelData.create({
-        data: {
-          user_id: ctx.session.user.id,
-          level: new_level.level,
-          date: today,
-          category: input.category,
-        },
-      });
 
-      // update, if doesn't exist just catch and ignore error
-      await ctx.prisma.rewards
-        .update({
+      return await ctx.prisma.$transaction(async (tx) => {
+        const new_level = await tx.stats.update({
           where: {
-            user_id_level_category: {
+            user_id_category: {
               user_id: ctx.session.user.id,
-              level: new_level.level,
               category: input.category,
             },
           },
           data: {
-            achieved_at: today,
+            level: {
+              increment: 1,
+            },
+            current_points: input.overflow,
           },
-        })
-        .catch((err) => console.log(err));
+        });
+        await tx.levelData.create({
+          data: {
+            user_id: ctx.session.user.id,
+            level: new_level.level,
+            date: today,
+            category: input.category,
+          },
+        });
 
-      return new_level;
+        // update, if doesn't exist just catch and ignore error
+        await tx.rewards
+          .update({
+            where: {
+              user_id_level_category: {
+                user_id: ctx.session.user.id,
+                level: new_level.level,
+                category: input.category,
+              },
+            },
+            data: {
+              achieved_at: today,
+            },
+          })
+          .catch((err) => console.log(err));
+
+        return new_level;
+      });
     }),
   saveSubscription: protectedProcedure
     .input(z.object({ json: z.any() }))
@@ -209,6 +210,16 @@ export const userRouter = createTRPCRouter({
 
     return user ? user.stats.length === 0 : true;
   }),
+
+  deleteUserById: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.user.delete({
+        where: {
+          id: input.id,
+        },
+      });
+    }),
   addUser: protectedProcedure.mutation(async ({ ctx }) => {
     const c = goal_categories.Values;
     const categories = [

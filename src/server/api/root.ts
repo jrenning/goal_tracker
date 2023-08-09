@@ -5,6 +5,7 @@ import { goalsRouter } from "./routers/goals";
 import { userRouter } from "./routers/user";
 import { rewardsRouter } from "./routers/rewards";
 import { historyRouter } from "./routers/history";
+import { testRouter } from "./routers/tests";
 
 /**
  * This is the primary router for your server.
@@ -16,7 +17,8 @@ export const appRouter = createTRPCRouter({
   levels: levelRouter,
   goals: goalsRouter,
   rewards: rewardsRouter,
-  history: historyRouter
+  history: historyRouter,
+  tests: testRouter
 });
 
 // export type definition of API

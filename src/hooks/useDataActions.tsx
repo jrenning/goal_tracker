@@ -38,12 +38,12 @@ function useDataActions() {
 
   const create_level_call = api.levels.createLevel.useMutation({
     async onSuccess(_) {
-        await utils.levels.invalidate()
+      await utils.levels.invalidate();
     },
     async onError(err) {
       setErrorPopup(err.message);
     },
-  })
+  });
 
   const delete_goal_call = api.goals.deleteGoal.useMutation({
     async onSuccess(_) {
@@ -54,12 +54,23 @@ function useDataActions() {
     },
   });
 
+  const add_call = api.goals.addGoal.useMutation({
+    async onSuccess(data) {
+      await utils.goals.invalidate();
+      data && alert(`${data.name} was added!!`);
+    },
+    async onError(err) {
+      setErrorPopup(err.message);
+    },
+  });
+
   return {
     completeGoal: complete_goal_call,
+    addGoal: add_call,
     addPoints: add_points_call,
     gainLevel: gain_level_call,
     createLevel: create_level_call,
-    deleteGoal: delete_goal_call
+    deleteGoal: delete_goal_call,
   };
 }
 

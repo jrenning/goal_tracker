@@ -1,12 +1,10 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
-import React, { FormEvent, ReactElement, useContext, useState } from "react";
+import React, { FormEvent, ReactElement,useState } from "react";
 import { DaysOfWeek, GoalCategories, RepeatType } from "~/pages";
-import { PopupContext } from "~/pages/_app";
 import { api } from "~/utils/api";
 import { convertToUTC } from "~/utils/datetime";
-import { PopupMessageTypes } from "../Modals/PopupMessage";
-import usePopup from "~/hooks/usePopup";
+import useDataActions from "~/hooks/useDataActions";
 
 type GoalFormProps = {
   backlink: string;
@@ -22,7 +20,6 @@ const getLeadingZeroFormat = (month_or_day: number) => {
 
 function GoalForm({ backlink }: GoalFormProps) {
   const utils = api.useContext();
-  const { setErrorPopup } = usePopup();
   const [repeating, setRepeating] = useState(false);
 
   // TODO move this stuff into a hook
@@ -41,12 +38,7 @@ function GoalForm({ backlink }: GoalFormProps) {
 
   const router = useRouter();
 
-  const add_call = api.goals.addGoal.useMutation({
-    async onSuccess(data) {
-      await utils.goals.invalidate();
-      data && alert(`${data.name} was added!!`);
-    },
-  });
+  const {addGoal} = useDataActions()
 
   const createGoal = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -63,6 +55,7 @@ function GoalForm({ backlink }: GoalFormProps) {
       days: { value: DaysOfWeek[] | undefined };
       start_date: { value: string | undefined };
       end_date: { value: string | undefined };
+      repeat_freq: {value: string | undefined}
       checklist_item: { value: string[] | undefined };
     };
 
@@ -91,7 +84,7 @@ function GoalForm({ backlink }: GoalFormProps) {
       }
     }
 
-    const call = await add_call.mutateAsync({
+    const call = await addGoal.mutateAsync({
       name: target.name.value,
       exp: Number(target.exp.value),
       difficulty: Number(target.difficulty.value),
@@ -102,6 +95,7 @@ function GoalForm({ backlink }: GoalFormProps) {
           : undefined,
       repeat_type: target.type ? target.type.value : undefined,
       days_of_week: selected_days,
+      repeat_freq: Number(target.repeat_freq.value),
       start_date:
         target.start_date && target.start_date.value
           ? convertToUTC(new Date(target.start_date.value))
@@ -112,6 +106,7 @@ function GoalForm({ backlink }: GoalFormProps) {
           : undefined,
       checklist_items: checklist_items,
     });
+
 
 
     router.push(backlink);
@@ -246,7 +241,7 @@ type RepeatFormProps = {
 };
 
 function RepeatForm({ repeating }: RepeatFormProps) {
-  const [daily, setDaily] = useState(true);
+  const [weekly, setWeekly] = useState(false);
   const days = [
     "Sunday",
     "Monday",
@@ -270,7 +265,7 @@ function RepeatForm({ repeating }: RepeatFormProps) {
         id="type"
         required={repeating}
         onChange={(e) => {
-          e.target.value == "Daily" ? setDaily(true) : setDaily(false);
+          e.target.value == "Daily" ? setWeekly(true) : setWeekly(false);
         }}
       >
         <option>Daily</option>
@@ -278,7 +273,7 @@ function RepeatForm({ repeating }: RepeatFormProps) {
         <option>Monthly</option>
         <option>Yearly</option>
       </select>
-      {daily ? (
+      {weekly ? (
         <div className="mt-8 flex w-full">
           <select
             id="days"
@@ -293,6 +288,10 @@ function RepeatForm({ repeating }: RepeatFormProps) {
       ) : (
         ""
       )}
+      <div className="flex flex-row space-x-4">
+        <label htmlFor="repeat_freq">Repeat every: </label>
+        <input type="number" id="repeat_freq" placeholder="1"></input>
+        </div>
       <label htmlFor="start_date">Start Date</label>
       <input
         type="date"

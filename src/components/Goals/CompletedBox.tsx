@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Title from "../UI/Title";
 import { api } from "~/utils/api";
 import Goal from "./Goal";
@@ -15,6 +15,7 @@ function CompletedBox() {
     { date: dateSearch ? dateSearch : today },
     { enabled: runQuery }
   );
+
 
   return (
     <div className="mt-8">

@@ -1,5 +1,5 @@
 import { getServerSession } from 'next-auth'
-import { useSession } from 'next-auth/react'
+import { signOut, useSession } from 'next-auth/react'
 import React from 'react'
 import { authOptions } from './api/auth/[...nextauth]';
 
@@ -8,14 +8,21 @@ function profile() {
 
 
   return (
-    <div className="flex flex-col">
+    <div className="mx-4 flex flex-col items-center justify-center rounded-md bg-gray-100 p-4 pb-12 shadow-lg">
+        <div className='flex flex-row relative w-full justify-center items-center'>
       <div className="flex h-16 w-16 items-center justify-center rounded-full shadow-md">
         {data?.user?.email?.charAt(0).toUpperCase()}
+      </div>
+      <button className='rounded-md bg-red-300 absolute right-4 p-1 shadow-md flex justify-center items-center text-semibold'
+      onClick={()=> signOut()}>
+        Sign Out
+      </button>
       </div>
       <h1 className="flex items-center justify-center text-3xl font-semibold">
         {data?.user?.name}
       </h1>
-      <div className="grid grid-cols-2">
+      <div>{data?.user?.email}</div>
+      <div className="mt-4 grid w-full grid-cols-2 gap-4 font-semibold">
         <div>Account created: </div>
         <div>Goals completed: </div>
         <div>Levels gained: </div>

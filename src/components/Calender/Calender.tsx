@@ -41,7 +41,7 @@ function Calender() {
     const [date, setDate] = useState(new Date())
 
 
-    const {data, refetch} = api.goals.getRepeatGoalsInMonth.useQuery({
+    const {data, refetch} = api.goals.getRepeatingGoalsInMonth.useQuery({
         date: convertToUTC(new Date(date.getFullYear(), date.getMonth()+1, 0))
     })
     const goals_in_month = data

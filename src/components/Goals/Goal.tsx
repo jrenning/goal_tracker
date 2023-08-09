@@ -151,9 +151,9 @@ function Goal({
               ""
             )}
           </div>
-          <div className="mx-4 my-2">
+          <div className="mx-4 my-2 flex flex-row space-x-4">
             <Pill name={`${points} exp`} backgroundColor="orange" />
-            {due_date && <Pill name={`${due_date.toDateString()}`} backgroundColor="purple"/>}
+            {due_date && <Pill name={`${due_date.toDateString()}`} backgroundColor="#e0d6ff"/>}
           </div>
           <div className="flex w-full">
             <div className="w-[90%]"></div>

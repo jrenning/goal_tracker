@@ -3,7 +3,6 @@
 
 generator client {
     provider = "prisma-client-js"
-    previewFeatures = ["jsonProtocol"]
 }
 
 datasource db {
@@ -61,6 +60,7 @@ model RepeatData {
     goal Goals @relation(fields: [goal_id], references: [id], onDelete: Cascade)
     type RepeatTypes
     days DayOfWeek[]
+    repeat_frequency Int @default(1)
     start_date DateTime @default(now())
     last_repeated DateTime?
     stop_date DateTime?
