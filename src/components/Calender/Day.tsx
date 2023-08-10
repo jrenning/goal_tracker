@@ -3,22 +3,23 @@ import { useRouter } from "next/router";
 import React, { useContext } from "react";
 import { ThemeContext } from "~/utils/theme";
 import { useLoaded } from "../../hooks/useLoaded";
-import { GoalsWithRepeat, filterGoalsInRange } from "~/server/api/routers/goals";
+import { filterGoalsInRange } from "~/utils/goals";
 
 type DayProps = {
   day: number;
   month: number;
   year: number;
   goal_data: any[];
+  due_date_data: any[]
 };
 
 
-function Day({ day, month, year, goal_data }: DayProps) {
+function Day({ day, month, year, goal_data, due_date_data }: DayProps) {
   const router = useRouter();
   const date = new Date(year, month, day);
   const today = new Date();
-
-  const goal_number = filterGoalsInRange(goal_data, date, date).length
+  const due_dates = due_date_data.filter((due_date)=> due_date.due_date.toDateString() == date.toDateString())
+  const goal_number = filterGoalsInRange(goal_data, date, date).length + due_dates.length
 
   const openDay = () => {
     router.push(`/repeats/${year}-${month + 1}-${day}`);

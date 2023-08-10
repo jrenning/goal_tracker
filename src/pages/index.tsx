@@ -63,7 +63,7 @@ export default function Home() {
     <div className="darK:bg-[#121212]">
       <PageTransitionLayout keyName="home">
         <Head>
-
+          <title>Goals Tracker</title>
         </Head>
         <ProgressBox />
         {/* <Title name="My Goals" date={true} /> */}

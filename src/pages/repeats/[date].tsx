@@ -15,7 +15,7 @@ function getDateNumbers(date_string: string) {
   }
   return {
     year: Number(sections[0]),
-    month: Number(sections[1]),
+    month: Number(sections[1])-1,
     day: Number(sections[2]),
   };
 }
@@ -32,9 +32,10 @@ function DatePopup() {
     router_date ? router_date : "1900-1-1"
   );
 
-  const date = convertToUTC(new Date(year, month, day));
+  const date = new Date(year, month, day)
 
-  const goals = api.goals.getRepeatingGoalsByDate.useQuery({
+
+  const goals = api.goals.getFutureGoalsByDate.useQuery({
     date: date,
   });
 

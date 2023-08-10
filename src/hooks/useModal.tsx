@@ -43,20 +43,16 @@ function useModal() {
       });
   };
 
-  const goalModal = ({name, exp, date_created, date_due, checklist, repeatType, category}: GoalModalProps) => {
+  const goalModal = ({id, category, name}: GoalModalProps) => {
     const color = colors[category]
     setModal &&
       setModal({
         title: name,
         content: (
           <GoalModal
-            name={name}
-            exp={exp}
-            date_created={date_created}
-            date_due={date_due}
-            checklist={checklist}
-            repeatType={repeatType}
+            id={id}
             category={category}
+            name={name}
           />
         ),
         isOpen: true,

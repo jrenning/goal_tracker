@@ -133,6 +133,30 @@ model LevelData {
     @@id([user_id, category, level])
 }
 
+enum EventTypes {
+    ADD_POINTS
+    GAIN_LEVEL
+    COMPLETE_GOAL
+    DELETE_GOAL
+    GAIN_REWARD
+    CREATE_GOAL_BASIC
+    CREATE_GOAL_DUE_DATE
+    CREATE_GOAL_REPEATING
+    COMPLETE_CHECKLIST_ITEM
+    
+
+}
+
+model Events {
+    user_id String
+    user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+    id Int @id @default(autoincrement())
+    event EventTypes
+    goal_category Category?
+    reward_category RewardCategories
+    created_at DateTime @default(now())
+}
+
 model User {
     id            String    @id @default(cuid())
     name          String?
@@ -146,6 +170,7 @@ model User {
     goals Goals[]
     points_data PointsData[]
     level_data LevelData[]
+    events Events[]
     last_points_added DateTime @default(now())
     
     subscription Json?

@@ -10,7 +10,6 @@ export default function Document() {
     <Html className="">
       <Head>
         <link rel="manifest" href="/manifest.json"></link>
-        <title>Goals Tracker</title>
         <link rel="icon" href="/favicon.ico" />
         <link rel="apple-touch-startup-image" href="/icon-384x384.png" />
       </Head>

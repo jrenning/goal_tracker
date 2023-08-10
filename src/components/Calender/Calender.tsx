@@ -41,10 +41,15 @@ function Calender() {
     const [date, setDate] = useState(new Date())
 
 
-    const {data, refetch} = api.goals.getRepeatingGoalsInMonth.useQuery({
+    const {data: goals_in_month, refetch: refetchRepeatGoals} = api.goals.getRepeatingGoalsInMonth.useQuery({
         date: convertToUTC(new Date(date.getFullYear(), date.getMonth()+1, 0))
     })
-    const goals_in_month = data
+
+    const { data: due_date_data, refetch: refetchDueDates } = api.goals.getDueDatesInMonth.useQuery({
+      date: convertToUTC(new Date(date.getFullYear(), date.getMonth() + 1, 0)),
+    });
+
+    console.log(due_date_data)
 
     const filler_goal: RepeatData[] = []
 
@@ -58,7 +63,8 @@ function Calender() {
     }
 
     useEffect(()=> {
-        refetch()
+        refetchRepeatGoals()
+        refetchDueDates()
     }, [date])
 
     const constructDayArray = (firstDay: number, totalDays: number) => {
@@ -103,6 +109,7 @@ function Calender() {
             month={date.getMonth()}
             year={date.getFullYear()}
             goal_data={goals_in_month ? goals_in_month : filler_goal}
+            due_date_data={due_date_data ? due_date_data : []}
           />
         ))}
       </div>

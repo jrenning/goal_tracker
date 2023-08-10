@@ -42,7 +42,7 @@ function GoalForm({ backlink }: GoalFormProps) {
 
   const createGoal = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
+    console.log(e.target)
     // TODO fix this terrible form parsing
     const target = e.target as typeof e.target & {
       name: { value: string };
@@ -58,6 +58,8 @@ function GoalForm({ backlink }: GoalFormProps) {
       repeat_freq: {value: string | undefined}
       checklist_item: { value: string[] | undefined };
     };
+
+    console.log(target)
 
     let checklist_items: string[] = [];
     //@ts-ignore
@@ -95,7 +97,7 @@ function GoalForm({ backlink }: GoalFormProps) {
           : undefined,
       repeat_type: target.type ? target.type.value : undefined,
       days_of_week: selected_days,
-      repeat_freq: Number(target.repeat_freq.value),
+      repeat_freq: target.repeat_freq ? Number(target.repeat_freq.value) : undefined,
       start_date:
         target.start_date && target.start_date.value
           ? convertToUTC(new Date(target.start_date.value))

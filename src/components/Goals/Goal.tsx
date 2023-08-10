@@ -121,6 +121,16 @@ function Goal({
     }
   };
 
+  const openGoalModal = () => {
+    console.log(id);
+        goalModal({
+        id: id,
+        category: category,
+        name: name
+      });
+  }
+
+  
 
 
   return (
@@ -131,8 +141,8 @@ function Goal({
     >
       <div className="relative flex h-full w-full flex-row">
         <div
-          className=" flex h-full w-full flex-col justify-between rounded-md py-4 shadow-md border border-black"
-          onDoubleClick={() => router.push(`/goal/${id}`)}
+          className=" flex h-full w-full flex-col justify-between rounded-md border border-black py-4 shadow-md"
+          onDoubleClick={() => openGoalModal()}
           style={{ background: `radial-gradient(#ffffff, ${color})` }}
         >
           <div className="flex w-full flex-row items-center space-x-2 px-4">
@@ -152,8 +162,12 @@ function Goal({
             )}
           </div>
           <div className="mx-4 my-2 flex flex-row space-x-4">
-            <Pill name={`${points} exp`} backgroundColor="orange" />
-            {due_date && <Pill name={`${due_date.toDateString()}`} backgroundColor="#e0d6ff"/>}
+            <Pill backgroundColor="orange">{points} exp</Pill>
+            {due_date && (
+              <Pill backgroundColor="#e0d6ff">
+                {due_date.toDateString()}
+              </Pill>
+            )}
           </div>
           <div className="flex w-full">
             <div className="w-[90%]"></div>
