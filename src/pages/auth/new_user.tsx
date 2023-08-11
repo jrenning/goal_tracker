@@ -26,7 +26,7 @@ function new_user() {
 
         <div className="grid grid-cols-1 space-y-4 mx-4">
             <FeatureCard name="Add goals" description="Add goals with a variety of options including repeating them on a schedule and adding subitems to each to keep track of the progress" />
-            <FeatureCard name="Track your progress" description="Track your progress in five different areas: Physical, Social, Education, Hobby, and Odd Job, categories made to represent a hierarchy of your daily tasks!" />
+            <FeatureCard name="Track your progress" description="Track your progress in five different areas: Physical, Social, Education, Hobby, and Career, categories made to represent a hierarchy of your daily tasks!" />
             <FeatureCard name="Set rewards" description="Add rewards for each level that you gain in the five categories" />
         </div>
 

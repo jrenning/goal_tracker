@@ -64,6 +64,15 @@ function useDataActions() {
     },
   });
 
+  const add_coins_call = api.user.addCoins.useMutation({
+    async onError(err) {
+      setErrorPopup(err.message);
+    },
+    async onSuccess(_) {
+      await utils.user.invalidate()
+    }
+  });
+
   return {
     completeGoal: complete_goal_call,
     addGoal: add_call,
@@ -71,6 +80,7 @@ function useDataActions() {
     gainLevel: gain_level_call,
     createLevel: create_level_call,
     deleteGoal: delete_goal_call,
+    addCoins: add_coins_call
   };
 }
 

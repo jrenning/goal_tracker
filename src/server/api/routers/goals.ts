@@ -10,7 +10,7 @@ export const goal_categories = z.enum([
   "Education",
   "Social",
   "Hobby",
-  "Odd_Job",
+  "Career",
 ]);
 
 export const repeat_type = z.enum(["Daily", "Weekly", "Monthly", "Yearly"]);

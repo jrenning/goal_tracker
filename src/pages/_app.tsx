@@ -63,7 +63,7 @@ const MyApp: AppType<{session: Session}> = ({ Component, pageProps: {session, ..
   useEffect(() => {
     const root_list = document.documentElement.classList;
     if (Initialtheme == "dark") {
-      root_list.add("bg-[#121212]");
+      root_list.add("bg-[#767676]");
     } else {
       root_list.add("bg-white");
     }
@@ -95,7 +95,7 @@ const MyApp: AppType<{session: Session}> = ({ Component, pageProps: {session, ..
               initial={false}
               onExitComplete={() => window.scrollTo(0, 0)}
             >
-              <div className="h-full w-full dark:bg-[#121212]">
+              <div className="h-full w-full dark:bg-[#767676]">
                 <Component {...pageProps} />
               </div>
             </AnimatePresence>

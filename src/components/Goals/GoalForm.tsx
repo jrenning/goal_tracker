@@ -157,7 +157,7 @@ function GoalForm({ backlink }: GoalFormProps) {
             <option>Education</option>
             <option>Social</option>
             <option>Hobby</option>
-            <option>Odd_Job</option>
+            <option>Career</option>
           </select>
           <label htmlFor="exp">Exp</label>
           <input type="number" required={true} id="exp"></input>

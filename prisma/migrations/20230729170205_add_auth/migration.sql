@@ -5,7 +5,7 @@ CREATE TYPE "RepeatTypes" AS ENUM ('Daily', 'Weekly', 'Monthly', 'Yearly');
 CREATE TYPE "DayOfWeek" AS ENUM ('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday');
 
 -- CreateEnum
-CREATE TYPE "Category" AS ENUM ('Physical', 'Education', 'Social', 'Hobby', 'Odd_Job');
+CREATE TYPE "Category" AS ENUM ('Physical', 'Education', 'Social', 'Hobby', 'Career');
 
 -- CreateEnum
 CREATE TYPE "RewardCategories" AS ENUM ('Outdoors', 'Food', 'Gift', 'Leisure', 'Experience');

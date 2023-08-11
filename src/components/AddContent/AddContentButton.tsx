@@ -7,6 +7,7 @@ function AddContentButton() {
   const adds = [
     { name: "Goal", link: "/add_goal" },
     { name: "Reward", link: "/add_reward" },
+    {name: "Shop Item", link: "/add_shop_item"}
   ];
 
   const handleClick = () => {

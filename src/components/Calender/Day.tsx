@@ -40,7 +40,7 @@ function Day({ day, month, year, goal_data, due_date_data }: DayProps) {
         if (theme == "light") {
           return "white";
         } else {
-          return "#121212";
+          return "#767676";
         }
       }
     }
@@ -48,7 +48,7 @@ function Day({ day, month, year, goal_data, due_date_data }: DayProps) {
 
   return (
     <div
-      className="relative h-full w-full border border-gray-100 p-4 text-xl dark:border-gray-300 dark:bg-black dark:text-white"
+      className="relative h-full w-full border border-gray-100 p-4 text-xl dark:border-gray-300 dark:bg-[#767676] dark:text-white"
       onClick={() => openDay()}
       style={{
         backgroundColor: getBackgroundColor(),

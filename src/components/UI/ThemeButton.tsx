@@ -9,12 +9,12 @@ function ThemeButton() {
     const root_list = document.documentElement.classList;
     if (theme == "light") {
       setTheme && setTheme("dark");
-      root_list.add("bg-[#121212]");
+      root_list.add("bg-[#767676]");
       root_list.remove("bg-white");
     } else {
       setTheme && setTheme("light");
       root_list.add("bg-white");
-      root_list.remove("bg-[#121212");
+      root_list.remove("bg-[#767676]");
     }
   };
   const themeIcon = theme == "light" && loaded ? <>&#x2600;</> : <>&#x2605;</>;

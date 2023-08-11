@@ -40,6 +40,17 @@ export const userRouter = createTRPCRouter({
 
     return subscription.pushSubscription;
   }),
+  getUserCoins: protectedProcedure
+  .query(({ctx})=> {
+    return ctx.prisma.inventory.findUnique({
+      where: {
+        user_id: ctx.session.user.id
+      },
+      select: {
+        coins: true
+      }
+    })
+  }),
   getUserStats: protectedProcedure.query(({ ctx }) => {
     return ctx.prisma.user.findUnique({
       where: {
@@ -137,6 +148,20 @@ export const userRouter = createTRPCRouter({
         return points_added;
       });
     }),
+    addCoins: protectedProcedure
+    .input(z.object({coins: z.number()}))
+    .mutation(({ctx, input})=> {
+      return ctx.prisma.inventory.update({
+        where: {
+          user_id: ctx.session.user.id
+        },
+        data: {
+          coins: {
+            increment: input.coins
+          }
+        }
+      })
+    }),
   gainLevel: protectedProcedure
     .input(z.object({ overflow: z.number(), category: goal_categories }))
     .mutation(async ({ ctx, input }) => {
@@ -227,7 +252,7 @@ export const userRouter = createTRPCRouter({
       { category: c.Social },
       { category: c.Hobby },
       { category: c.Physical },
-      { category: c.Odd_Job },
+      { category: c.Career },
     ];
 
     const new_user = ctx.prisma.user.update({
@@ -250,6 +275,11 @@ export const userRouter = createTRPCRouter({
             data: categories,
           },
         },
+        inventory: {
+          create: {
+            coins: 0
+          }
+        }
       },
     });
 

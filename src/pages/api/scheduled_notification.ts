@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { useSession } from "next-auth/react";
-import ResetStatsButton from "~/components/UI/ResetStatsButton";
+import ResetStatsButton from "~/components/UI/Utility/ResetStatsButton";
 import { appRouter } from "~/server/api/root";
 import { UserSubscription } from "~/server/api/routers/user";
 import { prisma } from "~/server/db";

@@ -25,6 +25,7 @@ import { useSession } from "next-auth/react";
 import { getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]";
 import { Session } from "next-auth";
+import CreateLevels from "~/components/UI/Utility/CreateLevels";
 
 export type GoalCategories = z.infer<typeof goal_categories>;
 export type RewardCategories = z.infer<typeof reward_categories>;

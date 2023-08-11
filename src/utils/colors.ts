@@ -15,7 +15,7 @@ export const colors: Colors = {
   Hobby: "#fdfd96",
   Education: "#84b6f4",
   Social: "#f9a59a",
-  Odd_Job: "#fdcae1",
+  Career: "#fdcae1",
   Error: "#f9a59a",
   Success: "#95fab9",
   Info: "white"

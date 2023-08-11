@@ -50,7 +50,7 @@ function Goal({
 
   const color = colors[category];
 
-    const { completeGoal, addPoints, gainLevel, createLevel, deleteGoal } =
+    const { completeGoal, addPoints, addCoins, gainLevel, createLevel, deleteGoal } =
       useDataActions();
 
 
@@ -89,6 +89,7 @@ function Goal({
 
     await completeGoal.mutateAsync({ id: id });
     await addPoints.mutateAsync({ points: points, category: category });
+    await addCoins.mutateAsync({coins: Math.floor(points/2)})
 
     // get new point total
     let current_points = (await current_points_query.refetch()).data
@@ -163,6 +164,7 @@ function Goal({
           </div>
           <div className="mx-4 my-2 flex flex-row space-x-4">
             <Pill backgroundColor="orange">{points} exp</Pill>
+            <Pill backgroundColor="#d7cd59">{Math.floor(points/2)} &#x274D;</Pill>
             {due_date && (
               <Pill backgroundColor="#e0d6ff">
                 {due_date.toDateString()}

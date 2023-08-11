@@ -6,6 +6,8 @@ import { userRouter } from "./routers/user";
 import { rewardsRouter } from "./routers/rewards";
 import { historyRouter } from "./routers/history";
 import { testRouter } from "./routers/tests";
+import { acheievmentsRouter } from "./routers/acheievments";
+import { shopRouter } from "./routers/shop";
 
 /**
  * This is the primary router for your server.
@@ -18,6 +20,8 @@ export const appRouter = createTRPCRouter({
   goals: goalsRouter,
   rewards: rewardsRouter,
   history: historyRouter,
+  achievements: acheievmentsRouter,
+  shop: shopRouter,
   tests: testRouter
 });
 

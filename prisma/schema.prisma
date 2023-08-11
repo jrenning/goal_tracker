@@ -67,12 +67,44 @@ model RepeatData {
 
 }
 
+model ShopRepeatData {
+    item_id Int @unique @id
+    item ShopItem @relation(fields: [item_id], references: [id], onDelete: Cascade)
+    type RepeatTypes
+    days DayOfWeek[]
+    repeat_frequency Int @default(1)
+    start_date DateTime @default(now())
+    last_repeated DateTime?
+    stop_date DateTime?
+
+}
+
+model ShopItem {
+    id Int @id @default(autoincrement())
+    inventory Inventory @relation(fields: [user_id], references: [user_id])
+    user_id String
+    name String
+    cost Int
+    created_at DateTime @default(now())
+    expire_at DateTime?
+    bought Boolean
+    repeat ShopRepeatData[]
+
+}
+
+model Inventory {
+    user_id String @id
+    user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+    items ShopItem[]
+    coins Int
+}
+
 enum Category {
     Physical
     Education
     Social
     Hobby
-    Odd_Job
+    Career
 }
 
 enum RewardCategories {
@@ -143,6 +175,10 @@ enum EventTypes {
     CREATE_GOAL_DUE_DATE
     CREATE_GOAL_REPEATING
     COMPLETE_CHECKLIST_ITEM
+    BUY_SHOP_ITEM
+    CREATE_SHOP_ITEM_BASIC
+    CREATE_SHOP_ITEM_REPEATING
+
     
 
 }
@@ -152,9 +188,41 @@ model Events {
     user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
     id Int @id @default(autoincrement())
     event EventTypes
-    goal_category Category?
-    reward_category RewardCategories
+    value Int
+    goal_category Category
+    reward_category RewardCategories?
     created_at DateTime @default(now())
+}
+
+enum TimeFrame {
+    Day
+    Week
+    Month
+    Year
+    None
+}
+
+
+model Achievement {
+    name String @unique @id
+    event EventTypes
+    value Int
+    time_frame TimeFrame @default(None)
+    goal_category Category
+    reward_category RewardCategories?
+    created_at DateTime @default(now())
+    users UserAchievement[]
+} 
+
+model UserAchievement {
+    user_id String
+    user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+    achievement_name String
+    acheivement Achievement @relation(fields: [achievement_name], references: [name])
+    completed Boolean
+    current_value Int @default(0)
+
+    @@id([user_id, achievement_name])
 }
 
 model User {
@@ -171,7 +239,9 @@ model User {
     points_data PointsData[]
     level_data LevelData[]
     events Events[]
-    last_points_added DateTime @default(now())
+    inventory Inventory?
+    achievements UserAchievement[]
+    last_points_added DateTime?
     
     subscription Json?
 }
