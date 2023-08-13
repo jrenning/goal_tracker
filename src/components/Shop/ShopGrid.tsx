@@ -16,7 +16,7 @@ function ShopGrid() {
       ) : (
         <div className="">Nothing in the shop today...</div>
       )}
-      <div className="rounded-md flex justify-center w-full items-center h-full">
+      <div className="rounded-md flex justify-center w-[12rem] items-center h-full">
         <Link href={"/add_shop_item"} className='w-full'>
         <button className='text-3xl w-full shadow-lg rounded-lg p-4 bg-green-300 flex justify-center items-center'>+</button>
         </Link>

@@ -41,7 +41,7 @@ function Item({ name, cost, id }: ItemProps) {
 
   return (
     <div
-      className="relative flex flex-col items-center justify-center space-y-4 rounded-md bg-slate-100 p-4"
+      className="relative flex flex-col w-[12rem] h-[8rem] items-center justify-center space-y-4 rounded-md bg-slate-100 p-4"
       onClick={() => setClicked(!clicked)}
     >
       <div className="text-lg font-semibold">{shortenName(name, 20)}</div>
