@@ -1,16 +1,11 @@
-
 import React, { useContext, useState } from "react";
 import { GoalCategories } from "~/pages";
 import { api } from "~/utils/api";
 import { colors } from "~/utils/colors";
-import LevelUp from "../Modals/LevelUp";
-import { ModalContext } from "~/pages/_app";
 import ChecklistView from "./ChecklistView";
 import useDataActions from "~/hooks/useDataActions";
-import usePopup from "~/hooks/usePopup";
 import Swipeable from "../UI/Swipeable";
 import useModal from "~/hooks/useModal";
-import { useRouter } from "next/router";
 import Pill from "./Pill";
 
 export type Checklist = {
@@ -24,9 +19,9 @@ export type Checklist = {
 type Props = {
   name: string;
   points: number;
-  coins: number
+  coins: number;
   difficulty: number;
-  due_date: Date | null
+  due_date: Date | null;
   id: number;
   disabled: boolean;
   category: GoalCategories;
@@ -44,24 +39,18 @@ function Goal({
   category,
   checklist,
 }: Props) {
-  const setModal = useContext(ModalContext);
-  const router = useRouter()
-
   const [checklistOpen, setChecklistOpen] = useState(false);
-  const [deleteSection, setDeleteSection] = useState(false)
+  const [deleteSection, setDeleteSection] = useState(false);
 
   const color = colors[category];
 
-    const { completeGoal, addPoints, addCoins, gainLevel, createLevel, deleteGoal } =
-      useDataActions();
+  const { completeGoal, gainLevel, createLevel, deleteGoal } = useDataActions();
 
-
-      const {levelUpModal, goalModal} =  useModal()
+  const { levelUpModal, goalModal } = useModal();
 
   const user_level_query = api.user.getCategoryLevel.useQuery({
     category: category,
   });
-
 
   const level = user_level_query.data?.level;
 
@@ -78,20 +67,13 @@ function Goal({
     category: category,
   });
 
-
-
-
   const completeGoalAction = async () => {
-
     // create level if one doesn't exist
     if (level_query.isError) {
-      await createLevel.mutateAsync({level: level ? level+1 : 1}) 
+      await createLevel.mutateAsync({ level: level ? level + 1 : 1 });
     }
 
-
     await completeGoal.mutateAsync({ id: id });
-    await addPoints.mutateAsync({ points: points, category: category });
-    await addCoins.mutateAsync({coins: Math.floor(points/2)})
 
     // get new point total
     let current_points = (await current_points_query.refetch()).data
@@ -99,7 +81,7 @@ function Goal({
     let max_points = (await level_query.refetch()).data?.points;
     let level_up = false;
     if (max_points && current_points) {
-      while (max_points && (current_points >= max_points)) {
+      while (max_points && current_points >= max_points) {
         level_up = true;
         const level = await gainLevel.mutateAsync({
           category: category,
@@ -118,23 +100,20 @@ function Goal({
           level: level ? level : 1,
           rewards: rewards,
           categories: categories,
-          goal_category: category
-        })
+          goal_category: category,
+        });
       }
     }
   };
 
   const openGoalModal = () => {
     console.log(id);
-        goalModal({
-        id: id,
-        category: category,
-        name: name
-      });
-  }
-
-  
-
+    goalModal({
+      id: id,
+      category: category,
+      name: name,
+    });
+  };
 
   return (
     <Swipeable
@@ -168,9 +147,7 @@ function Goal({
             <Pill backgroundColor="orange">{points} exp</Pill>
             <Pill backgroundColor="#d7cd59">{coins} &#x274D;</Pill>
             {due_date && (
-              <Pill backgroundColor="#e0d6ff">
-                {due_date.toDateString()}
-              </Pill>
+              <Pill backgroundColor="#e0d6ff">{due_date.toDateString()}</Pill>
             )}
           </div>
           <div className="flex w-full">

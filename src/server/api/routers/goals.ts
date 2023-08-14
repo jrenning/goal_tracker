@@ -3,7 +3,12 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { Session } from "next-auth";
 import { Goals, Prisma, PrismaClient, RepeatData } from "@prisma/client";
-import { calculateExp, filterGoalsInRange, generateMultiplier } from "~/utils/goals";
+import {
+  calculateCoins,
+  calculateExp,
+  filterGoalsInRange,
+  generateMultiplier,
+} from "~/utils/goals";
 
 export const goal_categories = z.enum([
   "Physical",
@@ -24,6 +29,8 @@ export const days_of_week = z.enum([
   "Saturday",
   "Sunday",
 ]);
+
+const multiplier_types = z.enum(["Exp", "Coins"]);
 
 // this is a separate function to get an accurate type for the input below
 async function getGoalsInRange(
@@ -80,7 +87,6 @@ export async function getRepeatingGoalsInRange(
 
 export type GoalsWithRepeat = Prisma.PromiseReturnType<typeof getGoalsInRange>;
 
-
 export const goalsRouter = createTRPCRouter({
   clear: protectedProcedure.mutation(async ({ ctx }) => {
     return await ctx.prisma.goals.deleteMany({
@@ -105,17 +111,31 @@ export const goalsRouter = createTRPCRouter({
   getRepeatingGoalsByDate: protectedProcedure
     .input(z.object({ date: z.date() }))
     .query(async ({ ctx, input }) => {
-      const goals = await getRepeatingGoalsInRange(ctx.prisma, ctx.session, input.date, input.date)
+      const goals = await getRepeatingGoalsInRange(
+        ctx.prisma,
+        ctx.session,
+        input.date,
+        input.date
+      );
 
       return goals;
     }),
   getRepeatingGoalsInMonth: protectedProcedure
     .input(z.object({ date: z.date() }))
     .query(async ({ ctx, input }) => {
-      const start_of_month = new Date(input.date.getFullYear(), input.date.getMonth(), 1)
-      const goals = await getRepeatingGoalsInRange(ctx.prisma, ctx.session, start_of_month, input.date)
+      const start_of_month = new Date(
+        input.date.getFullYear(),
+        input.date.getMonth(),
+        1
+      );
+      const goals = await getRepeatingGoalsInRange(
+        ctx.prisma,
+        ctx.session,
+        start_of_month,
+        input.date
+      );
 
-      return goals
+      return goals;
     }),
   getDueDatesInMonth: protectedProcedure
     .input(z.object({ date: z.date() }))
@@ -138,7 +158,7 @@ export const goalsRouter = createTRPCRouter({
     }),
   getDueDatesToday: protectedProcedure.query(({ ctx }) => {
     const today = new Date();
-    today.setUTCHours(0,0,0,0)
+    today.setUTCHours(0, 0, 0, 0);
     return ctx.prisma.goals.findMany({
       where: {
         user_id: ctx.session.user.id,
@@ -149,19 +169,24 @@ export const goalsRouter = createTRPCRouter({
   }),
 
   getFutureGoalsByDate: protectedProcedure
-  .input(z.object({date: z.date()}))
-  .query(async ({ctx, input})=> {
-    const repeating_goals = await getRepeatingGoalsInRange(ctx.prisma, ctx.session, input.date, input.date)
-    const due_date_goals = await ctx.prisma.goals.findMany({
-      where: {
-        user_id: ctx.session.user.id,
-        completed: false,
-        due_date: input.date,
-      }
-    });
+    .input(z.object({ date: z.date() }))
+    .query(async ({ ctx, input }) => {
+      const repeating_goals = await getRepeatingGoalsInRange(
+        ctx.prisma,
+        ctx.session,
+        input.date,
+        input.date
+      );
+      const due_date_goals = await ctx.prisma.goals.findMany({
+        where: {
+          user_id: ctx.session.user.id,
+          completed: false,
+          due_date: input.date,
+        },
+      });
 
-    return due_date_goals.concat(repeating_goals)
-  }),
+      return due_date_goals.concat(repeating_goals);
+    }),
 
   setLastRepeat: protectedProcedure
     .input(z.object({ id: z.number() }))
@@ -237,16 +262,59 @@ export const goalsRouter = createTRPCRouter({
     .mutation(async ({ input, ctx }) => {
       // just yyyy/mm/dd
       const today = new Date();
-      const goal = await ctx.prisma.goals.update({
-        where: {
-          id: input.id,
-        },
-        data: {
-          completed: true,
-          date_completed: today,
-        },
+      return ctx.prisma.$transaction(async (tx) => {
+        // complete the goal
+        const goal = await tx.goals.update({
+          where: {
+            id: input.id,
+          },
+          data: {
+            completed: true,
+            date_completed: today,
+          },
+        });
+
+        const gold_added = calculateCoins(goal.points) * goal.gold_multiplier
+        // add gold
+        await tx.inventory.update({
+          where: {
+            user_id: ctx.session.user.id,
+          },
+          data: {
+            coins: {
+              increment: gold_added,
+            },
+          },
+        });
+        const points_added = goal.points * goal.exp_multiplier;
+        // add points
+        await tx.stats.update({
+          where: {
+            user_id_category: {
+              user_id: ctx.session.user.id,
+              category: goal.category,
+            },
+          },
+          data: {
+            current_points: {
+              increment: points_added,
+            },
+            total_points: {
+              increment: points_added,
+            },
+          },
+        });
+
+        
+
+        return {
+          goal: goal,
+          points_added: points_added,
+          gold_added: gold_added,
+        };
       });
-      return goal;
+
+      
     }),
   completeGoalChecklistItem: protectedProcedure
     .input(z.object({ id: z.number() }))
@@ -280,18 +348,23 @@ export const goalsRouter = createTRPCRouter({
     )
     .mutation(async ({ input, ctx }) => {
       return await ctx.prisma.$transaction(async (tx) => {
-        const repeating = input.repeat_type ? true : false
+        const repeating = input.repeat_type ? true : false;
         const goal = await tx.goals.create({
           data: {
             user_id: ctx.session.user.id,
             name: input.name,
-            points: calculateExp(input.difficulty, input.checklist_items?.length, input.due_date, repeating),
+            points: calculateExp(
+              input.difficulty,
+              input.checklist_items?.length,
+              input.due_date,
+              repeating
+            ),
             difficulty: input.difficulty,
             due_date: input.due_date ? input.due_date : undefined,
             completed: false,
             category: input.category,
             exp_multiplier: generateMultiplier(),
-            gold_multiplier: generateMultiplier()
+            gold_multiplier: generateMultiplier(),
           },
         });
         if (input.due_date && input.repeat_type) {
@@ -338,17 +411,55 @@ export const goalsRouter = createTRPCRouter({
 
         const full_goal = await tx.goals.findUnique({
           where: {
-            id: goal.id
+            id: goal.id,
           },
           include: {
             checklist: true,
-            repeat: true
-          }
-        })
+            repeat: true,
+          },
+        });
 
-        return full_goal
+        return full_goal;
       });
     }),
+  updateMultiplier: protectedProcedure
+    .input(
+      z.object({
+        new_multiplier: z.number(),
+        categories: goal_categories.array(),
+        type: multiplier_types,
+      })
+    )
+    .mutation(({ ctx, input }) => {
+      if (input.type == "Exp") {
+        return ctx.prisma.goals.updateMany({
+          where: {
+            user_id: ctx.session.user.id,
+            category: {
+              in: input.categories,
+            },
+          },
+          data: {
+            exp_multiplier: input.new_multiplier,
+          },
+        });
+      } else {
+        return ctx.prisma.goals.updateMany({
+          where: {
+            user_id: ctx.session.user.id,
+            category: {
+              in: input.categories,
+            },
+          },
+          data: {
+            gold_multiplier: input.new_multiplier,
+          },
+        });
+      }
+    }),
+  updateGoal: protectedProcedure
+    .input(z.object({}))
+    .mutation(({ ctx, input }) => {}),
   deleteGoal: protectedProcedure
     .input(z.object({ goal_id: z.number() }))
     .mutation(({ ctx, input }) => {

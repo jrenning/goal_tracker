@@ -9,22 +9,13 @@ function useDataActions() {
   const complete_goal_call = api.goals.completeGoal.useMutation({
     async onSuccess(data) {
       await utils.goals.invalidate();
-      data && setSuccessPopup(`${data ? data.name : "Goal"} was completed!!`);
+      data && setSuccessPopup(`${data ? data.goal.name : "Goal"} was completed!!`);
     },
     async onError(err) {
       setErrorPopup(err.message);
     },
   });
 
-  const add_points_call = api.user.addPoints.useMutation({
-    async onSuccess(data) {
-      await utils.goals.invalidate();
-      await utils.user.invalidate();
-    },
-    async onError(err) {
-      setErrorPopup(err.message);
-    },
-  });
 
   const gain_level_call = api.user.gainLevel.useMutation({
     async onSuccess(data) {
@@ -64,23 +55,13 @@ function useDataActions() {
     },
   });
 
-  const add_coins_call = api.user.addCoins.useMutation({
-    async onError(err) {
-      setErrorPopup(err.message);
-    },
-    async onSuccess(_) {
-      await utils.user.invalidate()
-    }
-  });
 
   return {
     completeGoal: complete_goal_call,
     addGoal: add_call,
-    addPoints: add_points_call,
     gainLevel: gain_level_call,
     createLevel: create_level_call,
     deleteGoal: delete_goal_call,
-    addCoins: add_coins_call
   };
 }
 
