@@ -7,18 +7,21 @@ This app is a way to track goals
 - Just a fun project for mostly myself to use, so don't take it too serious :)
 
 ## Current Issues
-- Sometimes the colors will not show up for the progress bars 
 - Ever present subscribe message 
-- Level up message shows old level 
+- Shop UI doesn't show correctly on IOS Safari
 
 ## Goals
-- [ ] Add repeating option to goals form 
+- [x] Add repeating option to goals form 
 - [ ] Add scheduled notifications 
 - [ ] Better UI for rewards screen 
-- [ ] Better UI for main screen 
+- [x] Better UI for main screen 
 - [ ] Better UI for completed section
-- [ ] Add option to see old rewards 
+- [x] Add option to see old rewards 
 - [ ] Add option to see and edit repeating goals 
-- [ ] Clean up code in general, particularly the Goal component
+- [x] Clean up code in general, particularly the Goal component
 - [ ] Add better form code?
-- [ ] (Future) Add auth for users, + support for multiple users
+- [x] Add auth for users, + support for multiple users
+- [~] Add shop with option to add and buy items
+- [ ] Add achievements tab
+- [ ] Add events with multiplier increases, random + level up
+ 
