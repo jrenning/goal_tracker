@@ -19,7 +19,7 @@ export type Checklist = {
 type Props = {
   name: string;
   points: number;
-  coins: number;
+  coins?: number
   difficulty: number;
   due_date: Date | null;
   id: number;
