@@ -165,7 +165,73 @@ export function getRepeatTypeString(
         return `Repeats every ${frequency} ${string_map[repeat_type]}s`;
       }
     }
-    return `Repeats weekly on ${days.join(",")}`;
+    if (frequency == 1){
+      return `Repeats weekly on ${days.join(", ")}`;
+    }
+    else {
+      return `Repeats every ${frequency} weeks on ${days.join(", ")}`
+    }
+    
   }
-  return "Never Repeats"
+  return "Never Repeats";
+}
+
+export function calculateExp(
+  difficulty: number,
+  checklist_items: number | undefined,
+  due_date: Date | undefined,
+  repeating: boolean
+) {
+  let exp = 0;
+
+  exp += 2 * difficulty;
+  if (checklist_items) {
+    if (checklist_items >= 4) {
+      exp += 4;
+    } else {
+      exp += checklist_items;
+    }
+  }
+  if (due_date) {
+    const days = getDaysBetweenDates(new Date(), due_date);
+
+    if (days <= 1) {
+      exp += 3;
+    } else if (days <= 2) {
+      exp += 2;
+    } else if (days < 3) {
+      exp += 1;
+    }
+  }
+
+  if (repeating) {
+    exp -= 2;
+  }
+
+  return exp;
+}
+
+export function calculateCoins(exp: number) {
+  return Math.floor(exp / 2);
+}
+
+export function generateMultiplier() {
+  const num = Math.floor(Math.random() * 100);
+
+  // one out of 100 give double
+  if (num == 0) {
+    return 2;
+  }
+
+  // 5 more out of 100 give 1.5x
+  if (num > 0 && num < 6) {
+    return 1.5;
+  }
+
+  // 5 more give 1.2
+  if (num >= 6 && num < 11) {
+    return 1.2;
+  }
+
+  return 1;
 }

@@ -46,7 +46,6 @@ function GoalForm({ backlink }: GoalFormProps) {
     // TODO fix this terrible form parsing
     const target = e.target as typeof e.target & {
       name: { value: string };
-      exp: { value: string };
       difficulty: { value: string };
       category: { value: GoalCategories };
       due_date: {value: string | undefined}
@@ -88,7 +87,6 @@ function GoalForm({ backlink }: GoalFormProps) {
 
     const call = await addGoal.mutateAsync({
       name: target.name.value,
-      exp: Number(target.exp.value),
       difficulty: Number(target.difficulty.value),
       category: target.category.value,
       due_date:
@@ -159,8 +157,6 @@ function GoalForm({ backlink }: GoalFormProps) {
             <option>Hobby</option>
             <option>Career</option>
           </select>
-          <label htmlFor="exp">Exp</label>
-          <input type="number" required={true} id="exp"></input>
           <label htmlFor="difficulty">Difficulty</label>
           <input
             type="range"

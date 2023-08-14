@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Goal from "./Goal";
 import { api } from "~/utils/api";
 import usePopup from "~/hooks/usePopup";
+import { calculateCoins } from "~/utils/goals";
 
 type GoalBoxProps = {
   disabled: boolean;
@@ -22,7 +23,8 @@ function GoalBox({ disabled }: GoalBoxProps) {
           goals.data.map((goal, _) => (
             <Goal
               name={goal.name}
-              points={goal.points}
+              points={goal.points*goal.exp_multiplier}
+              coins={calculateCoins(goal.points)*goal.gold_multiplier}
               difficulty={goal.difficulty}
               due_date={goal.due_date}
               category={goal.category}

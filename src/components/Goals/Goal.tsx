@@ -24,6 +24,7 @@ export type Checklist = {
 type Props = {
   name: string;
   points: number;
+  coins: number
   difficulty: number;
   due_date: Date | null
   id: number;
@@ -35,6 +36,7 @@ type Props = {
 function Goal({
   name,
   points,
+  coins,
   difficulty,
   due_date,
   id,
@@ -164,7 +166,7 @@ function Goal({
           </div>
           <div className="mx-4 my-2 flex flex-row space-x-4">
             <Pill backgroundColor="orange">{points} exp</Pill>
-            <Pill backgroundColor="#d7cd59">{Math.floor(points/2)} &#x274D;</Pill>
+            <Pill backgroundColor="#d7cd59">{coins} &#x274D;</Pill>
             {due_date && (
               <Pill backgroundColor="#e0d6ff">
                 {due_date.toDateString()}

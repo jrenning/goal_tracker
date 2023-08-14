@@ -3,7 +3,7 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { Session } from "next-auth";
 import { Goals, Prisma, PrismaClient, RepeatData } from "@prisma/client";
-import { filterGoalsInRange } from "~/utils/goals";
+import { calculateExp, filterGoalsInRange, generateMultiplier } from "~/utils/goals";
 
 export const goal_categories = z.enum([
   "Physical",
@@ -267,7 +267,6 @@ export const goalsRouter = createTRPCRouter({
     .input(
       z.object({
         name: z.string(),
-        exp: z.number(),
         difficulty: z.number(),
         category: goal_categories,
         due_date: z.date().optional(),
@@ -281,15 +280,18 @@ export const goalsRouter = createTRPCRouter({
     )
     .mutation(async ({ input, ctx }) => {
       return await ctx.prisma.$transaction(async (tx) => {
+        const repeating = input.repeat_type ? true : false
         const goal = await tx.goals.create({
           data: {
             user_id: ctx.session.user.id,
             name: input.name,
-            points: input.exp,
+            points: calculateExp(input.difficulty, input.checklist_items?.length, input.due_date, repeating),
             difficulty: input.difficulty,
             due_date: input.due_date ? input.due_date : undefined,
             completed: false,
             category: input.category,
+            exp_multiplier: generateMultiplier(),
+            gold_multiplier: generateMultiplier()
           },
         });
         if (input.due_date && input.repeat_type) {
