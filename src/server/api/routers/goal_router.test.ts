@@ -8,6 +8,7 @@ import { getRepeatingGoalsInRange } from "./goals";
 import { convertToUTC } from "~/utils/datetime";
 import { Goals } from "@prisma/client";
 import { GoalCategories } from "~/pages";
+import { calculateCoins, calculateExp } from "~/utils/goals";
 
 const session = {
   user: {
@@ -162,7 +163,6 @@ afterAll(async () => {
 
 beforeEach(async () => {
   // for loops to prevent weird ordering
-
   // ADD BASIC GOALS
   for (const goal of basic_goals) {
     await caller.goals.addGoal(goal);
@@ -181,6 +181,7 @@ beforeEach(async () => {
 
 afterEach(async () => {
   await caller.goals.clear();
+  await caller.user.resetUserStats();
 });
 
 test("test clear", async () => {
@@ -333,14 +334,13 @@ describe("Test adding goal", () => {
       name: "Test Add",
       difficulty: 1,
       category: category,
-      exp: 10,
     };
     const data = await caller.goals.addGoal(goal);
 
     expect(data?.name).toBe(goal.name);
     expect(data?.difficulty).toBe(goal.difficulty);
     expect(data?.category).toBe(goal.category);
-    expect(data?.points).toBe(goal.exp);
+    expect(data?.points).toBe(2);
     expect(data?.completed).toBe(false);
     expect(data?.created_at).toBeDefined();
     expect(data?.date_completed).toBeNull();
@@ -374,38 +374,73 @@ describe("Test adding goal", () => {
     expect(data?.repeat?.days).toStrictEqual(["Monday", "Friday"]);
     expect(data?.repeat?.last_repeated).toBeNull();
     expect(data?.repeat?.repeat_frequency).toBe(3);
-    expect(data?.repeat?.start_date).toStrictEqual(convertToUTC(new Date(2023, 0, 1)));
+    expect(data?.repeat?.start_date).toStrictEqual(
+      convertToUTC(new Date(2023, 0, 1))
+    );
     expect(data?.repeat?.stop_date).toBeNull();
   });
 
   test("Adding goal with repeat type and due date", async () => {
-    expect(async()=> await caller.goals.addGoal({
-      name: "Test Checklist",
-      difficulty: 1,
-      category: "Physical",
-      repeat_type: "Weekly",
-      due_date: new Date(2023, 1, 1),
-      days_of_week: ["Monday", "Friday"],
-      repeat_freq: 3,
-      start_date: convertToUTC(new Date(2023, 0, 1)),
-    })).rejects.toThrowError("due date")
+    expect(
+      async () =>
+        await caller.goals.addGoal({
+          name: "Test Checklist",
+          difficulty: 1,
+          category: "Physical",
+          repeat_type: "Weekly",
+          due_date: new Date(2023, 1, 1),
+          days_of_week: ["Monday", "Friday"],
+          repeat_freq: 3,
+          start_date: convertToUTC(new Date(2023, 0, 1)),
+        })
+    ).rejects.toThrowError("due date");
   });
 
-    test("Adding goal with start date greater than end", async () => {
-      expect(
-        async () =>
-          await caller.goals.addGoal({
-            name: "Test Checklist",
-            difficulty: 1,
-            category: "Physical",
-            repeat_type: "Weekly",
-            days_of_week: ["Monday", "Friday"],
-            repeat_freq: 3,
-            start_date: convertToUTC(new Date(2023, 0, 1)),
-            end_date: new Date(2020, 0, 1)
-          })
-      ).rejects.toThrowError("start date");
+  test("Adding goal with start date greater than end", async () => {
+    expect(
+      async () =>
+        await caller.goals.addGoal({
+          name: "Test Checklist",
+          difficulty: 1,
+          category: "Physical",
+          repeat_type: "Weekly",
+          days_of_week: ["Monday", "Friday"],
+          repeat_freq: 3,
+          start_date: convertToUTC(new Date(2023, 0, 1)),
+          end_date: new Date(2020, 0, 1),
+        })
+    ).rejects.toThrowError("start date");
+  });
+});
+
+test("Test completing a goal", async () => {
+  const goal = await caller.goals.addGoal({
+    name: "Test Complete",
+    difficulty: 1,
+    category: "Physical",
+  });
+
+  if (goal) {
+    await caller.goals.completeGoal({
+      id: goal.id,
     });
 
+    const data = await caller.goals.getGoalById({
+      id: goal.id,
+    });
 
+    expect(data?.completed).toBe(true);
+    expect(data?.date_completed).toBeDefined();
+
+    const point_data = await caller.user.getCategoryCurrentPoints({
+      category: "Physical",
+    });
+    const exp = calculateExp(1, 0, undefined, false);
+    expect(point_data?.current_points).toBe(exp);
+
+    const gold_data = await caller.user.getUserCoins();
+
+    // account for other complete call
+    expect(gold_data?.coins).toBe(calculateCoins(exp) + 2);
+  }
 });

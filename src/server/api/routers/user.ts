@@ -34,22 +34,21 @@ export const userRouter = createTRPCRouter({
       },
     });
 
-    const subscription = JSON.parse(
-      data?.subscription as string
-    ) as UserSubscription;
+    // const subscription = JSON.parse(
+    //   data?.subscription as string
+    // ) as UserSubscription;
 
-    return subscription.pushSubscription;
+    return data?.subscription;
   }),
-  getUserCoins: protectedProcedure
-  .query(({ctx})=> {
+  getUserCoins: protectedProcedure.query(({ ctx }) => {
     return ctx.prisma.inventory.findUnique({
       where: {
-        user_id: ctx.session.user.id
+        user_id: ctx.session.user.id,
       },
       select: {
-        coins: true
-      }
-    })
+        coins: true,
+      },
+    });
   }),
   getUserStats: protectedProcedure.query(({ ctx }) => {
     return ctx.prisma.user.findUnique({
@@ -62,15 +61,27 @@ export const userRouter = createTRPCRouter({
     });
   }),
   resetUserStats: protectedProcedure.mutation(async ({ ctx }) => {
-    return await ctx.prisma.stats.updateMany({
-      where: {
-        user_id: ctx.session.user.id,
-      },
-      data: {
-        current_points: 0,
-        total_points: 0,
-        level: 1,
-      },
+    return ctx.prisma.$transaction(async (tx) => {
+      await ctx.prisma.stats.updateMany({
+        where: {
+          user_id: ctx.session.user.id,
+        },
+        data: {
+          current_points: 0,
+          total_points: 0,
+          level: 1,
+        },
+      });
+      await ctx.prisma.levelData.deleteMany({
+        where: {
+          user_id: ctx.session.user.id,
+        },
+      });
+      await ctx.prisma.pointsData.deleteMany({
+        where: {
+          user_id: ctx.session.user.id,
+        },
+      });
     });
   }),
   getCategoryLevel: protectedProcedure
@@ -148,19 +159,19 @@ export const userRouter = createTRPCRouter({
         return points_added;
       });
     }),
-    addCoins: protectedProcedure
-    .input(z.object({coins: z.number()}))
-    .mutation(({ctx, input})=> {
+  addCoins: protectedProcedure
+    .input(z.object({ coins: z.number() }))
+    .mutation(({ ctx, input }) => {
       return ctx.prisma.inventory.update({
         where: {
-          user_id: ctx.session.user.id
+          user_id: ctx.session.user.id,
         },
         data: {
           coins: {
-            increment: input.coins
-          }
-        }
-      })
+            increment: input.coins,
+          },
+        },
+      });
     }),
   saveSubscription: protectedProcedure
     .input(z.object({ json: z.any() }))
@@ -229,10 +240,16 @@ export const userRouter = createTRPCRouter({
         },
         inventory: {
           create: {
-            coins: 0
-          }
-        }
+            coins: 0,
+          },
+        },
       },
+      include: {
+        stats: true,
+        level_data: true,
+        points_data: true,
+        inventory: true
+      }
     });
 
     return new_user;

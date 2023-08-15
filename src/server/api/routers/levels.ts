@@ -63,6 +63,7 @@ async function handleLevelUp(
         current_points: overflow,
       },
     });
+    console.log(new_level)
     await tx.levelData.create({
       data: {
         //@ts-ignore
@@ -73,9 +74,19 @@ async function handleLevelUp(
       },
     });
 
-    // update, if doesn't exist just catch and ignore error
-    await tx.rewards
-      .update({
+    const rewards = await tx.rewards.findUnique({
+      where: {
+        user_id_level_category: {
+          //@ts-ignore
+          user_id: session.user.id,
+          level: new_level.level,
+          category: category,
+        },
+      },
+    });
+
+    if (rewards) {
+      await tx.rewards.update({
         where: {
           user_id_level_category: {
             //@ts-ignore
@@ -87,8 +98,8 @@ async function handleLevelUp(
         data: {
           achieved_at: today,
         },
-      })
-      .catch((err) => console.log(err));
+      });
+    }
 
     return new_level;
   });
@@ -117,17 +128,18 @@ export const levelRouter = createTRPCRouter({
           input.category
         );
 
+
         let level_up = false;
         let level = undefined;
 
         if (current_points && max_points) {
-          while (current_points <= max_points) {
+          while (current_points >= max_points) {
             level_up = true;
             level = await handleLevelUp(
               ctx.prisma,
               ctx.session,
               input.category,
-              max_points - current_points
+              current_points - max_points
             );
             current_points = current_points - max_points;
             ({ max_points } = await fetchPointData(
@@ -140,25 +152,29 @@ export const levelRouter = createTRPCRouter({
 
         return {
           level_up: level_up,
-          new_level: level
-        }
+          new_level: level,
+        };
       });
     }),
   createLevel: protectedProcedure
-    .input(z.object({ level: z.number() }))
+    .input(z.object({ level: z.number(), points: z.number() }))
     .mutation(({ ctx, input }) => {
       return ctx.prisma.levels.create({
         data: {
           number: input.level,
-          points: 20,
+          points: input.points,
         },
       });
     }),
   createLevels: protectedProcedure
     .input(z.object({ levels: z.array(level_data) }))
     .mutation(({ ctx, input }) => {
+      console.log(input);
       return ctx.prisma.levels.createMany({
         data: input.levels,
       });
     }),
+  deleteAllLevels: protectedProcedure.mutation(async ({ ctx }) => {
+    await ctx.prisma.levels.deleteMany();
+  }),
 });

@@ -274,7 +274,7 @@ export const goalsRouter = createTRPCRouter({
           },
         });
 
-        const gold_added = calculateCoins(goal.points) * goal.gold_multiplier
+        const gold_added = Math.floor(calculateCoins(goal.points) * goal.gold_multiplier)
         // add gold
         await tx.inventory.update({
           where: {
@@ -286,7 +286,7 @@ export const goalsRouter = createTRPCRouter({
             },
           },
         });
-        const points_added = goal.points * goal.exp_multiplier;
+        const points_added = Math.floor(goal.points * goal.exp_multiplier);
         // add points
         await tx.stats.update({
           where: {
@@ -305,7 +305,7 @@ export const goalsRouter = createTRPCRouter({
           },
         });
 
-        
+
 
         return {
           goal: goal,
