@@ -230,6 +230,7 @@ model UserAchievement {
 model User {
     id            String    @id @default(cuid())
     name          String?
+    created_at    DateTime  @default(now())
     email         String?   @unique
     emailVerified DateTime?
     image         String?

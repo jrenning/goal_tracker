@@ -2,9 +2,12 @@ import { getServerSession } from 'next-auth'
 import { signOut, useSession } from 'next-auth/react'
 import React from 'react'
 import { authOptions } from './api/auth/[...nextauth]';
+import { api } from '~/utils/api';
 
 function profile() {
     const {data} = useSession()
+
+    const info = api.user.getUserProfileInfo.useQuery().data
 
 
   return (
@@ -22,12 +25,12 @@ function profile() {
         {data?.user?.name}
       </h1>
       <div>{data?.user?.email}</div>
-      <div className="mt-4 grid w-full grid-cols-2 gap-4 font-semibold">
-        <div>Account created: </div>
-        <div>Goals completed: </div>
-        <div>Levels gained: </div>
-        <div>Best category: </div>
-        <div>Fastest growing category: </div>
+      <div className="mt-4 grid w-full md:grid-cols-2 gap-4 font-semibold">
+        <div>Account created: {info?.account_created?.toDateString()}</div>
+        <div>Goals completed: {info?.goals_completed}</div>
+        <div>Goals created: {info?.goals_created}</div>
+        <div>Points gained: {info?.points_gained.total_points}</div>
+        <div>Best category: {info?.best_category?.category}</div>
       </div>
     </div>
   );

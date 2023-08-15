@@ -41,7 +41,7 @@ function Item({ name, cost, id }: ItemProps) {
 
   return (
     <div
-      className="relative flex flex-col w-[12rem] h-[8rem] items-center justify-center space-y-4 rounded-md bg-slate-100 p-4"
+      className="relative flex shadow-lg border-black border-2 border-double flex-col h-full items-center justify-center space-y-4 rounded-md bg-slate-100 p-4"
       onClick={() => setClicked(!clicked)}
     >
       <div className="text-lg font-semibold">{shortenName(name, 20)}</div>
@@ -51,11 +51,11 @@ function Item({ name, cost, id }: ItemProps) {
       </div>
       {clicked ? (
         <div className="absolute bottom-[50%] flex translate-y-[50%] space-x-2 flex-row">
-          <div className=" rounded-md bg-green-300 px-2 py-1  shadow-lg"
+          <div className=" rounded-md text-sm font-semibold bg-green-300 px-2 py-1  shadow-lg"
           onClick={()=> buyItem()}>
             Buy Item
           </div>
-          <div className=" rounded-md bg-red-300 px-2 py-1  shadow-lg">
+          <div className=" rounded-md text-sm font-semibold bg-red-300 px-2 py-1  shadow-lg">
             Delete
           </div>
         </div>

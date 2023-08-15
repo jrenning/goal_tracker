@@ -60,6 +60,58 @@ export const userRouter = createTRPCRouter({
       },
     });
   }),
+  getUserProfileInfo: protectedProcedure.query(async ({ ctx }) => {
+    const user = await ctx.prisma.user.findUnique({
+      where: {
+        id: ctx.session.user.id,
+      },
+      select: {
+        created_at: true,
+      },
+    });
+
+    const goals_completed = await ctx.prisma.goals.count({
+      where: {
+        user_id: ctx.session.user.id,
+        completed: true,
+      },
+    });
+
+    const goals_created = await ctx.prisma.goals.count({
+      where: {
+        user_id: ctx.session.user.id,
+      },
+    });
+
+    const points_gained = await ctx.prisma.stats.aggregate({
+      where: {
+        user_id: ctx.session.user.id,
+      },
+      _sum: {
+        total_points: true
+      }
+    });
+
+    const best_category = await ctx.prisma.stats.findFirst({
+      where: {
+        user_id: ctx.session.user.id
+      },
+      orderBy: {
+        total_points: "desc"
+      },
+      select: {
+        category: true
+      }
+    })
+
+    return {
+      account_created: user?.created_at,
+      goals_completed: goals_completed,
+      goals_created: goals_created,
+      points_gained: points_gained._sum,
+      best_category: best_category
+    };
+  }),
   resetUserStats: protectedProcedure.mutation(async ({ ctx }) => {
     return ctx.prisma.$transaction(async (tx) => {
       await ctx.prisma.stats.updateMany({
@@ -248,8 +300,8 @@ export const userRouter = createTRPCRouter({
         stats: true,
         level_data: true,
         points_data: true,
-        inventory: true
-      }
+        inventory: true,
+      },
     });
 
     return new_user;

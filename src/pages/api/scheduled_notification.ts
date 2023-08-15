@@ -14,7 +14,7 @@ type UserSubscriptionParsed = {
 };
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
-  const sendNotification = async (subscription: UserSubscriptionParsed) => {
+  const sendNotification = async (subscription: any) => {
     if (subscription == null) {
       throw new Error("The subscription was null");
     }
@@ -24,7 +24,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(subscription),
+      body: subscription,
     });
 
     res.send(result);
