@@ -19,7 +19,7 @@ export type Checklist = {
 type Props = {
   name: string;
   points: number;
-  coins?: number
+  coins?: number;
   difficulty: number;
   due_date: Date | null;
   id: number;
@@ -48,61 +48,31 @@ function Goal({
 
   const { levelUpModal, goalModal } = useModal();
 
-  const user_level_query = api.user.getCategoryLevel.useQuery({
-    category: category,
-  });
-
-  const level = user_level_query.data?.level;
-
-  const current_points_query = api.user.getCategoryCurrentPoints.useQuery({
-    category: category,
-  });
-
-  const level_query = api.levels.getLevel.useQuery({
-    level: level ? level : 1,
-  });
-
-  const reward_query = api.rewards.getLevelRewards.useQuery({
-    level: level ? level : 1,
-    category: category,
-  });
+  const reward_query = api.rewards.getLevelRewards.useMutation();
 
   const completeGoalAction = async () => {
     // create level if one doesn't exist
-    if (level_query.isError) {
-      await createLevel.mutateAsync({ level: level ? level + 1 : 1 });
-    }
+    // if (level_query.isError) {
+    //   await createLevel.mutateAsync({ level: level ? level + 1 : 1 });
+    // }
 
     await completeGoal.mutateAsync({ id: id });
 
-    // get new point total
-    let current_points = (await current_points_query.refetch()).data
-      ?.current_points;
-    let max_points = (await level_query.refetch()).data?.points;
-    let level_up = false;
-    if (max_points && current_points) {
-      while (max_points && current_points >= max_points) {
-        level_up = true;
-        const level = await gainLevel.mutateAsync({
-          category: category,
-          overflow: current_points - max_points,
-        });
-        current_points = current_points - max_points;
-        max_points = (await level_query.refetch()).data?.points;
-      }
-      if (level_up) {
-        // refetch to get level
-        const level = (await user_level_query.refetch()).data?.level;
-        const data = (await reward_query.refetch()).data;
-        const rewards = data?.rewards;
-        const categories = data?.reward_category;
-        levelUpModal({
-          level: level ? level : 1,
-          rewards: rewards,
-          categories: categories,
-          goal_category: category,
-        });
-      }
+    const { level_up, new_level } = await gainLevel.mutateAsync({
+      category: category,
+    });
+
+    if (level_up && new_level) {
+      const data = await reward_query.mutateAsync({
+        category: category,
+        level: new_level.level,
+      });
+      levelUpModal({
+        level: new_level.level,
+        rewards: data?.rewards,
+        categories: data?.reward_category,
+        goal_category: data?.category,
+      });
     }
   };
 

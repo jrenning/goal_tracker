@@ -17,7 +17,7 @@ function useDataActions() {
   });
 
 
-  const gain_level_call = api.user.gainLevel.useMutation({
+  const gain_level_call = api.levels.gainLevel.useMutation({
     async onSuccess(data) {
       await utils.user.invalidate();
       await utils.levels.invalidate();

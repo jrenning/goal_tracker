@@ -162,54 +162,6 @@ export const userRouter = createTRPCRouter({
         }
       })
     }),
-  gainLevel: protectedProcedure
-    .input(z.object({ overflow: z.number(), category: goal_categories }))
-    .mutation(async ({ ctx, input }) => {
-      const today = new Date();
-
-      return await ctx.prisma.$transaction(async (tx) => {
-        const new_level = await tx.stats.update({
-          where: {
-            user_id_category: {
-              user_id: ctx.session.user.id,
-              category: input.category,
-            },
-          },
-          data: {
-            level: {
-              increment: 1,
-            },
-            current_points: input.overflow,
-          },
-        });
-        await tx.levelData.create({
-          data: {
-            user_id: ctx.session.user.id,
-            level: new_level.level,
-            date: today,
-            category: input.category,
-          },
-        });
-
-        // update, if doesn't exist just catch and ignore error
-        await tx.rewards
-          .update({
-            where: {
-              user_id_level_category: {
-                user_id: ctx.session.user.id,
-                level: new_level.level,
-                category: input.category,
-              },
-            },
-            data: {
-              achieved_at: today,
-            },
-          })
-          .catch((err) => console.log(err));
-
-        return new_level;
-      });
-    }),
   saveSubscription: protectedProcedure
     .input(z.object({ json: z.any() }))
     .mutation(async ({ ctx, input }) => {

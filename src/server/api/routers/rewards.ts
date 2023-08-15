@@ -8,7 +8,7 @@ export const reward_categories = z.enum(["Outdoors", "Gift", "Leisure", "Experie
 export const rewardsRouter = createTRPCRouter({
   getLevelRewards: protectedProcedure
     .input(z.object({ level: z.number(), category: goal_categories,  }))
-    .query(({ ctx, input }) => {
+    .mutation(({ ctx, input }) => {
       return ctx.prisma.rewards.findUnique({
         where: {
           user_id_level_category: {

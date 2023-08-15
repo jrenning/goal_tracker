@@ -62,11 +62,11 @@ function useModal() {
 
 
       interface LevelUpModalProps extends LevelUpProps {
-        goal_category: GoalCategories
+        goal_category: GoalCategories | undefined
       }
 
     const levelUpModal = ({level, rewards, categories, goal_category}: LevelUpModalProps) => {
-        const color = colors[goal_category];
+        const color = goal_category ? colors[goal_category] : "#ADD8E6";
         setModal &&
           setModal({
             title: "Congrats, you leveled up!",
