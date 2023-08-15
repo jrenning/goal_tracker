@@ -18,16 +18,16 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     if (subscription == null) {
       throw new Error("The subscription was null");
     }
-
     const result = await fetch("http://localhost:3000/api/notification", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: subscription,
+      //@ts-ignore
+      body: JSON.stringify(subscription.pushSubscription),
     });
 
-    res.send(result);
+
 
     return result;
   };
@@ -49,4 +49,6 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   //       res.write({ message: "Failed", result: result, err: err });
   //     });
   const send = await sendNotification(result);
+
+  res.send(send)
 };
