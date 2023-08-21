@@ -90,7 +90,7 @@ model ShopItem {
     created_at DateTime @default(now())
     expire_at DateTime?
     bought Boolean
-    repeat ShopRepeatData[]
+    repeat ShopRepeatData?
 
 }
 

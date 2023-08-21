@@ -1,4 +1,4 @@
-import { GoalsWithRepeat } from "~/server/api/routers/goals";
+import { GoalsWithRepeat, ShopItemsWithRepeat } from "~/server/api/routers/goals";
 import {
   MonthlyInRange,
   YearlyInRange,
@@ -10,8 +10,20 @@ import {
 } from "./datetime";
 import { DaysOfWeek, RepeatType } from "~/pages";
 
-export function filterGoalsInRange(
-  goals: GoalsWithRepeat,
+// interface Repeat  {
+//   repeat: RepeatData | null
+// }
+
+// interface RepeatData  {
+//   start_date: Date
+//   stop_date: Date
+//   type: RepeatType
+//   repeat_frequency: number
+//   days: DaysOfWeek[]
+// }
+
+export function filterItemsInRange(
+  items: GoalsWithRepeat | ShopItemsWithRepeat,
   start: Date,
   end: Date
 ) {
@@ -26,42 +38,43 @@ export function filterGoalsInRange(
   };
   let range_start;
   let range_end;
-  const filtered_goals: GoalsWithRepeat = [];
-  goals.forEach((goal) => {
-    // know that in this range the goal COULD repeat, ie goal doesn't stop in range
-    if (goal.repeat) {
+  const filtered_items: typeof items | any = [];
+  items.forEach((item) => {
+    // know that in this range the item COULD repeat, ie item doesn't stop in range
+    if (item.repeat) {
       range_start =
-        start < goal.repeat.start_date ? goal.repeat.start_date : start;
-      if (goal.repeat.stop_date) {
-        range_end = end < goal.repeat.stop_date ? end : goal.repeat.stop_date;
+        start < item.repeat.start_date ? item.repeat.start_date : start;
+      if (item.repeat.stop_date) {
+        range_end = end < item.repeat.stop_date ? end : item.repeat.stop_date;
       } else {
         range_end = end;
       }
 
+
       let distance;
       let end_distance;
-      let type = goal.repeat.type;
+      let type = item.repeat.type;
       if (type == "Daily") {
-        distance = getDaysBetweenDates(goal.repeat.start_date, start);
-        end_distance = getDaysBetweenDates(goal.repeat.start_date, end);
-        if (goal.repeat.start_date.getTime() == start.getTime()) {
-          filtered_goals.push(goal);
+        distance = getDaysBetweenDates(item.repeat.start_date, start);
+        end_distance = getDaysBetweenDates(item.repeat.start_date, end);
+        if (item.repeat.start_date.getTime() == start.getTime()) {
+          filtered_items.push(item);
         } else if (
-          isRepeatInRange(distance, end_distance, goal.repeat.repeat_frequency)
+          isRepeatInRange(distance, end_distance, item.repeat.repeat_frequency)
         ) {
-          filtered_goals.push(goal);
+          filtered_items.push(item);
         }
       } else if (type == "Weekly") {
-        distance = getWeeksBetweenDates(goal.repeat.start_date, start);
-        end_distance = getWeeksBetweenDates(goal.repeat.start_date, end);
+        distance = getWeeksBetweenDates(item.repeat.start_date, start);
+        end_distance = getWeeksBetweenDates(item.repeat.start_date, end);
 
         let days_included: number[] = [];
 
         // only include days of week in the weeks that are valid for the repeat type
         // if start week is valid but end is not set new end date to end of start week to get days included
         if (
-          distance % goal.repeat.repeat_frequency == 0 &&
-          !(end_distance % goal.repeat.repeat_frequency == 0)
+          distance % item.repeat.repeat_frequency == 0 &&
+          !(end_distance % item.repeat.repeat_frequency == 0)
         ) {
           const temp_start = new Date(
             range_start.getFullYear(),
@@ -73,8 +86,8 @@ export function filterGoalsInRange(
           );
           days_included = getDaysInRange(range_start, range_end);
         } else if (
-          end_distance % goal.repeat.repeat_frequency == 0 &&
-          !(distance % goal.repeat.repeat_frequency == 0)
+          end_distance % item.repeat.repeat_frequency == 0 &&
+          !(distance % item.repeat.repeat_frequency == 0)
         ) {
           const temp_end = new Date(
             range_end.getFullYear(),
@@ -86,64 +99,64 @@ export function filterGoalsInRange(
           );
           days_included = getDaysInRange(range_start, range_end);
         } else if (
-          end_distance % goal.repeat.repeat_frequency == 0 &&
-          distance % goal.repeat.repeat_frequency == 0
+          end_distance % item.repeat.repeat_frequency == 0 &&
+          distance % item.repeat.repeat_frequency == 0
         ) {
           days_included = getDaysInRange(range_start, range_end);
         } else {
           // if there is a valid week in between it will have all of the days
           if (
-            (end_distance - distance) % goal.repeat.repeat_frequency == 0 &&
+            (end_distance - distance) % item.repeat.repeat_frequency == 0 &&
             end_distance - distance !== 0
           ) {
             days_included = [0, 1, 2, 3, 4, 5, 6];
           }
         }
 
-        const days_in_goal = goal.repeat.days.map((day) => day_map[day]);
+        const days_in_item = item.repeat.days.map((day) => day_map[day]);
 
         // if they share days in common you're good
-        if (days_included.some((r) => days_in_goal.indexOf(r) >= 0)) {
-          filtered_goals.push(goal);
+        if (days_included.some((r) => days_in_item.indexOf(r) >= 0)) {
+          filtered_items.push(item);
         }
       } else if (type == "Monthly") {
-        distance = getMonthsBetweenDates(goal.repeat.start_date, start);
-        end_distance = getMonthsBetweenDates(goal.repeat.start_date, end);
-        if (goal.repeat.start_date.getTime() == start.getTime()) {
-          filtered_goals.push(goal);
+        distance = getMonthsBetweenDates(item.repeat.start_date, start);
+        end_distance = getMonthsBetweenDates(item.repeat.start_date, end);
+        if (item.repeat.start_date.getTime() == start.getTime()) {
+          filtered_items.push(item);
         } else if (
           MonthlyInRange(
             range_start,
             distance,
             range_end,
             end_distance,
-            goal.repeat.repeat_frequency,
-            goal.repeat.start_date
+            item.repeat.repeat_frequency,
+            item.repeat.start_date
           )
         ) {
-          filtered_goals.push(goal);
+          filtered_items.push(item);
         }
       } else {
-        distance = start.getFullYear() - goal.repeat.start_date.getFullYear();
-        end_distance = end.getFullYear() - goal.repeat.start_date.getFullYear();
-        if (goal.repeat.start_date.getTime() == start.getTime()) {
-          filtered_goals.push(goal);
+        distance = start.getFullYear() - item.repeat.start_date.getFullYear();
+        end_distance = end.getFullYear() - item.repeat.start_date.getFullYear();
+        if (item.repeat.start_date.getTime() == start.getTime()) {
+          filtered_items.push(item);
         } else if (
           YearlyInRange(
             range_start,
             distance,
             range_end,
             end_distance,
-            goal.repeat.repeat_frequency,
-            goal.repeat.start_date
+            item.repeat.repeat_frequency,
+            item.repeat.start_date
           )
         ) {
-          filtered_goals.push(goal);
+          filtered_items.push(item);
         }
       }
     }
   });
-  return filtered_goals;
+  return filtered_items;
 }
 
 export function getRepeatTypeString(
@@ -208,7 +221,7 @@ export function calculateExp(
     exp -= 2;
   }
 
-  return exp;
+  return exp == 0 ? 1 : exp;
 }
 
 export function calculateCoins(exp: number) {

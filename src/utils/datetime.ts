@@ -38,7 +38,7 @@ export function getDaysInRange(start: Date, end: Date) {
 }
 
 export function getDaysBetweenDates(start: Date, end: Date) {
-  return (end.getTime() - start.getTime()) / (1000 * 24 * 3600);
+  return Math.floor((end.getTime() - start.getTime()) / (1000 * 24 * 3600));
 }
 
 export function getWeeksBetweenDates(start: Date, end: Date) {

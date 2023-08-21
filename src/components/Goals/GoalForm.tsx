@@ -238,7 +238,7 @@ type RepeatFormProps = {
   repeating: boolean;
 };
 
-function RepeatForm({ repeating }: RepeatFormProps) {
+export function RepeatForm({ repeating }: RepeatFormProps) {
   const [weekly, setWeekly] = useState(false);
   const days = [
     "Sunday",
@@ -272,11 +272,11 @@ function RepeatForm({ repeating }: RepeatFormProps) {
         <option>Yearly</option>
       </select>
       {weekly ? (
-        <div className="mt-8 flex w-full">
+        <div className="mt-8 flex">
           <select
             id="days"
             multiple={true}
-            className="mx-10 mt-4 w-full items-center justify-center text-center"
+            className="mx-4 mt-4 w-full items-center justify-center text-center"
           >
             {days.map((day, index) => (
               <DaySelect day={day} key={day} />
@@ -286,10 +286,10 @@ function RepeatForm({ repeating }: RepeatFormProps) {
       ) : (
         ""
       )}
-      <div className="flex flex-row space-x-4">
+      <div className="flex flex-col justify-center items-center">
         <label htmlFor="repeat_freq">Repeat every: </label>
-        <input type="number" id="repeat_freq" placeholder="1"></input>
-        </div>
+        <input type="number" id="repeat_freq" className="text-center" placeholder="1" />
+      </div>
       <label htmlFor="start_date">Start Date</label>
       <input
         type="date"

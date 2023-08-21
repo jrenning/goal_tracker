@@ -17,7 +17,7 @@ import AddContentButton from "~/components/AddContent/AddContentButton";
 import { isMobile } from "~/utils/device";
 import PageTransitionLayout from "~/components/Transitions/PageTransitionLayout";
 import { GetServerSideProps, NextApiRequest, NextApiResponse } from "next";
-import { updateRepeatingGoals } from "~/utils/update";
+import { updateRepeatingGoals, updateRepeatingShopItems } from "~/utils/update";
 import usePopup from "~/hooks/usePopup";
 import { useRouter } from "next/router";
 import useModal from "~/hooks/useModal";
@@ -104,6 +104,7 @@ export async function getServerSideProps(context) {
 
   // add repeating goals 
   await updateRepeatingGoals(session)
+  await updateRepeatingShopItems(session)
 
   return {
     props: {
@@ -112,9 +113,3 @@ export async function getServerSideProps(context) {
   }
 }
 
-// export const getStaticProps: GetServerSideProps = async () => {
-//   const result = await updateRepeatingGoals();
-//   console.log(result);
-//   const DAY_IN_SECONDS = 60 * 60 * 24;
-//   return { props: {}, revalidate: DAY_IN_SECONDS };
-// };

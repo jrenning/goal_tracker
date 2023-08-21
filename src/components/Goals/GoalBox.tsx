@@ -23,8 +23,8 @@ function GoalBox({ disabled }: GoalBoxProps) {
           goals.data.map((goal, _) => (
             <Goal
               name={goal.name}
-              points={goal.points*goal.exp_multiplier}
-              coins={calculateCoins(goal.points)*goal.gold_multiplier}
+              points={Math.floor(goal.points*goal.exp_multiplier)}
+              coins={Math.floor(calculateCoins(goal.points)*goal.gold_multiplier)}
               difficulty={goal.difficulty}
               due_date={goal.due_date}
               category={goal.category}

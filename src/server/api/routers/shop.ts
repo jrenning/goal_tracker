@@ -2,8 +2,72 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { days_of_week, goal_categories, repeat_type } from "./goals";
 import { TRPCError } from "@trpc/server";
+import { Session } from "next-auth";
+import { PrismaClient } from "@prisma/client";
+import { filterItemsInRange } from "~/utils/goals";
+
+export async function getShopItemsInRange(
+  prisma: PrismaClient,
+  session: Session,
+  start: Date,
+  end: Date
+) {
+  const shop_in_range = await prisma.shopItem.findMany({
+    where: {
+      //@ts-ignore
+      user_id: session.user.id,
+      repeat: {
+        start_date: {
+          lte: end,
+        },
+      },
+      OR: [
+        {
+          repeat: {
+            stop_date: {
+              gte: start,
+            },
+          },
+        },
+        {
+          repeat: {
+            stop_date: null,
+          },
+        },
+      ],
+    },
+    include: {
+      repeat: true,
+    },
+  });
+
+  return shop_in_range;
+}
+
+export async function getRepeatingShopItemsInRange(
+  prisma: PrismaClient,
+  session: Session,
+  start: Date,
+  end: Date
+) {
+  const items_in_range = await getShopItemsInRange(prisma, session, start, end);
+
+
+  const filtered_goals = filterItemsInRange(items_in_range, start, end);
+
+
+  return filtered_goals;
+}
 
 export const shopRouter = createTRPCRouter({
+  clear: protectedProcedure
+  .mutation(({ctx, input})=> {
+    return ctx.prisma.shopItem.deleteMany({
+      where: {
+        user_id: ctx.session.user.id
+      }
+    })
+  }),
   getShopItems: protectedProcedure.query(({ ctx, input }) => {
     const today = new Date();
     return ctx.prisma.shopItem.findMany({
@@ -15,6 +79,11 @@ export const shopRouter = createTRPCRouter({
         // },
       },
     });
+  }),
+  getRepeatingItemsByDate: protectedProcedure
+  .input(z.object({date: z.date()}))
+  .query(({ctx, input})=> {
+    return getRepeatingShopItemsInRange(ctx.prisma, ctx.session, input.date, input.date)
   }),
   createShopItem: protectedProcedure
     .input(
@@ -95,16 +164,16 @@ export const shopRouter = createTRPCRouter({
 
             await tx.inventory.update({
               where: {
-                user_id: ctx.session.user.id
+                user_id: ctx.session.user.id,
               },
               data: {
                 coins: {
-                  decrement: item.cost
-                }
-              }
-            })
+                  decrement: item.cost,
+                },
+              },
+            });
 
-            return item
+            return item;
           }
         }
       });

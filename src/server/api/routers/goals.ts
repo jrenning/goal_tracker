@@ -6,9 +6,10 @@ import { Goals, Prisma, PrismaClient, RepeatData } from "@prisma/client";
 import {
   calculateCoins,
   calculateExp,
-  filterGoalsInRange,
+  filterItemsInRange,
   generateMultiplier,
 } from "~/utils/goals";
+import { getShopItemsInRange } from "./shop";
 
 export const goal_categories = z.enum([
   "Physical",
@@ -80,11 +81,12 @@ export async function getRepeatingGoalsInRange(
 ) {
   const goals_in_range = await getGoalsInRange(prisma, session, start, end);
 
-  const filtered_goals = filterGoalsInRange(goals_in_range, start, end);
+  const filtered_goals = filterItemsInRange(goals_in_range, start, end);
 
   return filtered_goals;
 }
 
+export type ShopItemsWithRepeat = Prisma.PromiseReturnType<typeof getShopItemsInRange>
 export type GoalsWithRepeat = Prisma.PromiseReturnType<typeof getGoalsInRange>;
 
 export const goalsRouter = createTRPCRouter({
@@ -234,6 +236,14 @@ export const goalsRouter = createTRPCRouter({
       },
     });
     return goals;
+  }),
+  getAllGoals: protectedProcedure
+  .query(({ctx})=> {
+    return ctx.prisma.goals.findMany({
+      where: {
+        user_id: ctx.session.user.id
+      }
+    })
   }),
   getGoalsByCategory: protectedProcedure
     .input(z.object({ category: goal_categories }))
