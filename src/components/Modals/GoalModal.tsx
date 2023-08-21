@@ -38,7 +38,7 @@ function GoalModal({id}: GoalModalProps) {
 
 
   return (
-    <div className="mt-4 grid w-full grid-cols-2 items-center justify-center gap-4 rounded-md bg-slate-100 p-8 shadow-md">
+    <div className="mt-4 grid w-full h-[20rem] overflow-y-scroll grid-cols-2 items-start justify-center gap-4 rounded-md bg-slate-100 p-8 shadow-md">
       <div className="flex flex-col space-y-8">
         <Pill backgroundColor="#eeeeee">
           <div className="w-full text-lg font-semibold">
