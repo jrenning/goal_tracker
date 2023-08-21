@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import React, { useContext } from "react";
 import { ThemeContext } from "~/utils/theme";
 import { useLoaded } from "../../hooks/useLoaded";
-import { filterGoalsInRange } from "~/utils/goals";
+import { filterItemsInRange } from "~/utils/goals";
 
 type DayProps = {
   day: number;
@@ -19,7 +19,7 @@ function Day({ day, month, year, goal_data, due_date_data }: DayProps) {
   const date = new Date(year, month, day);
   const today = new Date();
   const due_dates = due_date_data.filter((due_date)=> due_date.due_date.toDateString() == date.toDateString())
-  const goal_number = filterGoalsInRange(goal_data, date, date).length + due_dates.length
+  const goal_number = filterItemsInRange(goal_data, date, date).length + due_dates.length
 
   const openDay = () => {
     router.push(`/repeats/${year}-${month + 1}-${day}`);
