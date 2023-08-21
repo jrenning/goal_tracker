@@ -199,7 +199,7 @@ export const userRouter = createTRPCRouter({
           },
         });
 
-        await ctx.prisma.pointsData.create({
+        await tx.pointsData.create({
           data: {
             user_id: ctx.session.user.id,
             points: points_added.total_points,

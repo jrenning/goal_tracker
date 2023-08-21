@@ -63,7 +63,6 @@ async function handleLevelUp(
         current_points: overflow,
       },
     });
-    console.log(new_level)
     await tx.levelData.create({
       data: {
         //@ts-ignore

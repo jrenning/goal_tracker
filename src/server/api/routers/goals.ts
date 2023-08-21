@@ -86,7 +86,9 @@ export async function getRepeatingGoalsInRange(
   return filtered_goals;
 }
 
-export type ShopItemsWithRepeat = Prisma.PromiseReturnType<typeof getShopItemsInRange>
+export type ShopItemsWithRepeat = Prisma.PromiseReturnType<
+  typeof getShopItemsInRange
+>;
 export type GoalsWithRepeat = Prisma.PromiseReturnType<typeof getGoalsInRange>;
 
 export const goalsRouter = createTRPCRouter({
@@ -237,13 +239,12 @@ export const goalsRouter = createTRPCRouter({
     });
     return goals;
   }),
-  getAllGoals: protectedProcedure
-  .query(({ctx})=> {
+  getAllGoals: protectedProcedure.query(({ ctx }) => {
     return ctx.prisma.goals.findMany({
       where: {
-        user_id: ctx.session.user.id
-      }
-    })
+        user_id: ctx.session.user.id,
+      },
+    });
   }),
   getGoalsByCategory: protectedProcedure
     .input(z.object({ category: goal_categories }))
@@ -284,7 +285,9 @@ export const goalsRouter = createTRPCRouter({
           },
         });
 
-        const gold_added = Math.floor(calculateCoins(goal.points) * goal.gold_multiplier)
+        const gold_added = Math.floor(
+          calculateCoins(goal.points) * goal.gold_multiplier
+        );
         // add gold
         await tx.inventory.update({
           where: {
@@ -298,7 +301,7 @@ export const goalsRouter = createTRPCRouter({
         });
         const points_added = Math.floor(goal.points * goal.exp_multiplier);
         // add points
-        await tx.stats.update({
+        const updated_points = await tx.stats.update({
           where: {
             user_id_category: {
               user_id: ctx.session.user.id,
@@ -315,7 +318,14 @@ export const goalsRouter = createTRPCRouter({
           },
         });
 
-
+        await tx.pointsData.create({
+          data: {
+            user_id: ctx.session.user.id,
+            points: updated_points.total_points,
+            date: today,
+            category: goal.category,
+          },
+        });
 
         return {
           goal: goal,
@@ -323,8 +333,6 @@ export const goalsRouter = createTRPCRouter({
           gold_added: gold_added,
         };
       });
-
-      
     }),
   completeGoalChecklistItem: protectedProcedure
     .input(z.object({ id: z.number() }))
