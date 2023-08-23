@@ -263,7 +263,7 @@ export function RepeatForm({ repeating }: RepeatFormProps) {
         id="type"
         required={repeating}
         onChange={(e) => {
-          e.target.value == "Daily" ? setWeekly(true) : setWeekly(false);
+          e.target.value == "Weekly" ? setWeekly(true) : setWeekly(false);
         }}
       >
         <option>Daily</option>

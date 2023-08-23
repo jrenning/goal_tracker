@@ -442,5 +442,7 @@ test("Test completing a goal", async () => {
 
     // account for other complete call
     expect(gold_data?.coins).toBe(calculateCoins(exp) + 2);
+
+    // TODO add check for point data addition
   }
 });
