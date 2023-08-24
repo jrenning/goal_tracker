@@ -1,7 +1,6 @@
 import Head from "next/head";
 import { useEffect } from "react";
 import GoalBox from "~/components/Goals/GoalBox";
-import Title from "~/components/UI/Title";
 import { api } from "~/utils/api";
 
 import React from "react";
@@ -25,12 +24,17 @@ import { useSession } from "next-auth/react";
 import { getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]";
 import { Session } from "next-auth";
+import { rarities } from "~/server/api/routers/shop";
 import CreateLevels from "~/components/UI/Utility/CreateLevels";
 
 export type GoalCategories = z.infer<typeof goal_categories>;
 export type RewardCategories = z.infer<typeof reward_categories>;
 export type DaysOfWeek = z.infer<typeof days_of_week>;
 export type RepeatType = z.infer<typeof repeat_type>;
+export type Rarities = z.infer<typeof rarities>;
+
+
+
 
 export default function Home() {
   const { data: session, status } = useSession();

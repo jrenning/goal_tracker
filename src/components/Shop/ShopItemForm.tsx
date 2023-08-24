@@ -4,8 +4,9 @@ import { api } from "~/utils/api";
 import usePopup from "~/hooks/usePopup";
 import SubmitButton from "../UI/SubmitButton";
 import { RepeatForm } from "../Goals/GoalForm";
-import { DaysOfWeek, RepeatType } from "~/pages";
+import { DaysOfWeek, Rarities, RepeatType, RewardCategories } from "~/pages";
 import { convertToUTC } from "~/utils/datetime";
+import { useRouter } from "next/router";
 
 type ShopFormProps = {
   backlink: string;
@@ -15,6 +16,7 @@ function ShopItemForm({ backlink }: ShopFormProps) {
   const utils = api.useContext();
   const { setErrorPopup, setSuccessPopup } = usePopup();
   const [repeating, setRepeating] = useState(false);
+  const router = useRouter()
 
   const shop_item = api.shop.createShopItem.useMutation({
     async onSuccess(data) {
@@ -30,7 +32,8 @@ function ShopItemForm({ backlink }: ShopFormProps) {
     e.preventDefault();
     const target = e.target as typeof e.target & {
       name: { value: string };
-      cost: { value: string };
+      rarity: {value: Rarities}
+      reward_category: {value: RewardCategories}
       expire_date: { value: string | undefined };
       repeating: { value: boolean };
       type: { value: RepeatType | undefined };
@@ -56,7 +59,8 @@ function ShopItemForm({ backlink }: ShopFormProps) {
 
     await shop_item.mutateAsync({
       name: target.name.value,
-      cost: Number(target.cost.value),
+      rarity: target.rarity.value,
+      reward_category: target.reward_category.value,
       expire_at:
         target.expire_date && target.expire_date.value
           ? convertToUTC(new Date(target.expire_date.value))
@@ -75,14 +79,30 @@ function ShopItemForm({ backlink }: ShopFormProps) {
           ? convertToUTC(new Date(target.end_date.value))
           : undefined,
     });
+
+    router.push(backlink)
   };
+
+  // TODO make this not hardcoded
+  const reward_categories = ["Outdoors", "Gift", "Leisure", "Experience", "Food"]
 
   return (
     <Form backlink={backlink} submitFunction={createShopItem}>
       <label htmlFor="name">Name</label>
       <input type="text" required={true} id="name" />
-      <label htmlFor="cost">Cost</label>
-      <input type="number" required={true} id="cost" />
+      <label htmlFor="rarity">Rarity</label>
+      <select id="rarity">
+        <option>Common</option>
+        <option>Rare</option>
+        <option>Epic</option>
+        <option>Legendary</option>
+      </select>
+      <label htmlFor="rewards_category">Reward Category</label>
+      <select id="reward_category">
+        {reward_categories.map((category)=> (
+            <option key={category}>{category}</option>
+        ))}
+      </select>
       <label>Expire Date</label>
       <input type="date" required={false} id="expire_date" />
       <label>Repeating</label>

@@ -88,6 +88,8 @@ export const updateRepeatingShopItems = async (session: Session) => {
             data: {
               user_id: session.user.id,
               name: item.name,
+              rarity: item.rarity,
+              reward_category: item.reward_category,
               cost: item.cost,
               bought: false,
             },

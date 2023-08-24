@@ -35,7 +35,8 @@ afterAll(async () => {
 beforeEach(async () => {
   await caller.shop.createShopItem({
     name: "Test",
-    cost: 10,
+    reward_category: "Food",
+    rarity: "Common",
     repeat_freq: 1,
     repeat_type: "Daily",
     start_date: new Date(2022, 1, 1),

@@ -18,6 +18,9 @@ export const colors: Colors = {
   Career: "#fdcae1",
   Error: "#f9a59a",
   Success: "#95fab9",
-  Info: "white"
-
+  Info: "white",
+  Common: "#ADD8E6",
+  Rare: "#FFD580",
+  Epic: "#CBC3E3",
+  Legendary: "#EDFEE7",
 };

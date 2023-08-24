@@ -11,7 +11,7 @@ function ShopGrid() {
     <div className="mt-12 grid w-[85%] grid-cols-2 items-center auto-rows-[150px] justify-center gap-2">
       {items.data && items.data.length > 0 ? (
         items.data.map((item) => (
-          <Item name={item.name} cost={item.cost} id={item.id} key={item.id} />
+          <Item name={item.name} cost={item.cost} id={item.id} key={item.id}  rarity={item.rarity} reward_category={item.reward_category}/>
         ))
       ) : (
         <div className="">Nothing in the shop today...</div>

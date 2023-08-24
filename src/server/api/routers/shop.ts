@@ -5,6 +5,12 @@ import { TRPCError } from "@trpc/server";
 import { Session } from "next-auth";
 import { PrismaClient } from "@prisma/client";
 import { filterItemsInRange } from "~/utils/goals";
+import { reward_categories } from "./rewards";
+import { calculateCostAndDiscount } from "~/utils/shop";
+
+
+export const rarities = z.enum(["Common", "Rare", "Epic", "Legendary"])
+
 
 export async function getShopItemsInRange(
   prisma: PrismaClient,
@@ -68,6 +74,18 @@ export const shopRouter = createTRPCRouter({
       }
     })
   }),
+  getShopItemById: protectedProcedure
+  .input(z.object({id: z.number()}))
+  .query(({ctx, input})=> {
+    return ctx.prisma.shopItem.findUnique({
+      where: {
+        id: input.id
+      },
+      include: {
+        repeat: true,
+      }
+    })
+  }),
   getShopItems: protectedProcedure.query(({ ctx, input }) => {
     const today = new Date();
     return ctx.prisma.shopItem.findMany({
@@ -89,7 +107,8 @@ export const shopRouter = createTRPCRouter({
     .input(
       z.object({
         name: z.string(),
-        cost: z.number(),
+        rarity: rarities,
+        reward_category: reward_categories,
         expire_at: z.date().optional(),
         repeat_type: repeat_type.optional(),
         days_of_week: z.array(days_of_week).optional(),
@@ -99,12 +118,16 @@ export const shopRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      const {cost, discount} = calculateCostAndDiscount(input.rarity, input.expire_at)
       return await ctx.prisma.$transaction(async (tx) => {
         const item = await tx.shopItem.create({
           data: {
             user_id: ctx.session.user.id,
             name: input.name,
-            cost: input.cost,
+            reward_category: input.reward_category,
+            rarity: input.rarity,
+            cost: cost,
+            discount_multiplier: discount,
             expire_at: input.expire_at,
             bought: false,
           },

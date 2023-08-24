@@ -81,15 +81,25 @@ model ShopRepeatData {
 
 }
 
+enum Rarity {
+    Common
+    Rare
+    Epic
+    Legendary
+}
+
 model ShopItem {
     id Int @id @default(autoincrement())
     inventory Inventory @relation(fields: [user_id], references: [user_id])
     user_id String
     name String
     cost Int
+    rarity Rarity @default(Common)
+    reward_category RewardCategories
     created_at DateTime @default(now())
     expire_at DateTime?
     bought Boolean
+    discount_multiplier Float @default(1)
     repeat ShopRepeatData?
 
 }
