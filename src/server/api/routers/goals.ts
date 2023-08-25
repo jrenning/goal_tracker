@@ -44,7 +44,6 @@ async function getGoalsInRange(
     where: {
       //@ts-ignore
       user_id: session.user.id,
-      completed: false,
       repeat: {
         start_date: {
           lte: end,
@@ -70,6 +69,7 @@ async function getGoalsInRange(
     },
   });
 
+
   return goals_in_range;
 }
 
@@ -82,7 +82,6 @@ export async function getRepeatingGoalsInRange(
   const goals_in_range = await getGoalsInRange(prisma, session, start, end);
 
   const filtered_goals = filterItemsInRange(goals_in_range, start, end);
-
   return filtered_goals;
 }
 
@@ -379,7 +378,7 @@ export const goalsRouter = createTRPCRouter({
             ),
             difficulty: input.difficulty,
             due_date: input.due_date ? input.due_date : undefined,
-            completed: false,
+            completed: input.repeat_type ? true : false,
             category: input.category,
             exp_multiplier: generateMultiplier(),
             gold_multiplier: generateMultiplier(),

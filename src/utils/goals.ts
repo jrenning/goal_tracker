@@ -55,9 +55,9 @@ export function filterItemsInRange(
       let end_distance;
       let type = item.repeat.type;
       if (type == "Daily") {
-        distance = getDaysBetweenDates(item.repeat.start_date, start);
-        end_distance = getDaysBetweenDates(item.repeat.start_date, end);
-        if (item.repeat.start_date.getTime() == start.getTime()) {
+        distance = getDaysBetweenDates(item.repeat.start_date, range_start);
+        end_distance = getDaysBetweenDates(item.repeat.start_date, range_end);
+        if (item.repeat.start_date.getTime() == range_start.getTime()) {
           filtered_items.push(item);
         } else if (
           isRepeatInRange(distance, end_distance, item.repeat.repeat_frequency)
@@ -65,9 +65,8 @@ export function filterItemsInRange(
           filtered_items.push(item);
         }
       } else if (type == "Weekly") {
-        distance = getWeeksBetweenDates(item.repeat.start_date, start);
-        end_distance = getWeeksBetweenDates(item.repeat.start_date, end);
-
+        distance = getWeeksBetweenDates(item.repeat.start_date, range_start);
+        end_distance = getWeeksBetweenDates(item.repeat.start_date, range_end);
         let days_included: number[] = [];
 
         // only include days of week in the weeks that are valid for the repeat type
@@ -76,6 +75,7 @@ export function filterItemsInRange(
           distance % item.repeat.repeat_frequency == 0 &&
           !(end_distance % item.repeat.repeat_frequency == 0)
         ) {
+          
           const temp_start = new Date(
             range_start.getFullYear(),
             range_start.getMonth(),
@@ -102,8 +102,10 @@ export function filterItemsInRange(
           end_distance % item.repeat.repeat_frequency == 0 &&
           distance % item.repeat.repeat_frequency == 0
         ) {
+          
           days_included = getDaysInRange(range_start, range_end);
         } else {
+          console.log("Here");
           // if there is a valid week in between it will have all of the days
           if (
             (end_distance - distance) % item.repeat.repeat_frequency == 0 &&
@@ -120,8 +122,8 @@ export function filterItemsInRange(
           filtered_items.push(item);
         }
       } else if (type == "Monthly") {
-        distance = getMonthsBetweenDates(item.repeat.start_date, start);
-        end_distance = getMonthsBetweenDates(item.repeat.start_date, end);
+        distance = getMonthsBetweenDates(item.repeat.start_date, range_start);
+        end_distance = getMonthsBetweenDates(item.repeat.start_date, range_end);
         if (item.repeat.start_date.getTime() == start.getTime()) {
           filtered_items.push(item);
         } else if (
@@ -137,8 +139,8 @@ export function filterItemsInRange(
           filtered_items.push(item);
         }
       } else {
-        distance = start.getFullYear() - item.repeat.start_date.getFullYear();
-        end_distance = end.getFullYear() - item.repeat.start_date.getFullYear();
+        distance = range_start.getFullYear() - item.repeat.start_date.getFullYear();
+        end_distance = range_end.getFullYear() - item.repeat.start_date.getFullYear();
         if (item.repeat.start_date.getTime() == start.getTime()) {
           filtered_items.push(item);
         } else if (

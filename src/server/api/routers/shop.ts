@@ -129,7 +129,7 @@ export const shopRouter = createTRPCRouter({
             cost: cost,
             discount_multiplier: discount,
             expire_at: input.expire_at,
-            bought: false,
+            bought: input.repeat_type ? true : false,
           },
         });
         if (input.repeat_type) {

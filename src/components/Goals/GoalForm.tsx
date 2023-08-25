@@ -42,7 +42,6 @@ function GoalForm({ backlink }: GoalFormProps) {
 
   const createGoal = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log(e.target)
     // TODO fix this terrible form parsing
     const target = e.target as typeof e.target & {
       name: { value: string };
@@ -57,8 +56,6 @@ function GoalForm({ backlink }: GoalFormProps) {
       repeat_freq: {value: string | undefined}
       checklist_item: { value: string[] | undefined };
     };
-
-    console.log(target)
 
     let checklist_items: string[] = [];
     //@ts-ignore
@@ -288,7 +285,7 @@ export function RepeatForm({ repeating }: RepeatFormProps) {
       )}
       <div className="flex flex-col justify-center items-center">
         <label htmlFor="repeat_freq">Repeat every: </label>
-        <input type="number" id="repeat_freq" className="text-center" placeholder="1" />
+        <input type="number" id="repeat_freq" required={repeating} className="text-center" />
       </div>
       <label htmlFor="start_date">Start Date</label>
       <input

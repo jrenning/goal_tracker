@@ -304,7 +304,8 @@ describe("Test getting current goals", () => {
     const data = await caller.goals.getCurrentGoals();
 
     expect(data.length).toBe(
-      basic_goals.length + repeating_goals.length + due_date_goals.length
+      // repeating gaols shouldn't show up
+      basic_goals.length + due_date_goals.length
     );
   });
   test("test ordering by due date", async () => {
@@ -322,7 +323,7 @@ describe("Test getting current goals", () => {
     });
     const data = await caller.goals.getCurrentGoals();
     expect(data.length).toBe(
-      basic_goals.length + repeating_goals.length + due_date_goals.length - 1
+      basic_goals.length + due_date_goals.length - 1
     );
   });
 });
