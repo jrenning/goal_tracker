@@ -49,8 +49,23 @@ function Item({ name, cost, rarity, reward_category, id }: ItemProps) {
     }
   })
 
+  const delete_item = api.shop.deleteShopItemById.useMutation({
+    async onSuccess(data) {
+      await utils.shop.invalidate()
+    },
+    onError(err) {
+      setErrorPopup(err.message)
+    }
+  })
+
   const buyItem = async () => {
     const data = await buy_item.mutateAsync({
+      id: id
+    })
+  }
+
+  const deleteItem = async () => {
+    const data = await delete_item.mutateAsync({
       id: id
     })
   }
@@ -75,7 +90,8 @@ function Item({ name, cost, rarity, reward_category, id }: ItemProps) {
           onClick={()=> buyItem()}>
             Buy Item
           </div>
-          <div className=" rounded-md text-sm font-semibold bg-red-300 px-2 py-1  shadow-lg">
+          <div className=" rounded-md text-sm font-semibold bg-red-300 px-2 py-1  shadow-lg"
+          onClick={()=> deleteItem()}>
             Delete
           </div>
         </div>

@@ -45,7 +45,6 @@ function Calender() {
         date: convertToUTC(new Date(date.getFullYear(), date.getMonth()+1, 0))
     })
 
-    console.log(goals_in_month)
 
     const { data: due_date_data, refetch: refetchDueDates } = api.goals.getDueDatesInMonth.useQuery({
       date: convertToUTC(new Date(date.getFullYear(), date.getMonth() + 1, 0)),

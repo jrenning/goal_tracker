@@ -33,11 +33,9 @@ function PopupMessage({
   };
 
   useEffect(() => {
-    console.log("Run")
     if (autoclose) {
       setTimeout(() => {
         closeModal();
-        console.log("close")
       }, timeout);
     }
   }, [isOpen]);

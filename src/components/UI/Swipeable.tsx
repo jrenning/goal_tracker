@@ -32,7 +32,6 @@ function Swipeable({
     const isLeftSwipe = distance > minSwipeDistance;
     const isRightSwipe = distance < -minSwipeDistance;
     if (isLeftSwipe || isRightSwipe)
-      console.log("swipe", isLeftSwipe ? "left" : "right");
 
     if (isLeftSwipe) {
       if (direction == "Left") {

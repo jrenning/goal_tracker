@@ -10,6 +10,9 @@ import {
   generateMultiplier,
 } from "~/utils/goals";
 import { getShopItemsInRange } from "./shop";
+import { Input } from "postcss";
+import { isTypedArray } from "util/types";
+import { getTodayAtMidnight } from "~/utils/datetime";
 
 export const goal_categories = z.enum([
   "Physical",
@@ -68,7 +71,6 @@ async function getGoalsInRange(
       repeat: true,
     },
   });
-
 
   return goals_in_range;
 }
@@ -238,6 +240,45 @@ export const goalsRouter = createTRPCRouter({
     });
     return goals;
   }),
+  getCurrentGoalsByCategory: protectedProcedure
+    .input(z.object({ category: z.array(goal_categories) }))
+    .query(async ({ ctx, input }) => {
+      const today = new Date();
+      today.setUTCHours(0, 0, 0, 0);
+
+      const goals = await ctx.prisma.goals.findMany({
+        where: {
+          completed: false,
+          category: {
+            in: input.category,
+          },
+          user_id: ctx.session.user.id,
+          OR: [
+            {
+              repeat: {
+                start_date: {
+                  lte: today,
+                },
+              },
+            },
+            {
+              repeat: {
+                is: null,
+              },
+            },
+          ],
+        },
+        include: {
+          repeat: true,
+          checklist: true,
+        },
+        orderBy: {
+          due_date: "asc",
+        },
+      });
+      return goals;
+    }),
+
   getAllGoals: protectedProcedure.query(({ ctx }) => {
     return ctx.prisma.goals.findMany({
       where: {
@@ -256,12 +297,12 @@ export const goalsRouter = createTRPCRouter({
       });
     }),
   getCompletedGoals: protectedProcedure
-    .input(z.object({ date: z.date() }))
+    .input(z.object({ date: z.date().optional() }))
     .query(({ input, ctx }) => {
       return ctx.prisma.goals.findMany({
         where: {
           date_completed: {
-            gte: input.date,
+            gte: input.date ? input.date : getTodayAtMidnight(),
           },
           user_id: ctx.session.user.id,
         },

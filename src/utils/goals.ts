@@ -9,6 +9,7 @@ import {
   isRepeatInRange,
 } from "./datetime";
 import { DaysOfWeek, RepeatType } from "~/pages";
+import { date } from "zod";
 
 // interface Repeat  {
 //   repeat: RepeatData | null
@@ -57,7 +58,7 @@ export function filterItemsInRange(
       if (type == "Daily") {
         distance = getDaysBetweenDates(item.repeat.start_date, range_start);
         end_distance = getDaysBetweenDates(item.repeat.start_date, range_end);
-        if (item.repeat.start_date.getTime() == range_start.getTime()) {
+        if (item.repeat.start_date.getTime() == start.getTime()) {
           filtered_items.push(item);
         } else if (
           isRepeatInRange(distance, end_distance, item.repeat.repeat_frequency)
@@ -105,7 +106,6 @@ export function filterItemsInRange(
           
           days_included = getDaysInRange(range_start, range_end);
         } else {
-          console.log("Here");
           // if there is a valid week in between it will have all of the days
           if (
             (end_distance - distance) % item.repeat.repeat_frequency == 0 &&

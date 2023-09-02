@@ -168,7 +168,6 @@ export const levelRouter = createTRPCRouter({
   createLevels: protectedProcedure
     .input(z.object({ levels: z.array(level_data) }))
     .mutation(({ ctx, input }) => {
-      console.log(input);
       return ctx.prisma.levels.createMany({
         data: input.levels,
       });

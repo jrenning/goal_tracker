@@ -38,11 +38,22 @@ export function getDaysInRange(start: Date, end: Date) {
 }
 
 export function getDaysBetweenDates(start: Date, end: Date) {
-  return Math.floor((end.getTime() - start.getTime()) / (1000 * 24 * 3600));
+  // cast out of order dates to 0 result, avoids weird math elsewhere
+  return Math.floor((end.getTime() - start.getTime()) / (1000 * 24 * 3600)) < 0
+    ? 0
+    : Math.floor((end.getTime() - start.getTime()) / (1000 * 24 * 3600));
 }
 
 export function getWeeksBetweenDates(start: Date, end: Date) {
   return Math.floor((end.getTime() - start.getTime()) / (1000 * 24 * 3600 * 7));
+}
+
+export function getTodayAtMidnight() {
+  const today = new Date();
+  today.setHours(0);
+  today.setMinutes(0);
+  today.setSeconds(0);
+  return today;
 }
 
 export function getMonthsBetweenDates(start: Date, end: Date) {

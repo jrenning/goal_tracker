@@ -5,17 +5,19 @@ import Goal from "./Goal";
 import TimeRangeSelector from "../UI/TimeRangeSelector";
 
 function CompletedBox() {
-  const [dateSearch, setDateSearch] = useState<Date>();
+  const today = new Date()
+  const [dateSearch, setDateSearch] = useState<Date | undefined>(undefined);
 
   const [runQuery, setRunQuery] = useState<boolean>(false);
 
-  const today = new Date();
-
-  const completed = api.goals.getCompletedGoals.useQuery(
-    { date: dateSearch ? dateSearch : today },
-    { enabled: runQuery }
-  );
-
+  // let completed = api.goals.getCompletedGoals.useQuery(
+  //   { date: dateSearch ? dateSearch : today },
+  //   { enabled: runQuery }
+  // );
+  // default to getting today's completed goals
+  let completed = api.goals.getCompletedGoals.useQuery({
+    date: dateSearch
+  });
 
   return (
     <div className="mt-8">

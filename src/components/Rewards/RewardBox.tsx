@@ -5,7 +5,7 @@ import { colors } from "~/utils/colors";
 import TimeRangeSelector from "../UI/TimeRangeSelector";
 
 function RewardBox() {
-  const [dateSearch, setDateSearch] = useState<Date>();
+  const [dateSearch, setDateSearch] = useState<Date | undefined>(undefined);
 
   const [runQuery, setRunQuery] = useState<boolean>(false);
 
@@ -13,9 +13,8 @@ function RewardBox() {
 
   const rewards = api.rewards.getFinishedRewards.useQuery(
     {
-      date: dateSearch ? dateSearch : today,
+      date: dateSearch
     },
-    { enabled: runQuery }
   ).data;
 
   return (

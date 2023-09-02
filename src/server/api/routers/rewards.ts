@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { goal_categories } from "./goals";
+import { getTodayAtMidnight } from "~/utils/datetime";
 
 export const reward_categories = z.enum(["Outdoors", "Gift", "Leisure", "Experience", "Food"])
 
@@ -20,12 +21,12 @@ export const rewardsRouter = createTRPCRouter({
       });
     }),
     getFinishedRewards: protectedProcedure
-    .input(z.object({date: z.date(), }))
+    .input(z.object({date: z.date().optional(), }))
     .query(({ctx, input})=> {
         return ctx.prisma.rewards.findMany({
             where: {
                 achieved_at: {
-                    gte: input.date
+                    gte: input.date ? input.date : getTodayAtMidnight()
                 },
                 user_id: ctx.session.user.id
             }

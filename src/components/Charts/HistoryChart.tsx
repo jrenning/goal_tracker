@@ -30,7 +30,10 @@ function HistoryChart({ category, start_date, type }: PointsChartProps) {
     : [];
   const level_dates = level_data
     ? level_data.map((item) => {
-        return item.date.toDateString();
+        return `${item.date.getMonth() + 1}-${item.date.getDate()}-${item.date
+          .getFullYear()
+          .toString()
+          .slice(2, 4)}`;
       })
     : [];
   const points = point_data
@@ -40,7 +43,10 @@ function HistoryChart({ category, start_date, type }: PointsChartProps) {
     : [];
   const point_dates = point_data
     ? point_data.map((item) => {
-        return item.date.toDateString();
+        return `${item.date.getMonth() + 1}-${item.date.getDate()}-${item.date
+          .getFullYear()
+          .toString()
+          .slice(2, 4)}`;
       })
     : [];
 

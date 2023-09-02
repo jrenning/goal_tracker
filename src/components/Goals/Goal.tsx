@@ -77,7 +77,6 @@ function Goal({
   };
 
   const openGoalModal = () => {
-    console.log(id);
     goalModal({
       id: id,
       category: category,

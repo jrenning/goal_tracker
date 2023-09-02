@@ -17,7 +17,7 @@ function Footer() {
     const [current, setCurrent] = useState("Goals");
   return (
     
-    <div className="fixed bottom-0 left-0 flex w-full flex-row justify-evenly dark:bg-slate-300 bg-slate-50  shadow-md">
+    <div className="fixed bottom-0 left-0 flex w-full flex-row justify-evenly dark:bg-slate-300 bg-slate-100  shadow-md">
         <FooterSection name="Goals" icon={GoalIcon} link="/" setCurrent={setCurrent} current={current}/>
         <FooterSection name="History" icon={HistoryIcon} link="/history" setCurrent={setCurrent} current={current}/>
         <FooterSection name="Repeats" icon={RepeatIcon} link="/repeats" setCurrent={setCurrent} current={current}/>
@@ -39,7 +39,7 @@ function FooterSection({name, icon, link, setCurrent, current}: FooterProps) {
 
     return (
       <Link href={link} onClick={() => setCurrent(name)}>
-        <div className=" flex cursor-pointer flex-col items-center justify-center py-4 hover:text-green-300">
+        <div className=" flex cursor-pointer flex-col items-center justify-center py-6 hover:text-green-300">
           <div
             className="h-6 w-6 flex justify-center items-center object-contain font-thin  text-4xl stroke-1"
             style={{ fill: current == name ? "#95fab9" : "black" }}
