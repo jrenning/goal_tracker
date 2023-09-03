@@ -17,6 +17,7 @@ type ItemProps = {
   reward_category: RewardCategories
   cost: number;
   id: number
+  expire_at?: Date
 };
 // icons from fontawesome.com
 const OutdoorsIcon = <svg viewBox="0 0 448 512"><path d="M210.6 5.9L62 169.4c-3.9 4.2-6 9.8-6 15.5C56 197.7 66.3 208 79.1 208H104L30.6 281.4c-4.2 4.2-6.6 10-6.6 16C24 309.9 34.1 320 46.6 320H80L5.4 409.5C1.9 413.7 0 419 0 424.5c0 13 10.5 23.5 23.5 23.5H192v32c0 17.7 14.3 32 32 32s32-14.3 32-32V448H424.5c13 0 23.5-10.5 23.5-23.5c0-5.5-1.9-10.8-5.4-15L368 320h33.4c12.5 0 22.6-10.1 22.6-22.6c0-6-2.4-11.8-6.6-16L344 208h24.9c12.7 0 23.1-10.3 23.1-23.1c0-5.7-2.1-11.3-6-15.5L237.4 5.9C234 2.1 229.1 0 224 0s-10 2.1-13.4 5.9z"/></svg>
@@ -33,7 +34,7 @@ const icons = {
   Food: FoodIcon
 }
 
-function Item({ name, cost, rarity, reward_category, id }: ItemProps) {
+function Item({ name, cost, rarity, reward_category, id, expire_at }: ItemProps) {
   const [clicked, setClicked] = useState(false);
   const utils = api.useContext()
 
@@ -73,32 +74,37 @@ function Item({ name, cost, rarity, reward_category, id }: ItemProps) {
 
 
   return (
-    <div
-      className="relative flex shadow-lg border-black border-2 border-double flex-col h-full items-center justify-center space-y-4 rounded-md p-4"
-      style={{backgroundColor: colors[rarity]}}
-      onClick={() => setClicked(!clicked)}
-    >
-      <div className="text-lg font-semibold">{shortenName(name, 20)}</div>
-      {icons[reward_category]}
-      <div className="flex flex-row space-x-2 justify-center items-center">
-        <div>{cost}</div>
-        <div className="text-2xl font-bold  text-yellow-400">&#x274D;</div>
-      </div>
-      {clicked ? (
-        <div className="absolute bottom-[50%] flex translate-y-[50%] space-x-2 flex-row">
-          <div className=" rounded-md text-sm font-semibold bg-green-300 px-2 py-1  shadow-lg"
-          onClick={()=> buyItem()}>
-            Buy Item
-          </div>
-          <div className=" rounded-md text-sm font-semibold bg-red-300 px-2 py-1  shadow-lg"
-          onClick={()=> deleteItem()}>
-            Delete
-          </div>
+      <div
+        className="relative flex h-full flex-col items-center justify-center space-y-4 rounded-md border-2 border-double border-black p-4 shadow-lg"
+        style={{ backgroundColor: colors[rarity] }}
+        onClick={() => setClicked(!clicked)}
+      >
+        {expire_at && <div className="rounded-md bg-red-300 text-xs px-2 py-1 font-semibold">{expire_at.toDateString()}</div>}
+        <div className="text-lg font-semibold">{shortenName(name, 20)}</div>
+        <div className="h-6 w-6">{icons[reward_category]}</div>
+        <div className="flex flex-row items-center justify-center space-x-2">
+          <div>{cost}</div>
+          <div className="text-2xl font-bold  text-yellow-400">&#x274D;</div>
         </div>
-      ) : (
-        ""
-      )}
-    </div>
+        {clicked ? (
+          <div className="absolute bottom-[50%] flex translate-y-[50%] flex-row space-x-2">
+            <div
+              className=" rounded-md bg-green-300 px-2 py-1 text-sm font-semibold  shadow-lg"
+              onClick={() => buyItem()}
+            >
+              Buy Item
+            </div>
+            <div
+              className=" rounded-md bg-red-300 px-2 py-1 text-sm font-semibold  shadow-lg"
+              onClick={() => deleteItem()}
+            >
+              Delete
+            </div>
+          </div>
+        ) : (
+          ""
+        )}
+      </div>
   );
 }
 

@@ -88,15 +88,34 @@ export const shopRouter = createTRPCRouter({
   }),
   getShopItems: protectedProcedure.query(({ ctx, input }) => {
     const today = new Date();
-    return ctx.prisma.shopItem.findMany({
+    console.log(today)
+    const data =  ctx.prisma.shopItem.findMany({
       where: {
         user_id: ctx.session.user.id,
         bought: false,
-        // expire_at: {
-        //   lte: today,
-        // },
+        OR: [
+          {
+            expire_at: {
+              gte: today
+            }
+          },
+          {
+            expire_at: null
+          }
+        ]
+
       },
     });
+    return data
+  }),
+  getInventoryItems: protectedProcedure
+  .query(({ctx})=> {
+    return ctx.prisma.shopItem.findMany({
+      where: {
+        user_id: ctx.session.user.id,
+        bought: true
+      },
+    })
   }),
   getRepeatingItemsByDate: protectedProcedure
   .input(z.object({date: z.date()}))

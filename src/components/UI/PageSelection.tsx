@@ -13,9 +13,9 @@ function PageSelection({names, setActive, active}: PageSelectionProps) {
 
 
   return (
-    <div className="flex flex-row justify-evenly items-center dark:text-white">
+    <div className="flex flex-row justify-evenly w-full items-center dark:text-white">
     {names.map((name)=> (
-        <div className='font-semibold' style={{borderBottom: name==active ? "solid" : "none"}} onClick={()=> setActive(name)} key={name}>{name}</div>
+        <div className='font-semibold cursor-pointer' style={{borderBottom: name==active ? "solid" : "none"}} onClick={()=> setActive(name)} key={name}>{name}</div>
     ))}
     </div>
   )

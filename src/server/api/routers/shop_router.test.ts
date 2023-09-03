@@ -3,6 +3,7 @@ import { prisma } from "../../db";
 import { appRouter, type AppRouter } from "../root";
 import { beforeEach, afterEach } from "vitest";
 import { calculateCostAndDiscount } from "~/utils/shop";
+import { convertToUTC } from "~/utils/datetime";
 
 const session = {
   user: {
@@ -75,6 +76,18 @@ describe("Test getting shop items", () => {
         expect(data).lengthOf(1)
 
 
+    })
+    test("Test getting expiring items", async ()=> {
+        const item = await caller.shop.createShopItem({
+            name: "Test 4",
+            reward_category: "Food",
+            rarity: "Common",
+            expire_at: convertToUTC(new Date())
+        })
+
+        const data = await caller.shop.getShopItems()
+
+        expect(data).lengthOf(2)
     })
 })
 

@@ -6,6 +6,7 @@ import { api } from '~/utils/api'
 import { getRepeatTypeString } from '~/utils/goals'
 import { colors } from '~/utils/colors'
 import EditableSection from '../UI/EditableSection'
+import useDataActions from '~/hooks/useDataActions'
 
 
 export type GoalModalProps = {
@@ -23,6 +24,8 @@ function GoalModal({id}: GoalModalProps) {
     id: id
   }).data
 
+  const delete_call = api.goals.deleteGoal.useMutation();
+
   if (!goal) {
     return <div>Goal not found, please return to the home page</div>
   }
@@ -36,71 +39,85 @@ function GoalModal({id}: GoalModalProps) {
     return content
   }
 
+  
+
+
 
   return (
-    <div className="mt-4 grid w-full h-[20rem] overflow-y-scroll grid-cols-2 items-start justify-center gap-4 rounded-md bg-slate-100 p-8 shadow-md">
-      <div className="flex flex-col space-y-8">
-        <Pill backgroundColor="#eeeeee">
-          <div className="w-full text-lg font-semibold">
-            {goal.points} points
-          </div>
-        </Pill>
-        <Pill backgroundColor={`${colors[goal.category]}`}>
-          <div className="text-lg font-semibold">{goal.category}</div>
-        </Pill>
-        <div className='flex flex-row space-x-4'>
-          {getDifficulty()}
-        </div>
-        <div>
-          {goal.checklist && goal.checklist.length > 0 ? (
-            <div className="flex flex-col text-lg font-bold ">Checklist</div>
-          ) : (
-            ""
-          )}
-          {goal.checklist ? (
-            goal.checklist.map((item) => <li>{item.name}</li>)
-          ) : (
-            <div>None</div>
-          )}
-        </div>
-      </div>
-      <div className="flex flex-col space-y-6">
-        <div>
-          <div className="justify-left flex items-center text-2xl font-bold">
-            &#x26AF;
-          </div>
-          <div className="text-lg font-semibold">
-            {getRepeatTypeString(
-              goal?.repeat?.type,
-              goal?.repeat?.repeat_frequency,
-              goal?.repeat?.days
+    <>
+      <div className="mt-4 grid h-[20rem] w-full grid-cols-2 items-start justify-center gap-4 overflow-y-scroll rounded-md bg-slate-100 p-8 shadow-md">
+        <div className="flex flex-col space-y-8">
+          <Pill backgroundColor="#eeeeee">
+            <div className="w-full text-lg font-semibold">
+              {goal.points} points
+            </div>
+          </Pill>
+          <Pill backgroundColor={`${colors[goal.category]}`}>
+            <div className="text-lg font-semibold">{goal.category}</div>
+          </Pill>
+          <div className="flex flex-row space-x-4">{getDifficulty()}</div>
+          <div>
+            {goal.checklist && goal.checklist.length > 0 ? (
+              <div className="flex flex-col text-lg font-bold ">Checklist</div>
+            ) : (
+              ""
+            )}
+            {goal.checklist ? (
+              goal.checklist.map((item) => <li>{item.name}</li>)
+            ) : (
+              <div>None</div>
             )}
           </div>
         </div>
-
-        {goal.created_at && (
-          <div className="w-full">
+        <div className="flex flex-col space-y-6">
+          <div>
             <div className="justify-left flex items-center text-2xl font-bold">
-              &#x2690;
+              &#x26AF;
             </div>
             <div className="text-lg font-semibold">
-              Created: {goal.created_at.toDateString()}
+              {getRepeatTypeString(
+                goal?.repeat?.type,
+                goal?.repeat?.repeat_frequency,
+                goal?.repeat?.days
+              )}
             </div>
           </div>
-        )}
 
-        {goal.due_date && (
-          <div className="w-full">
-            <div className="justify-left flex items-center text-2xl font-bold">
-              &#x2691;
+          {goal.created_at && (
+            <div className="w-full">
+              <div className="justify-left flex items-center text-2xl font-bold">
+                &#x2690;
+              </div>
+              <div className="text-lg font-semibold">
+                Created: {goal.created_at.toDateString()}
+              </div>
             </div>
-            <div className="text-lg font-semibold">
-              Due: {goal.due_date.toDateString()}
+          )}
+
+          {goal.due_date && (
+            <div className="w-full">
+              <div className="justify-left flex items-center text-2xl font-bold">
+                &#x2691;
+              </div>
+              <div className="text-lg font-semibold">
+                Due: {goal.due_date.toDateString()}
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
-    </div>
+      <div className="mt-4 flex w-full items-center justify-center space-x-8">
+        <button className="flex shadow-lg border-black border items-center justify-center rounded-md bg-red-300 px-2 py-1 text-3xl font-semibold"
+        onClick={async()=> await delete_call.mutateAsync({
+          goal_id: goal.id
+        })}>
+          Delete
+        </button>
+        <button className="flex shadow-lg border-black border items-center justify-center rounded-md bg-green-300 px-2 py-1 text-3xl font-semibold">
+          Save
+        </button>
+      </div>
+    </>
   );
 }
 

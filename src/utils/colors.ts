@@ -20,7 +20,11 @@ export const colors: Colors = {
   Success: "#95fab9",
   Info: "white",
   Common: "#ADD8E6",
+  Common_light: "#e8f4f8",
   Rare: "#FFD580",
+  Rare_light: "#FCD299",
   Epic: "#CBC3E3",
+  Epic_light: "#e6e6fa",
   Legendary: "#EDFEE7",
+  Legendary_light: "#d2f8d2",
 };
