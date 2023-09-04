@@ -1,15 +1,21 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
-import React, { FormEvent, ReactElement,useEffect,useState } from "react";
+import React, { FormEvent, ReactElement, useEffect, useState } from "react";
 import { DaysOfWeek, GoalCategories, RepeatType } from "~/pages";
 import { api } from "~/utils/api";
-import { convertToUTC } from "~/utils/datetime";
+import { convertToUTC, getDateInputFormatString } from "~/utils/datetime";
 import useDataActions from "~/hooks/useDataActions";
+import { uid } from "~/utils/goals";
 
 type GoalFormProps = {
   backlink: string;
   // used to update existing goals
-  id?: number
+  id?: number;
+};
+
+type CheckItem = {
+  name: string;
+  uid: string;
 };
 
 const getLeadingZeroFormat = (month_or_day: number) => {
@@ -25,42 +31,31 @@ function GoalForm({ backlink, id }: GoalFormProps) {
   const [repeating, setRepeating] = useState(false);
 
   const updateData = api.goals.getGoalById.useQuery({
-    id: id ? id : 0
-  }).data 
+    id: id ? id : 0,
+  }).data;
 
   // TODO move this stuff into a hook
-  const [checklistItems, setChecklistItems] = useState<ReactElement[]>([]);
+  const [checklistItems, setChecklistItems] = useState<CheckItem[]>([]);
 
-
-
-
-  const [checkListSize, setCheckListSize] = useState(0);
-
-  const getSize = () => {
-    return checkListSize;
+  const updateChecklist = (name: string) => {
+    const new_item: CheckItem = {
+      name: name,
+      uid: uid(),
+    };
+    setChecklistItems((items) => [...items, new_item]);
   };
 
-  const updateChecklist = (name: string | undefined) => {
-      setCheckListSize((size) => size + 1);
-      setChecklistItems((items) => [
-        ...items,
-        <CheckListItem
-          key={getSize()}
-          size={getSize()}
-          checkListItems={checklistItems}
-          setCheckListItems={setChecklistItems}
-          name={name}
-        />,
-      ]);
-  }
+  useEffect(() => {
+    if (updateData) {
+      updateData.checklist.forEach((item) => {
+        updateChecklist(item.name);
+      });
 
-useEffect(()=> {
-  if (updateData) {
-    updateData.checklist.forEach((item)=> {
-      updateChecklist(item.name)
-    })
-  }
-}, [])
+      if (updateData.repeat) {
+        setRepeating(true)
+      }
+    }
+  }, []);
 
   const today = new Date();
   const today_string = `${today.getFullYear()}-${getLeadingZeroFormat(
@@ -69,7 +64,7 @@ useEffect(()=> {
 
   const router = useRouter();
 
-  const {addGoal, updateGoal} = useDataActions()
+  const { addGoal, updateGoal } = useDataActions();
 
   const createGoal = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -78,13 +73,13 @@ useEffect(()=> {
       name: { value: string };
       difficulty: { value: string };
       category: { value: GoalCategories };
-      due_date: {value: string | undefined}
+      due_date: { value: string | undefined };
       repeating: { value: boolean };
       type: { value: RepeatType | undefined };
       days: { value: DaysOfWeek[] | undefined };
       start_date: { value: string | undefined };
       end_date: { value: string | undefined };
-      repeat_freq: {value: string | undefined}
+      repeat_freq: { value: string | undefined };
       checklist_item: { value: string[] | undefined };
     };
 
@@ -113,7 +108,7 @@ useEffect(()=> {
       }
     }
 
-    const call = await addGoal.mutateAsync({
+    const formData = {
       name: target.name.value,
       difficulty: Number(target.difficulty.value),
       category: target.category.value,
@@ -123,7 +118,9 @@ useEffect(()=> {
           : undefined,
       repeat_type: target.type ? target.type.value : undefined,
       days_of_week: selected_days,
-      repeat_freq: target.repeat_freq ? Number(target.repeat_freq.value) : undefined,
+      repeat_freq: target.repeat_freq
+        ? Number(target.repeat_freq.value)
+        : undefined,
       start_date:
         target.start_date && target.start_date.value
           ? convertToUTC(new Date(target.start_date.value))
@@ -133,12 +130,19 @@ useEffect(()=> {
           ? convertToUTC(new Date(target.end_date.value))
           : undefined,
       checklist_items: checklist_items,
-    });
+    };
 
-
+    if (id) {
+      await updateGoal.mutateAsync({...formData, id: id})
+    }
+    else {
+      await addGoal.mutateAsync(formData);
+    }
+    
 
     router.push(backlink);
   };
+
 
   return (
     <div className="mx-16 my-4  rounded-lg bg-green-100 py-4">
@@ -153,22 +157,35 @@ useEffect(()=> {
           onSubmit={(e) => createGoal(e)}
         >
           <label htmlFor="name">Name</label>
-          <input required={true} id="name" value={updateData ? updateData.name : ""}/>
+          <input
+            required={true}
+            id="name"
+            defaultValue={updateData ? updateData.name : ""}
+          />
           <label>Checklist Items</label>
           {checklistItems.map((item) => (
-            <>{item}</>
+            <CheckListItem
+              name={item.name}
+              key={item.uid}
+              setCheckListItems={setChecklistItems}
+              checkListItems={checklistItems}
+              uid={item.uid}
+            />
           ))}
           <button
             className="rounded-md bg-green-300"
             type="button"
             onClick={() => {
-              updateChecklist(undefined)
+              updateChecklist("");
             }}
           >
             Add checklist item
           </button>
           <label htmlFor="category">Category</label>
-          <select id="category" value={updateData ? updateData.category : "Physical"}>
+          <select
+            id="category"
+            defaultValue={updateData ? updateData.category : "Physical"}
+          >
             <option>Physical</option>
             <option>Education</option>
             <option>Social</option>
@@ -183,7 +200,7 @@ useEffect(()=> {
             max={4}
             required={true}
             id="difficulty"
-            value={updateData ? updateData.difficulty : 1}
+            defaultValue={updateData ? updateData.difficulty : 1}
           ></input>
           <datalist id="difficulties">
             <option value={1}></option>
@@ -192,22 +209,31 @@ useEffect(()=> {
             <option value={4}></option>
           </datalist>
           <label htmlFor="due_date">Due Date</label>
-          <input type="date" id="due_date" min={today_string} value={updateData && updateData.due_date ? updateData.due_date.toDateString() : ""} />
+          <input
+            type="date"
+            id="due_date"
+            min={today_string}
+            defaultValue={
+              updateData && updateData.due_date
+                ? getDateInputFormatString(updateData.due_date)
+                : ""
+            }
+          />
           <div className="flex flex-row space-x-4">
             <label htmlFor="repeating">Repeating</label>
             <input
               type="checkbox"
               id="repeating"
               onChange={() => setRepeating(!repeating)}
-              checked={updateData && updateData.repeat ? true : false}
+              checked={repeating}
             />
           </div>
-          {repeating ? <RepeatForm repeating={repeating} /> : ""}
+          {repeating ? <RepeatForm repeating={repeating} id={id} /> : ""}
           <button
             type="submit"
             className=" rounded-md bg-green-200 px-4 py-[5px] hover:opacity-70"
           >
-            Add
+            {id ? "Update" : "Add"}
           </button>
         </form>
       </div>
@@ -216,24 +242,20 @@ useEffect(()=> {
 }
 
 type ChecklistItemProps = {
-  checkListItems: ReactElement[];
-  setCheckListItems: React.Dispatch<
-    React.SetStateAction<
-      React.ReactElement<any, string | React.JSXElementConstructor<any>>[]
-    >
-  >;
-  size: number;
-  name?: string
+  checkListItems: CheckItem[];
+  setCheckListItems: React.Dispatch<React.SetStateAction<CheckItem[]>>;
+  name?: string;
+  uid: string;
 };
 
 function CheckListItem({
   checkListItems,
   setCheckListItems,
-  size,
-  name
+  name,
+  uid,
 }: ChecklistItemProps) {
-  const removeChecklistItem = (key: number) => {
-    const newChecklist = checkListItems.filter((item) => item.key != key);
+  const removeChecklistItem = (uid: string) => {
+    const newChecklist = checkListItems.filter((item) => item.uid != uid);
 
     setCheckListItems(newChecklist);
   };
@@ -248,7 +270,7 @@ function CheckListItem({
       <button
         type="button"
         className="flex h-6 w-6 items-center justify-center rounded-full bg-red-300 text-lg"
-        onClick={() => removeChecklistItem(size)}
+        onClick={() => removeChecklistItem(uid)}
       >
         -
       </button>
@@ -258,9 +280,10 @@ function CheckListItem({
 
 type RepeatFormProps = {
   repeating: boolean;
+  id?: number
 };
 
-export function RepeatForm({ repeating }: RepeatFormProps) {
+export function RepeatForm({ repeating, id }: RepeatFormProps) {
   const [weekly, setWeekly] = useState(false);
   const days = [
     "Sunday",
@@ -273,10 +296,17 @@ export function RepeatForm({ repeating }: RepeatFormProps) {
   ];
 
   const today = new Date();
+
+
+
+
   // min input on date input needs exactly yyyy-mm-dd format so need to add leading zeros
-  const today_string = `${today.getFullYear()}-${getLeadingZeroFormat(
-    today.getMonth() + 1
-  )}-${getLeadingZeroFormat(today.getDate())}`;
+  const today_string = getDateInputFormatString(today)
+
+
+  const updateData = api.goals.getGoalById.useQuery({
+    id: id ? id : 0
+  }).data
 
   return (
     <div className="flex flex-col space-y-2">
@@ -287,6 +317,9 @@ export function RepeatForm({ repeating }: RepeatFormProps) {
         onChange={(e) => {
           e.target.value == "Weekly" ? setWeekly(true) : setWeekly(false);
         }}
+        defaultValue={
+          updateData && updateData.repeat ? updateData.repeat.type : "Daily"
+        }
       >
         <option>Daily</option>
         <option>Weekly</option>
@@ -299,6 +332,7 @@ export function RepeatForm({ repeating }: RepeatFormProps) {
             id="days"
             multiple={true}
             className="mx-4 mt-4 w-full items-center justify-center text-center"
+            defaultValue={updateData && updateData.repeat ? updateData.repeat.days : [""]}
           >
             {days.map((day, index) => (
               <DaySelect day={day} key={day} />
@@ -308,9 +342,19 @@ export function RepeatForm({ repeating }: RepeatFormProps) {
       ) : (
         ""
       )}
-      <div className="flex flex-col justify-center items-center">
+      <div className="flex flex-col items-center justify-center">
         <label htmlFor="repeat_freq">Repeat every: </label>
-        <input type="number" id="repeat_freq" required={repeating} className="text-center" />
+        <input
+          type="number"
+          id="repeat_freq"
+          required={repeating}
+          className="text-center"
+          defaultValue={
+            updateData && updateData.repeat
+              ? updateData.repeat.repeat_frequency
+              : ""
+          }
+        />
       </div>
       <label htmlFor="start_date">Start Date</label>
       <input
@@ -318,9 +362,23 @@ export function RepeatForm({ repeating }: RepeatFormProps) {
         required={repeating}
         min={today_string}
         id="start_date"
+        defaultValue={
+          updateData && updateData.repeat
+            ? getDateInputFormatString(updateData.repeat.start_date)
+            : ""
+        }
       />
       <label htmlFor="end_date">End Date</label>
-      <input type="date" min={today_string} id="end_date" />
+      <input
+        type="date"
+        min={today_string}
+        id="end_date"
+        defaultValue={
+          updateData && updateData.repeat && updateData.repeat.stop_date
+            ? getDateInputFormatString(updateData.repeat.stop_date)
+            : ""
+        }
+      />
     </div>
   );
 }

@@ -102,8 +102,8 @@ export const goalsRouter = createTRPCRouter({
   }),
   getGoalById: protectedProcedure
     .input(z.object({ id: z.number() }))
-    .query(({ ctx, input }) => {
-      return ctx.prisma.goals.findUnique({
+    .query(async ({ ctx, input }) => {
+      const initial_goal = await ctx.prisma.goals.findUnique({
         where: {
           id: input.id,
         },
@@ -112,6 +112,22 @@ export const goalsRouter = createTRPCRouter({
           checklist: true,
         },
       });
+
+      // if initial goal has a parent id (ie it is a child of a repeating goal)
+      // then just return the parent
+      if (initial_goal?.parent_id) {
+        return await ctx.prisma.goals.findUnique({
+          where: {
+            id: initial_goal.parent_id,
+          },
+          include: {
+            repeat: true,
+            checklist: true,
+          },
+        });
+      } else {
+        return initial_goal;
+      }
     }),
   getRepeatingGoalsByDate: protectedProcedure
     .input(z.object({ date: z.date() }))
@@ -402,7 +418,7 @@ export const goalsRouter = createTRPCRouter({
         start_date: z.date().optional(),
         end_date: z.date().optional(),
         checklist_items: z.array(z.string()).optional(),
-        parent_id: z.number().optional()
+        parent_id: z.number().optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -533,16 +549,64 @@ export const goalsRouter = createTRPCRouter({
         checklist_items: z.array(z.string()).optional(),
       })
     )
-    .mutation(({ ctx, input }) => {
+    .mutation(async ({ ctx, input }) => {
+      await ctx.prisma.$transaction(async (tx) => {
+        const goal = await ctx.prisma.goals.update({
+          where: {
+            id: input.id,
+          },
+          data: {
+            name: input.name,
+            difficulty: input.difficulty,
+            category: input.category,
+            due_date: input.due_date,
+            points: calculateExp(
+              input.difficulty,
+              input.checklist_items?.length,
+              input.due_date,
+              !!input.repeat_type
+            ),
+          },
+        });
 
-      return ctx.prisma.goals.update({
-        where: {
-          id: input.id
-        },
-        data: input
-      })
+        // update repeat data 
+        if (input.repeat_type) {
+          await ctx.prisma.repeatData.update({
+            where: {
+              goal_id: goal.id,
+            },
+            data: {
+              type: input.repeat_type,
+              repeat_frequency: input.repeat_freq,
+              days: input.days_of_week,
+              start_date: input.start_date,
+              stop_date: input.end_date,
+            },
+          });
+        }
+
+        // update checklist data 
+        // TODO: make this smarter so things like completed are not lost
+        if (input.checklist_items) {
+          // delete old 
+          await ctx.prisma.checkListItem.deleteMany({
+            where: {
+              goal_id: input.id
+            }
+          })
+
+          const new_items = input.checklist_items.map((item)=> {return {name: item, completed: false, goal_id: goal.id }})
+          // create new 
+          await ctx.prisma.checkListItem.createMany({
+            data: new_items
+          })
+        }
 
 
+        return goal
+
+
+      });
     }),
   deleteGoal: protectedProcedure
     .input(z.object({ goal_id: z.number() }))
