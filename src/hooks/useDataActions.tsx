@@ -55,10 +55,21 @@ function useDataActions() {
     },
   });
 
+  const update_goal_call = api.goals.updateGoal.useMutation({
+    async onSuccess(data) {
+      await utils.goals.invalidate();
+      data && alert(`${data.name} was updated!!`);
+    },
+    async onError(err) {
+      setErrorPopup(err.message);
+    },
+  });
+
 
   return {
     completeGoal: complete_goal_call,
     addGoal: add_call,
+    updateGoal: update_goal_call,
     gainLevel: gain_level_call,
     createLevel: create_level_call,
     deleteGoal: delete_goal_call,

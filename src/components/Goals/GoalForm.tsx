@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
-import React, { FormEvent, ReactElement,useState } from "react";
+import React, { FormEvent, ReactElement,useEffect,useState } from "react";
 import { DaysOfWeek, GoalCategories, RepeatType } from "~/pages";
 import { api } from "~/utils/api";
 import { convertToUTC } from "~/utils/datetime";
@@ -8,6 +8,8 @@ import useDataActions from "~/hooks/useDataActions";
 
 type GoalFormProps = {
   backlink: string;
+  // used to update existing goals
+  id?: number
 };
 
 const getLeadingZeroFormat = (month_or_day: number) => {
@@ -18,18 +20,47 @@ const getLeadingZeroFormat = (month_or_day: number) => {
   }
 };
 
-function GoalForm({ backlink }: GoalFormProps) {
+function GoalForm({ backlink, id }: GoalFormProps) {
   const utils = api.useContext();
   const [repeating, setRepeating] = useState(false);
 
+  const updateData = api.goals.getGoalById.useQuery({
+    id: id ? id : 0
+  }).data 
+
   // TODO move this stuff into a hook
   const [checklistItems, setChecklistItems] = useState<ReactElement[]>([]);
+
+
+
 
   const [checkListSize, setCheckListSize] = useState(0);
 
   const getSize = () => {
     return checkListSize;
   };
+
+  const updateChecklist = (name: string | undefined) => {
+      setCheckListSize((size) => size + 1);
+      setChecklistItems((items) => [
+        ...items,
+        <CheckListItem
+          key={getSize()}
+          size={getSize()}
+          checkListItems={checklistItems}
+          setCheckListItems={setChecklistItems}
+          name={name}
+        />,
+      ]);
+  }
+
+useEffect(()=> {
+  if (updateData) {
+    updateData.checklist.forEach((item)=> {
+      updateChecklist(item.name)
+    })
+  }
+}, [])
 
   const today = new Date();
   const today_string = `${today.getFullYear()}-${getLeadingZeroFormat(
@@ -38,7 +69,7 @@ function GoalForm({ backlink }: GoalFormProps) {
 
   const router = useRouter();
 
-  const {addGoal} = useDataActions()
+  const {addGoal, updateGoal} = useDataActions()
 
   const createGoal = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -122,7 +153,7 @@ function GoalForm({ backlink }: GoalFormProps) {
           onSubmit={(e) => createGoal(e)}
         >
           <label htmlFor="name">Name</label>
-          <input required={true} id="name" />
+          <input required={true} id="name" value={updateData ? updateData.name : ""}/>
           <label>Checklist Items</label>
           {checklistItems.map((item) => (
             <>{item}</>
@@ -131,23 +162,13 @@ function GoalForm({ backlink }: GoalFormProps) {
             className="rounded-md bg-green-300"
             type="button"
             onClick={() => {
-              setCheckListSize((size) => size + 1);
-              setChecklistItems((items) => [
-                ...items,
-                <CheckListItem
-                  key={getSize()}
-                  size={getSize()}
-                  checkListItems={checklistItems}
-                  setCheckListItems={setChecklistItems}
-                />,
-              ]);
-              console.log(checklistItems);
+              updateChecklist(undefined)
             }}
           >
             Add checklist item
           </button>
           <label htmlFor="category">Category</label>
-          <select id="category">
+          <select id="category" value={updateData ? updateData.category : "Physical"}>
             <option>Physical</option>
             <option>Education</option>
             <option>Social</option>
@@ -162,6 +183,7 @@ function GoalForm({ backlink }: GoalFormProps) {
             max={4}
             required={true}
             id="difficulty"
+            value={updateData ? updateData.difficulty : 1}
           ></input>
           <datalist id="difficulties">
             <option value={1}></option>
@@ -170,13 +192,14 @@ function GoalForm({ backlink }: GoalFormProps) {
             <option value={4}></option>
           </datalist>
           <label htmlFor="due_date">Due Date</label>
-          <input type="date" id="due_date" min={today_string} />
+          <input type="date" id="due_date" min={today_string} value={updateData && updateData.due_date ? updateData.due_date.toDateString() : ""} />
           <div className="flex flex-row space-x-4">
             <label htmlFor="repeating">Repeating</label>
             <input
               type="checkbox"
               id="repeating"
               onChange={() => setRepeating(!repeating)}
+              checked={updateData && updateData.repeat ? true : false}
             />
           </div>
           {repeating ? <RepeatForm repeating={repeating} /> : ""}
@@ -200,12 +223,14 @@ type ChecklistItemProps = {
     >
   >;
   size: number;
+  name?: string
 };
 
 function CheckListItem({
   checkListItems,
   setCheckListItems,
   size,
+  name
 }: ChecklistItemProps) {
   const removeChecklistItem = (key: number) => {
     const newChecklist = checkListItems.filter((item) => item.key != key);
@@ -218,7 +243,7 @@ function CheckListItem({
         type="text"
         id={`checklist_item`}
         name="checklist_item"
-        placeholder="Add item here..."
+        value={name ? name : "Add item here..."}
       />
       <button
         type="button"

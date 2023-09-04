@@ -12,6 +12,7 @@ datasource db {
 
 
 model Goals {
+    parent_id Int?
     id Int @id @default(autoincrement())
     user_id String
     user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
@@ -90,6 +91,7 @@ enum Rarity {
 
 model ShopItem {
     id Int @id @default(autoincrement())
+    parent_id Int?
     inventory Inventory @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
     user_id String
     name String

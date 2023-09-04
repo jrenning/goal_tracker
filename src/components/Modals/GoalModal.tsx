@@ -7,6 +7,9 @@ import { getRepeatTypeString } from '~/utils/goals'
 import { colors } from '~/utils/colors'
 import EditableSection from '../UI/EditableSection'
 import useDataActions from '~/hooks/useDataActions'
+import Link from 'next/link'
+import useModal from '~/hooks/useModal'
+import { useRouter } from 'next/router'
 
 
 export type GoalModalProps = {
@@ -24,6 +27,9 @@ function GoalModal({id}: GoalModalProps) {
     id: id
   }).data
 
+
+  const {closeModal} = useModal()
+  const router = useRouter()
   const delete_call = api.goals.deleteGoal.useMutation();
 
   if (!goal) {
@@ -107,15 +113,23 @@ function GoalModal({id}: GoalModalProps) {
         </div>
       </div>
       <div className="mt-4 flex w-full items-center justify-center space-x-8">
-        <button className="flex shadow-lg border-black border items-center justify-center rounded-md bg-red-300 px-2 py-1 text-3xl font-semibold"
-        onClick={async()=> await delete_call.mutateAsync({
-          goal_id: goal.id
-        })}>
+        <button
+          className="flex items-center justify-center rounded-md border border-black bg-red-300 px-2 py-1 text-3xl font-semibold shadow-lg"
+          onClick={async () =>
+            await delete_call.mutateAsync({
+              goal_id: goal.id,
+            })
+          }
+        >
           Delete
         </button>
-        <button className="flex shadow-lg border-black border items-center justify-center rounded-md bg-green-300 px-2 py-1 text-3xl font-semibold">
-          Save
-        </button>
+          <button className="flex items-center justify-center rounded-md border border-black bg-green-300 px-2 py-1 text-3xl font-semibold shadow-lg"
+          onClick={()=> {
+            closeModal()
+            router.push(`/update_goal/${goal.id}`)
+          }}>
+            Edit
+          </button>
       </div>
     </>
   );

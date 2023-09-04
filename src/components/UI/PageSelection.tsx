@@ -2,13 +2,13 @@ import React from 'react'
 import { HistoryPages } from '~/pages/history';
 
 
-type PageSelectionProps = {
-  names: HistoryPages[];
-  setActive: React.Dispatch<React.SetStateAction<HistoryPages>>;
-  active: HistoryPages
+type PageSelectionProps<T> = {
+  names: any[];
+  setActive: React.Dispatch<React.SetStateAction<any>>;
+  active: any
 };
 
-function PageSelection({names, setActive, active}: PageSelectionProps) {
+function PageSelection<T extends unknown>({names, setActive, active}: PageSelectionProps<T>) {
 
 
 

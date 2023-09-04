@@ -23,6 +23,7 @@ function ShopGrid() {
                 rarity={item.rarity}
                 id={item.id}
                 expire_at={item.expire_at ? item.expire_at : new Date()}
+                type="Shop"
               />
             ))}
           </div>
@@ -89,6 +90,7 @@ function RarityBox({ rarity, items }: RarityBoxProps) {
                   cost={item.cost}
                   rarity={item.rarity}
                   id={item.id}
+                  type="Shop"
                 />
               ))}
             </div>

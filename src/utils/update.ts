@@ -36,6 +36,7 @@ export const updateRepeatingGoals = async (session: Session) => {
             data: {
               //@ts-ignore
               user_id: session.user.id,
+              parent_id: goal.id,
               name: goal.name,
               points: goal.points,
               difficulty: goal.difficulty,
@@ -87,6 +88,7 @@ export const updateRepeatingShopItems = async (session: Session) => {
           await tx.shopItem.create({
             data: {
               user_id: session.user.id,
+              parent_id: item.id,
               name: item.name,
               rarity: item.rarity,
               reward_category: item.reward_category,

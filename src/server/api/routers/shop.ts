@@ -134,6 +134,7 @@ export const shopRouter = createTRPCRouter({
         repeat_freq: z.number().optional(),
         start_date: z.date().optional(),
         end_date: z.date().optional(),
+        parent_id: z.number().optional()
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -142,6 +143,7 @@ export const shopRouter = createTRPCRouter({
         const item = await tx.shopItem.create({
           data: {
             user_id: ctx.session.user.id,
+            parent_id: input.parent_id ? input.parent_id : undefined,
             name: input.name,
             reward_category: input.reward_category,
             rarity: input.rarity,

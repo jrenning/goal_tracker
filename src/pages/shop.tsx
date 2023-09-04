@@ -19,7 +19,7 @@ function shop() {
       {activePage == "Shop" && (
         <>
           <div className="mt-2  flex w-[90%] items-center justify-center border-4 border-dotted">
-            <h1 className="mt-4 text-3xl font-semibold">
+            <h1 className="mt-4 text-3xl font-semibold dark:text-white">
               Welcome to the Shop!
             </h1>
           </div>

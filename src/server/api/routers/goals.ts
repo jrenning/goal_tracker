@@ -402,6 +402,7 @@ export const goalsRouter = createTRPCRouter({
         start_date: z.date().optional(),
         end_date: z.date().optional(),
         checklist_items: z.array(z.string()).optional(),
+        parent_id: z.number().optional()
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -410,6 +411,7 @@ export const goalsRouter = createTRPCRouter({
         const goal = await tx.goals.create({
           data: {
             user_id: ctx.session.user.id,
+            parent_id: input.parent_id ? input.parent_id : undefined,
             name: input.name,
             points: calculateExp(
               input.difficulty,
@@ -516,8 +518,32 @@ export const goalsRouter = createTRPCRouter({
       }
     }),
   updateGoal: protectedProcedure
-    .input(z.object({}))
-    .mutation(({ ctx, input }) => {}),
+    .input(
+      z.object({
+        id: z.number(),
+        name: z.string(),
+        difficulty: z.number(),
+        category: goal_categories,
+        due_date: z.date().optional(),
+        repeat_type: repeat_type.optional(),
+        days_of_week: z.array(days_of_week).optional(),
+        repeat_freq: z.number().optional(),
+        start_date: z.date().optional(),
+        end_date: z.date().optional(),
+        checklist_items: z.array(z.string()).optional(),
+      })
+    )
+    .mutation(({ ctx, input }) => {
+
+      return ctx.prisma.goals.update({
+        where: {
+          id: input.id
+        },
+        data: input
+      })
+
+
+    }),
   deleteGoal: protectedProcedure
     .input(z.object({ goal_id: z.number() }))
     .mutation(({ ctx, input }) => {
