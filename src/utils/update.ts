@@ -27,37 +27,37 @@ export const updateRepeatingGoals = async (session: Session) => {
     );
 
   // add new goal if needed, DON'T ADD REPEATING DATA (avoids never ending tasks)
-  let added_count = 0
+  let added_count = 0;
   if (filteredGoals && session.user) {
     filteredGoals.map(async (goal) => {
-        added_count += 1
-       await prisma.$transaction([
-          prisma.goals.create({
-            data: {
-              //@ts-ignore
-              user_id: session.user.id,
-              parent_id: goal.id,
-              name: goal.name,
-              points: goal.points,
-              difficulty: goal.difficulty,
-              completed: false,
-              category: goal.category,
-            },
-          }),
-          // update repeat date
-          prisma.repeatData.update({
-            where: {
-              goal_id: goal.id,
-            },
-            data: {
-              last_repeated: today,
-            },
-          })
+      added_count += 1;
+      await prisma.$transaction([
+        prisma.goals.create({
+          data: {
+            //@ts-ignore
+            user_id: session.user.id,
+            parent_id: goal.id,
+            name: goal.name,
+            points: goal.points,
+            difficulty: goal.difficulty,
+            completed: false,
+            category: goal.category,
+          },
+        }),
+        // update repeat date
+        prisma.repeatData.update({
+          where: {
+            goal_id: goal.id,
+          },
+          data: {
+            last_repeated: today,
+          },
+        }),
       ]);
     });
   }
-  return added_count
-}
+  return added_count;
+};
 
 export const updateRepeatingShopItems = async (session: Session) => {
   const today = new Date();
@@ -77,12 +77,12 @@ export const updateRepeatingShopItems = async (session: Session) => {
       (item) =>
         item.repeat?.last_repeated?.toDateString() != today.toDateString()
     );
-  
+
   // add new item if needed, DON'T ADD REPEATING DATA (avoids never ending tasks)
-  let added_count = 0
+  let added_count = 0;
   if (filteredItems && session.user) {
     filteredItems.map(async (item) => {
-      added_count += 1
+      added_count += 1;
       await prisma.$transaction(async (tx) => {
         if (session.user) {
           await tx.shopItem.create({
@@ -109,5 +109,6 @@ export const updateRepeatingShopItems = async (session: Session) => {
       });
     });
   }
-  return added_count
+  return added_count;
 };
+

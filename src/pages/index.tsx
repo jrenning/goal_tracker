@@ -26,6 +26,7 @@ import { authOptions } from "./api/auth/[...nextauth]";
 import { Session } from "next-auth";
 import { rarities } from "~/server/api/routers/shop";
 import CreateLevels from "~/components/UI/Utility/CreateLevels";
+import { updateBadgeNumber } from "~/utils/notifications";
 
 export type GoalCategories = z.infer<typeof goal_categories>;
 export type RewardCategories = z.infer<typeof reward_categories>;
@@ -63,6 +64,16 @@ export default function Home() {
       subscriptionModal();
     }
   }, [subscription_data]);
+
+  const number = api.goals.getCurrentGoals.useQuery().data?.length
+
+  useEffect(()=> {
+    if (number) {
+      updateBadgeNumber(number);
+    }
+    
+  }, [number])
+
 
   return (
     <div className="darK:bg-[#121212]">
