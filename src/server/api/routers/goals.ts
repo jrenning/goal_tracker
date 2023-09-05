@@ -550,7 +550,7 @@ export const goalsRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      await ctx.prisma.$transaction(async (tx) => {
+      return await ctx.prisma.$transaction(async (tx) => {
         const goal = await ctx.prisma.goals.update({
           where: {
             id: input.id,
@@ -571,18 +571,30 @@ export const goalsRouter = createTRPCRouter({
 
         // update repeat data 
         if (input.repeat_type) {
-          await ctx.prisma.repeatData.update({
-            where: {
-              goal_id: goal.id,
-            },
-            data: {
-              type: input.repeat_type,
-              repeat_frequency: input.repeat_freq,
-              days: input.days_of_week,
-              start_date: input.start_date,
-              stop_date: input.end_date,
-            },
-          });
+          await ctx.prisma.repeatData
+            .upsert({
+              where: {
+                goal_id: input.id,
+              },
+              update: {
+                  type: input.repeat_type,
+                  repeat_frequency: input.repeat_freq,
+                  days: input.days_of_week,
+                  start_date: input.start_date,
+                  stop_date: input.end_date,
+              },
+              create: {
+                goal_id: input.id,
+                type: input.repeat_type,
+                repeat_frequency: input.repeat_freq,
+                days: input.days_of_week,
+                start_date: input.start_date,
+                stop_date: input.end_date,
+              }
+            })
+            .catch((err) => {
+              throw new TRPCError(err);
+            });
         }
 
         // update checklist data 

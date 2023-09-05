@@ -447,3 +447,93 @@ test("Test completing a goal", async () => {
     // TODO add check for point data addition
   }
 });
+
+describe("Test updating goals", ()=> {
+  test("Test updating basic info", async ()=> {
+    const goal = await caller.goals.addGoal({
+      name: "Test Update 1",
+      category: "Physical",
+      difficulty: 2,
+      due_date: new Date(2020, 2, 2)
+    })
+
+    const updated_data = {
+      id:  goal && goal.id ? goal.id : 0,
+      name: "Updated name",
+      difficulty: 2,
+      category: "Hobby",
+      due_date: new Date(2020, 1, 1)
+    }
+    //@ts-ignore
+    const data = await caller.goals.updateGoal(updated_data)
+
+    expect(data.name).toBe(updated_data.name)
+    expect(data.difficulty).toBe(updated_data.difficulty)
+    expect(data.category).toBe(updated_data.category)
+    expect(data.due_date).toStrictEqual(updated_data.due_date)
+  })
+
+  test("Test updating repeating part of a goal", async ()=> {
+        const goal = await caller.goals.addGoal({
+          name: "Test Update 2",
+          category: "Physical",
+          difficulty: 2,
+          repeat_type: "Weekly",
+          repeat_freq: 2,
+          days_of_week: ["Monday", "Wednesday"]
+        });
+
+        const updated_data = {
+          id: goal && goal.id ? goal.id : 0,
+          repeat_type: "Weekly",
+          repeat_freq: 1,
+          days_of_week: ["Sunday", "Tuesday"]
+        };
+        //@ts-ignore
+        await caller.goals.updateGoal({
+          id: updated_data.id,
+          name: "Updated name",
+          difficulty: 2,
+          category: "Hobby",
+          repeat_type: "Weekly",
+          repeat_freq: 1,
+          days_of_week: ["Sunday", "Tuesday"],
+        });
+
+        // get updated data 
+        const data = await caller.goals.getGoalById({
+          id: goal ? goal.id : 0
+        })
+
+        expect(data?.repeat?.type).toBe(updated_data.repeat_type);
+        expect(data?.repeat?.repeat_frequency).toBe(updated_data.repeat_freq);
+        expect(data?.repeat?.days).toStrictEqual(updated_data.days_of_week);
+  })
+
+  test("Test updating checklist", async ()=> {
+            const goal = await caller.goals.addGoal({
+              name: "Test Update 3",
+              category: "Physical",
+              difficulty: 2,
+              due_date: new Date(2020, 2, 2),
+              checklist_items: ["Hello", "World"]
+            });
+
+            const updated_data = {
+              id: goal && goal.id ? goal.id : 0,
+              name: "Updated name",
+              difficulty: 2,
+              category: "Hobby",
+              checklist_items: ["Never", "Again"],
+            };
+            //@ts-ignore
+            await caller.goals.updateGoal(updated_data);
+
+            // get updated data
+            const data = await caller.goals.getGoalById({
+              id: goal ? goal.id : 0,
+            });
+
+            expect(data?.checklist.map((item)=> item.name)).toStrictEqual(updated_data.checklist_items)
+  })
+})
