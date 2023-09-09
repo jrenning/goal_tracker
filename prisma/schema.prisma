@@ -138,6 +138,11 @@ model Rewards {
     reward_category RewardCategories[]
     created_at DateTime @default(now())
     achieved_at DateTime?
+    common_cards Int @default(0)
+    rare_cards Int @default(0)
+    epic_cards Int @default(0)
+    legendary_cards Int @default(0)
+
     @@id([user_id, level, category])
 }
 
@@ -145,6 +150,7 @@ model Levels {
     number Int @id
     created_at DateTime @default(now())
     points Int
+    coins Int @default(100)
 }
 
 

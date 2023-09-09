@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import GoalModal, { GoalModalProps } from "~/components/Modals/GoalModal";
 import LevelUp, { LevelUpProps } from "~/components/Modals/LevelUp";
 import LoginModal from "~/components/Modals/LoginModal";
+import RewardModal, { RewardModalProps } from "~/components/Modals/RewardModal";
 import SubscriptionButton from "~/components/UI/SubscriptionButton";
 import { GoalCategories } from "~/pages";
 import { ModalContext } from "~/pages/_app";
@@ -61,6 +62,18 @@ function useModal() {
     }
 
 
+  const rewardModal = ({category}: RewardModalProps) => {
+    const color = colors[category]
+    setModal &&
+      setModal({
+        title: `${category} Rewards`,
+        content: <RewardModal category={category} />,
+        isOpen: true,
+        backgroundColor: color ? color : "#ADD8E6",
+      });
+  }
+
+
       interface LevelUpModalProps extends LevelUpProps {
         goal_category: GoalCategories | undefined
       }
@@ -88,6 +101,7 @@ function useModal() {
     loginModal: loginModal,
     subscriptionModal: subscriptionModal,
     goalModal: goalModal,
+    rewardModal: rewardModal,
     levelUpModal: levelUpModal
   };
 }

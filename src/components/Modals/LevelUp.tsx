@@ -1,5 +1,5 @@
 import React from "react";
-import Reward from "./RewardModal";
+import Reward from "../Rewards/Reward";
 
 export type LevelUpProps = {
   level: number;

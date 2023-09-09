@@ -2,7 +2,7 @@ import React from "react";
 import PopupTransitionLayout from "~/components/Transitions/PopupTransitionLayout";
 import RewardForm from "~/components/Rewards/RewardForm";
 import { getServerSession } from "next-auth";
-import { authOptions } from "./api/auth/[...nextauth]";
+import { authOptions } from "../api/auth/[...nextauth]";
 
 function add_reward() {
   return (

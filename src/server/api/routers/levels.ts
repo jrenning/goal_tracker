@@ -175,4 +175,12 @@ export const levelRouter = createTRPCRouter({
   deleteAllLevels: protectedProcedure.mutation(async ({ ctx }) => {
     await ctx.prisma.levels.deleteMany();
   }),
+  getMaxLevel: protectedProcedure
+  .query(({ctx})=> {
+    return ctx.prisma.levels.aggregate({
+      _max: {
+        number: true
+      }
+    })   
+  })
 });
