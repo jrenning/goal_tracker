@@ -6,9 +6,11 @@ import { api } from "~/utils/api";
 
 type RewardFormProps = {
   backlink: string
+  category?: GoalCategories,
+  level?: number
 };
 
-function RewardForm({ backlink }: RewardFormProps) {
+function RewardForm({ backlink, category, level }: RewardFormProps) {
     const router = useRouter()
   const reward_creation_call = api.rewards.createReward.useMutation({
     async onSuccess (data) {
@@ -59,15 +61,15 @@ function RewardForm({ backlink }: RewardFormProps) {
             <option>Experience</option>
           </select>
           <label htmlFor="goal_category">Goal Category</label>
-          <select id="goal_category">
+          <select id="goal_category" defaultValue={category ? category : "Physical"}>
             <option>Physical</option>
             <option>Education</option>
             <option>Social</option>
             <option>Hobby</option>
-            <option>Odd Job</option>
+            <option>Career</option>
           </select>
           <label htmlFor="level">Level</label>
-          <input type="number" required={true} id="level" className="text-center font-semibold"></input>
+          <input type="number" defaultValue={level ? level : ""} required={true} id="level" className="text-center font-semibold"></input>
           <button
             type="submit"
             className=" rounded-md bg-green-200 px-4 py-[5px] hover:opacity-70"

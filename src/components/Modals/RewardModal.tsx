@@ -4,6 +4,8 @@ import { api } from "~/utils/api";
 import { ExpIcon } from "../Rewards/RewardTooltip";
 import { colors } from "~/utils/colors";
 import Link from "next/link";
+import useModal from "~/hooks/useModal";
+import { useRouter } from "next/router";
 
 export type RewardModalProps = {
   category: GoalCategories;
@@ -11,6 +13,8 @@ export type RewardModalProps = {
 
 function RewardModal({ category }: RewardModalProps) {
   const max_level = api.levels.getMaxLevel.useQuery().data?._max.number;
+
+
 
   const levels = [];
   if (max_level) {
@@ -39,6 +43,9 @@ function LevelRewards({ level, category }: LevelRewardProps) {
   const reward_data = api.levels.getLevel.useQuery({ level: level }).data;
   const specific_reward_data = api.rewards.getLevelRewardsQ.useQuery({level: level, category: category}).data
 
+    const { closeModal } = useModal();
+    const router = useRouter();
+
   return (
     <div className="flex flex-row space-x-4 rounded-md bg-slate-100 p-4">
       <div className="text-3xl font-bold">{level}</div>
@@ -53,12 +60,19 @@ function LevelRewards({ level, category }: LevelRewardProps) {
       <CardIcon number={specific_reward_data?.common_cards} type="Common" />
       <CardIcon number={specific_reward_data?.rare_cards} type="Rare" />
       <CardIcon number={specific_reward_data?.epic_cards} type="Epic" />
-      <CardIcon number={specific_reward_data?.legendary_cards} type="Legendary" />
-      <Link href="/add_reward">
-        <button className="flex h-8 w-8 items-center justify-center rounded-full bg-green-300 shadow-lg">
+      <CardIcon
+        number={specific_reward_data?.legendary_cards}
+        type="Legendary"
+      />
+        <button
+          className="flex h-8 w-8 items-center justify-center rounded-full bg-green-300 shadow-lg"
+          onClick={() => {
+            router.push(`/add_reward/${level}-${category}`)
+            closeModal()
+          }}
+        >
           +
         </button>
-      </Link>
     </div>
   );
 }

@@ -265,7 +265,7 @@ function CheckListItem({
         type="text"
         id={`checklist_item`}
         name="checklist_item"
-        value={name ? name : "Add item here..."}
+        defaultValue={name ? name : ""}
       />
       <button
         type="button"

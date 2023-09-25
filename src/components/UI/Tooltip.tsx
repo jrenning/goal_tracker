@@ -19,7 +19,7 @@ function Tooltip({
 
   const tooltip = (
     <>
-      <div className="absolute z-50">
+      <div className="absolute z-50 flex">
           <div
             className="mx-2 flex p-4 rounded-lg bg-gray-200 shadow-md md:mx-[25%]"
             style={{ backgroundColor: backgroundColor }}

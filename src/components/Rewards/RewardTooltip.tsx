@@ -27,7 +27,7 @@ if (get_specific_rewards) {
   return (
     <Tooltip
       content={
-        <div>
+        <div className='w-full'>
           <div className="text-xs font-semibold">Next rewards: </div>
           <div className="flex w-full flex-row items-center space-x-2 font-semibold">
             <div>{get_rewards?.points}</div>
